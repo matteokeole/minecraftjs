@@ -18,7 +18,7 @@ const Database = {
 		}, {
 			id: "3:2",
 			name: "minecraft:podzol",
-			textures: ["podzol_side", "podzol_side", "podzol_top", "podzol_bottom", "podzol_side", "podzol_side"]
+			textures: ["podzol_side", "podzol_side", "podzol_top", "dirt", "podzol_side", "podzol_side"]
 	}]
 },
 scene = new THREE.Scene(),
@@ -43,10 +43,12 @@ Block = function(id, x, y, z) {
 						return m
 					});
 				this.mesh = new THREE.Mesh(geometry, material);
-				scene.add(this.mesh);
 				this.mesh.position.x = this.x;
 				this.mesh.position.y = this.y - 10;
-				this.mesh.position.z = this.z
+				this.mesh.position.z = this.z;
+				this.mesh.castShadow = true;
+				this.mesh.receiveShadow = true;
+				scene.add(this.mesh)
 			}
 		}
 	}
@@ -278,6 +280,10 @@ scene.background = new THREE.Color(0x1b4745);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+const test = new Block("1", 22.5, 35, 22.5);
+scene.add(test);
+test.display();
+
 // Event listeners
 addEventListener("click", () => {controls.lock()});
 addEventListener("keydown", e => {
@@ -299,7 +305,7 @@ addEventListener("resize", resize);
 // Generate chunks
 camera.position.x = renderDistance * chunkSize / 2 * 5;
 camera.position.z = renderDistance * chunkSize / 2 * 5;
-camera.position.y = 50;
+camera.position.y = 20;
 for (let i = 0; i < renderDistance; i++) {
 	let chunk = [];
 	for (let j = 0; j < renderDistance; j++) {
