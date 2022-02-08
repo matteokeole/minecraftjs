@@ -7,24 +7,34 @@ const scene = new THREE.Scene(),
 	controls = new THREE.PointerLockControls(camera, document.body),
 	movingSpeed = .15,
 	acc = .006,
+	loader = new THREE.TextureLoader(),
 	Block = function(x, y, z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.display = function() {
 			const blockGeometry = new THREE.BoxBufferGeometry(5, 5, 5),
-				blockMaterial = new THREE.MeshBasicMaterial({color: 0x000000}),
-				block = new THREE.Mesh(blockGeometry, blockMaterial);
+				blockMaterial = [
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_top.png")}),
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_bottom.png")}),
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
+					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
+				];
+			blockMaterial.forEach(e => {e.magFilter = THREE.NearestFilter});
+			blockMaterial.forEach(e => {e.minFilter = THREE.LinearMipMapLinearFilter});
+			const block = new THREE.Mesh(blockGeometry, blockMaterial),
+				edges = new THREE.EdgesGeometry(blockGeometry),
+				line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
 			scene.add(block);
 			block.position.x = this.x;
 			block.position.y = this.y - 10;
 			block.position.z = this.z;
-			const edges = new THREE.EdgesGeometry(blockGeometry),
-				line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0xffffff}));
-			scene.add(line);
+			/*scene.add(line);
 			line.position.x = this.x;
 			line.position.y = this.y - 10;
-			line.position.z = this.z
+			line.position.z = this.z*/
 		}
 	},
 	render = () => {renderer.render(scene, camera)},
@@ -34,21 +44,92 @@ const scene = new THREE.Scene(),
 		render()
 	},
 	update = () => {
-		if (keys.includes("z")) controls.moveForward(movingSpeed);
-		if (keys.includes("q")) controls.moveRight(-1 * movingSpeed);
-		if (keys.includes("s")) controls.moveForward(-1 * movingSpeed);
-		if (keys.includes("d")) controls.moveRight(movingSpeed);
+		// Z key
+		if (keys.includes("z")) {
+			controls.moveForward(movingSpeed);
+			if (!settings.autojump) {
+				for (let i = 0; i < blocks.length; i++) {
+					if (
+						camera.position.x <= blocks[i].x + 2.5 &&
+						camera.position.x >= blocks[i].x - 2.5 &&
+						camera.position.z <= blocks[i].z + 2.5 &&
+						camera.position.z >= blocks[i].z - 2.5
+					) {
+						if (camera.position.y == blocks[i].y - 2.5) {
+							controls.moveForward(-1 * movingSpeed);
+						}
+					}
+				}
+			}
+		}
+		// Q key
+		if (keys.includes("q")) {
+			controls.moveRight(-1 * movingSpeed);
+			if (!settings.autojump) {
+				for (let i = 0; i < blocks.length; i++) {
+					if (
+						camera.position.x <= blocks[i].x + 2.5 &&
+						camera.position.x >= blocks[i].x - 2.5 &&
+						camera.position.z <= blocks[i].z + 2.5 &&
+						camera.position.z >= blocks[i].z - 2.5
+					) {
+						if (camera.position.y == blocks[i].y - 2.5) {
+							controls.moveRight(movingSpeed);
+						}
+					}
+				}
+			}
+		}
+		// S key
+		if (keys.includes("s")) {
+			controls.moveForward(-1 * movingSpeed);
+			if (!settings.autojump) {
+				for (let i = 0; i < blocks.length; i++) {
+					if (
+						camera.position.x <= blocks[i].x + 2.5 &&
+						camera.position.x >= blocks[i].x - 2.5 &&
+						camera.position.z <= blocks[i].z + 2.5 &&
+						camera.position.z >= blocks[i].z - 2.5
+					) {
+						if (camera.position.y == blocks[i].y - 2.5) {
+							controls.moveForward(movingSpeed);
+						}
+					}
+				}
+			}
+		}
+		// D key
+		if (keys.includes("d")) {
+			controls.moveRight(movingSpeed);
+			if (!settings.autojump) {
+				for (let i = 0; i < blocks.length; i++) {
+					if (
+						camera.position.x <= blocks[i].x + 2.5 &&
+						camera.position.x >= blocks[i].x - 2.5 &&
+						camera.position.z <= blocks[i].z + 2.5 &&
+						camera.position.z >= blocks[i].z - 2.5
+					) {
+						if (camera.position.y == blocks[i].y - 2.5) {
+							controls.moveRight(-1 * movingSpeed);
+						}
+					}
+				}
+			}
+		}
 		camera.position.y -= ySpeed;
 		ySpeed += acc;
 		for (let i = 0; i < blocks.length; i++) {
 			if (
-				camera.position.x <= blocks[i].x + 5 &&
-				camera.position.x >= blocks[i].x - 5 &&
-				camera.position.z <= blocks[i].z + 5 &&
-				camera.position.z >= blocks[i].z - 5
+				camera.position.x <= blocks[i].x + 2.5 &&
+				camera.position.x >= blocks[i].x - 2.5 &&
+				camera.position.z <= blocks[i].z + 2.5 &&
+				camera.position.z >= blocks[i].z - 2.5
 			) {
-				if (camera.position.y < blocks[i].y) {
-					camera.position.y = blocks[i].y;
+				if (
+					camera.position.y <= blocks[i].y + 2.5 &&
+					camera.position.y >= blocks[i].y - 2.5
+				) {
+					camera.position.y = blocks[i].y + 2.5;
 					ySpeed = 0;
 					canJump = true;
 					break
@@ -60,22 +141,29 @@ const scene = new THREE.Scene(),
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix()
+	},
+	toggleAutojump = e => {
+		settings.autojump = !settings.autojump;
+		e.textContent = `Autojump: ${settings.autojump ? "ON" : "OFF"}`
 	};
 let keys = [],
 	ySpeed = 0,
-	canJump = true;
+	canJump = true,
+	settings = {
+		autojump: false
+	};
 
 // Set renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Event listeners
-addEventListener("mousedown", () => {controls.lock()});
+addEventListener("click", () => {controls.lock()});
 addEventListener("keydown", e => {
 	keys.push(e.key);
 	if (e.key === " " && canJump) {
 		canJump = false;
-		ySpeed = -0.28
+		ySpeed = -.28
 	}
 });
 addEventListener("keyup", e => {
@@ -93,9 +181,9 @@ const blocks = [],
 	inc = 0.05;
 let xOff = 0,
 	zOff = 0;
-for (let x = 0; x < 20; x++) {
+for (let x = -10; x < 10; x++) {
 	xOff = 0;
-	for (let z = 0; z < 20; z++) {
+	for (let z = -10; z < 10; z++) {
 		blocks.push(new Block(
 			x * 5,
 			Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
