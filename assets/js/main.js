@@ -1,157 +1,278 @@
-// Set a random Perlin noise seed
+// Set random Perlin noise seed for the terrain generation
 noise.seed(Math.random());
 
-const scene = new THREE.Scene(),
-	renderer = new THREE.WebGLRenderer(),
-	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000),
-	controls = new THREE.PointerLockControls(camera, document.body),
-	movingSpeed = .15,
-	acc = .006,
-	loader = new THREE.TextureLoader(),
-	Block = function(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.display = function() {
-			const blockGeometry = new THREE.BoxBufferGeometry(5, 5, 5),
-				blockMaterial = [
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_top.png")}),
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_bottom.png")}),
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
-					new THREE.MeshBasicMaterial({map: loader.load("assets/textures/block/grass_block_side.png")}),
-				];
-			blockMaterial.forEach(e => {e.magFilter = THREE.NearestFilter});
-			blockMaterial.forEach(e => {e.minFilter = THREE.LinearMipMapLinearFilter});
-			const block = new THREE.Mesh(blockGeometry, blockMaterial),
-				edges = new THREE.EdgesGeometry(blockGeometry),
-				line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
-			scene.add(block);
-			block.position.x = this.x;
-			block.position.y = this.y - 10;
-			block.position.z = this.z;
-			/*scene.add(line);
-			line.position.x = this.x;
-			line.position.y = this.y - 10;
-			line.position.z = this.z*/
+// Init
+const Database = {
+	blocks: [{
+			id: "1",
+			name: "minecraft:stone",
+			textures: ["stone", "stone", "stone", "stone", "stone", "stone"]
+		}, {
+			id: "2",
+			name: "minecraft:grass",
+			textures: ["grass_block_side", "grass_block_side", "grass_block_top", "grass_block_bottom", "grass_block_side", "grass_block_side"]
+		}, {
+			id: "3",
+			name: "minecraft:dirt",
+			textures: ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt"]
+		}, {
+			id: "3:2",
+			name: "minecraft:podzol",
+			textures: ["podzol_side", "podzol_side", "podzol_top", "podzol_bottom", "podzol_side", "podzol_side"]
+	}]
+},
+scene = new THREE.Scene(),
+renderer = new THREE.WebGLRenderer(),
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000),
+loader = new THREE.TextureLoader(),
+controls = new THREE.PointerLockControls(camera, document.body),
+Block = function(id, x, y, z) {
+	// Block constructor
+	this.id = id;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.mesh;
+	this.display = function() {
+		for (let block of Database.blocks) {
+			if (block.id === this.id) {
+				const geometry = new THREE.BoxGeometry(5, 5, 5),
+					material = block.textures.map(texture => {
+						let m = new THREE.MeshBasicMaterial({map: loader.load(`assets/textures/block/${texture}.png`)});
+						m.map.magFilter = THREE.NearestFilter;
+						return m
+					});
+				this.mesh = new THREE.Mesh(geometry, material);
+				scene.add(this.mesh);
+				this.mesh.position.x = this.x;
+				this.mesh.position.y = this.y - 10;
+				this.mesh.position.z = this.z
+			}
 		}
-	},
-	render = () => {renderer.render(scene, camera)},
-	loop = () => {
-		requestAnimationFrame(loop);
-		update();
-		render()
-	},
-	update = () => {
-		// Z key
-		if (keys.includes("z")) {
-			controls.moveForward(movingSpeed);
-			if (!settings.autojump) {
-				for (let i = 0; i < blocks.length; i++) {
+	}
+},
+getLowestBlockX = () => {
+	let pos = [];
+	for (let i = 0; i < chunks.length; i++) {
+		for (let j = 0; j < chunks.length; j++) {
+			pos.push(chunks[i][j].x)
+		}
+	}
+	return Math.min.apply(null, pos)
+},
+getHighestBlockX = () => {
+	let pos = [];
+	for (let i = 0; i < chunks.length; i++) {
+		for (let j = 0; j < chunks.length; j++) {
+			pos.push(chunks[i][j].x)
+		}
+	}
+	return Math.max.apply(null, pos)
+},
+getLowestBlockZ = () => {
+	let pos = [];
+	for (let i = 0; i < chunks.length; i++) {
+		for (let j = 0; j < chunks.length; j++) {
+			pos.push(chunks[i][j].z)
+		}
+	}
+	return Math.min.apply(null, pos)
+},
+getHighestBlockZ = () => {
+	let pos = [];
+	for (let i = 0; i < chunks.length; i++) {
+		for (let j = 0; j < chunks.length; j++) {
+			pos.push(chunks[i][j].z)
+		}
+	}
+	return Math.max.apply(null, pos)
+},
+render = () => {renderer.render(scene, camera)},
+loop = () => {
+	requestAnimationFrame(loop);
+	update();
+	render()
+},
+update = () => {
+	// Forward key
+	if (keys.includes("z")) {
+		controls.moveForward(movingSpeed);
+		if (!settings.autojump) {
+			for (let i = 0; i < chunks.length; i++) {
+				for (let j = 0; j < chunks[i].length; j++) {
 					if (
-						camera.position.x <= blocks[i].x + 2.5 &&
-						camera.position.x >= blocks[i].x - 2.5 &&
-						camera.position.z <= blocks[i].z + 2.5 &&
-						camera.position.z >= blocks[i].z - 2.5
+						camera.position.x <= chunks[i][j].x + 2.5 &&
+						camera.position.x >= chunks[i][j].x - 2.5 &&
+						camera.position.z <= chunks[i][j].z + 2.5 &&
+						camera.position.z >= chunks[i][j].z - 2.5
 					) {
-						if (camera.position.y == blocks[i].y - 2.5) {
-							controls.moveForward(-1 * movingSpeed);
+						if (camera.position.y == chunks[i][j].y - 2.5) {
+							controls.moveForward(-movingSpeed)
 						}
 					}
 				}
 			}
 		}
-		// Q key
-		if (keys.includes("q")) {
-			controls.moveRight(-1 * movingSpeed);
-			if (!settings.autojump) {
-				for (let i = 0; i < blocks.length; i++) {
+	}
+	// Left key
+	if (keys.includes("q")) {
+		controls.moveRight(-movingSpeed);
+		if (!settings.autojump) {
+			for (let i = 0; i < chunks.length; i++) {
+				for (let j = 0; j < chunks[i].length; j++) {
 					if (
-						camera.position.x <= blocks[i].x + 2.5 &&
-						camera.position.x >= blocks[i].x - 2.5 &&
-						camera.position.z <= blocks[i].z + 2.5 &&
-						camera.position.z >= blocks[i].z - 2.5
+						camera.position.x <= chunks[i][j].x + 2.5 &&
+						camera.position.x >= chunks[i][j].x - 2.5 &&
+						camera.position.z <= chunks[i][j].z + 2.5 &&
+						camera.position.z >= chunks[i][j].z - 2.5
 					) {
-						if (camera.position.y == blocks[i].y - 2.5) {
-							controls.moveRight(movingSpeed);
+						if (camera.position.y == chunks[i][j].y - 2.5) {
+							controls.moveRight(movingSpeed)
 						}
 					}
 				}
 			}
 		}
-		// S key
-		if (keys.includes("s")) {
-			controls.moveForward(-1 * movingSpeed);
-			if (!settings.autojump) {
-				for (let i = 0; i < blocks.length; i++) {
+	}
+	// Backward key
+	if (keys.includes("s")) {
+		controls.moveForward(-movingSpeed);
+		if (!settings.autojump) {
+			for (let i = 0; i < chunks.length; i++) {
+				for (let j = 0; j < chunks[i].length; j++) {
 					if (
-						camera.position.x <= blocks[i].x + 2.5 &&
-						camera.position.x >= blocks[i].x - 2.5 &&
-						camera.position.z <= blocks[i].z + 2.5 &&
-						camera.position.z >= blocks[i].z - 2.5
+						camera.position.x <= chunks[i][j].x + 2.5 &&
+						camera.position.x >= chunks[i][j].x - 2.5 &&
+						camera.position.z <= chunks[i][j].z + 2.5 &&
+						camera.position.z >= chunks[i][j].z - 2.5
 					) {
-						if (camera.position.y == blocks[i].y - 2.5) {
-							controls.moveForward(movingSpeed);
+						if (camera.position.y == chunks[i][j].y - 2.5) {
+							controls.moveForward(movingSpeed)
 						}
 					}
 				}
 			}
 		}
-		// D key
-		if (keys.includes("d")) {
-			controls.moveRight(movingSpeed);
-			if (!settings.autojump) {
-				for (let i = 0; i < blocks.length; i++) {
+	}
+	// Right key
+	if (keys.includes("d")) {
+		controls.moveRight(movingSpeed);
+		if (!settings.autojump) {
+			for (let i = 0; i < chunks.length; i++) {
+				for (let j = 0; j < chunks[i].length; j++) {
 					if (
-						camera.position.x <= blocks[i].x + 2.5 &&
-						camera.position.x >= blocks[i].x - 2.5 &&
-						camera.position.z <= blocks[i].z + 2.5 &&
-						camera.position.z >= blocks[i].z - 2.5
+						camera.position.x <= chunks[i][j].x + 2.5 &&
+						camera.position.x >= chunks[i][j].x - 2.5 &&
+						camera.position.z <= chunks[i][j].z + 2.5 &&
+						camera.position.z >= chunks[i][j].z - 2.5
 					) {
-						if (camera.position.y == blocks[i].y - 2.5) {
-							controls.moveRight(-1 * movingSpeed);
+						if (camera.position.y == chunks[i][j].y - 2.5) {
+							controls.moveRight(-movingSpeed)
 						}
 					}
 				}
 			}
 		}
-		camera.position.y -= ySpeed;
-		ySpeed += acc;
-		for (let i = 0; i < blocks.length; i++) {
+	}
+	camera.position.y -= ySpeed;
+	ySpeed += acc;
+	for (let i = 0; i < chunks.length; i++) {
+		for (let j = 0; j < chunks[i].length; j++) {
 			if (
-				camera.position.x <= blocks[i].x + 2.5 &&
-				camera.position.x >= blocks[i].x - 2.5 &&
-				camera.position.z <= blocks[i].z + 2.5 &&
-				camera.position.z >= blocks[i].z - 2.5
+				camera.position.x <= chunks[i][j].x + 2.5 &&
+				camera.position.x >= chunks[i][j].x - 2.5 &&
+				camera.position.z <= chunks[i][j].z + 2.5 &&
+				camera.position.z >= chunks[i][j].z - 2.5
 			) {
 				if (
-					camera.position.y <= blocks[i].y + 2.5 &&
-					camera.position.y >= blocks[i].y - 2.5
+					camera.position.y <= chunks[i][j].y + 2.5 &&
+					camera.position.y >= chunks[i][j].y - 2.5
 				) {
-					camera.position.y = blocks[i].y + 2.5;
+					camera.position.y = chunks[i][j].y + 2.5;
 					ySpeed = 0;
 					canJump = true;
 					break
 				}
 			}
 		}
-	},
-	resize = () => {
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix()
-	},
-	toggleAutojump = e => {
-		settings.autojump = !settings.autojump;
-		e.textContent = `Autojump: ${settings.autojump ? "ON" : "OFF"}`
-	};
-let keys = [],
+	}
+	// Infinite terrain genetation
+	if (camera.position.z <= getLowestBlockZ() + 15) {
+		// 15 = 3 blocks
+		/*
+			[0], [3], [6],
+			[1], [x], [7],
+			[2], [5], [8]
+		*/
+		// Remove chunks behind the player
+		for (let i = 0; i < chunks.length; i++) {
+			if ((i + 1) % renderDistance == 0) {
+				for (let j = 0; j < chunks[i].length; j++) {
+					scene.remove(chunks[i][j].mesh)
+				}
+			}
+		}
+		// Add new chunks in front of the player
+		let newChunks = [];
+		for (let i = 0; i < chunks.length; i++) {
+			if ((i + 1) % renderDistance != 0) {
+				newChunks.push(chunks[i])
+			}
+		}
+		// Add blocks
+		let lowestX = getLowestBlockX();
+			lowestZ = getLowestBlockZ();
+		for (let i = 0; i < renderDistance; i++) {
+			let chunk = [];
+			for (let x = lowestX + (i * chunkSize * 5); x < lowestX + (i * chunkSize * 5) + (chunkSize * 5); x += 5) {
+				for (let z = lowestZ - (chunkSize * 5); z < lowestZ; z += 5) {
+					xOff = inc * x / 5;
+					zOff = inc * z / 5;
+					chunk.push(new Block(
+						"3:2",
+						x,
+						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
+						z
+					))
+				}
+			}
+			newChunks.splice(i * renderDistance, 0, chunk)
+		}
+		chunks = newChunks;
+		for (let i = 0; i < chunks.length; i++) {
+			if (i % renderDistance == 0) {
+				for (let j = 0; j < chunks[i].length; j++) {
+					chunks[i][j].display()
+				}
+			}
+		}
+	}
+},
+resize = () => {
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix()
+},
+toggleAutojump = button => {
+	// Toggle autojump setting
+	settings.autojump = !settings.autojump;
+	button.textContent = `Autojump: ${settings.autojump ? "ON" : "OFF"}`
+};
+// Game variables
+let amplitude = 30 + (Math.random() * 70),
+	inc = 0.05,
+	keys = [],
+	movingSpeed = .15,
+	acc = .006,
 	ySpeed = 0,
 	canJump = true,
-	settings = {
-		autojump: false
-	};
+	chunks = [],
+	chunkSize = 3,
+	renderDistance = 3,
+	settings = {autojump: false};
+
+// Set scene background color
+scene.background = new THREE.Color(0x1b4745);
 
 // Set renderer size
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -175,27 +296,35 @@ addEventListener("keyup", e => {
 });
 addEventListener("resize", resize);
 
-// Create blocks
-const blocks = [],
-	amplitude = 100,
-	inc = 0.05;
-let xOff = 0,
-	zOff = 0;
-for (let x = -10; x < 10; x++) {
-	xOff = 0;
-	for (let z = -10; z < 10; z++) {
-		blocks.push(new Block(
-			x * 5,
-			Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-			z * 5
-		));
-		xOff += inc
+// Generate chunks
+camera.position.x = renderDistance * chunkSize / 2 * 5;
+camera.position.z = renderDistance * chunkSize / 2 * 5;
+camera.position.y = 50;
+for (let i = 0; i < renderDistance; i++) {
+	let chunk = [];
+	for (let j = 0; j < renderDistance; j++) {
+		for (let x = (i * chunkSize); x < (i * chunkSize) + chunkSize; x++) {
+			for (let z = (j * chunkSize); z < (j * chunkSize) + chunkSize; z++) {
+				xOff = inc * x;
+				zOff = inc * z;
+				chunk.push(new Block(
+					"3:2",
+					x * 5,
+					Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
+					z * 5
+				))
+			}
+		}
 	}
-	zOff += inc
+	chunks.push(chunk)
 }
 
-// Display terrain
-blocks.forEach(block => {block.display()});
+// Display terrain elements
+chunks.forEach(chunk => {
+	chunk.forEach(block => {
+		block.display()
+	})
+});
 
 // Loop rendering function
 loop()
