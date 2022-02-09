@@ -53,41 +53,14 @@ Block = function(id, x, y, z) {
 		}
 	}
 },
-getLowestBlockX = () => {
-	let pos = [];
-	for (let i = 0; i < chunks.length; i++) {
-		for (let j = 0; j < chunks.length; j++) {
-			pos.push(chunks[i][j].x)
+getBlock = (pos, axis) => {
+	const map = [];
+	for (let chunk of chunks) {
+		for (let block of chunk) {
+			map.push(block[axis])
 		}
 	}
-	return Math.min.apply(null, pos)
-},
-getHighestBlockX = () => {
-	let pos = [];
-	for (let i = 0; i < chunks.length; i++) {
-		for (let j = 0; j < chunks.length; j++) {
-			pos.push(chunks[i][j].x)
-		}
-	}
-	return Math.max.apply(null, pos)
-},
-getLowestBlockZ = () => {
-	let pos = [];
-	for (let i = 0; i < chunks.length; i++) {
-		for (let j = 0; j < chunks.length; j++) {
-			pos.push(chunks[i][j].z)
-		}
-	}
-	return Math.min.apply(null, pos)
-},
-getHighestBlockZ = () => {
-	let pos = [];
-	for (let i = 0; i < chunks.length; i++) {
-		for (let j = 0; j < chunks.length; j++) {
-			pos.push(chunks[i][j].z)
-		}
-	}
-	return Math.max.apply(null, pos)
+	return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
 },
 render = () => {renderer.render(scene, camera)},
 loop = () => {
@@ -176,58 +149,66 @@ update = () => {
 			}
 		}
 	}
+
+	// General movement
 	camera.position.y -= ySpeed;
 	ySpeed += acc;
-	for (let i = 0; i < chunks.length; i++) {
-		for (let j = 0; j < chunks[i].length; j++) {
+
+	chunks.forEach(chunk => {
+		chunk.forEach(block => {
 			if (
-				camera.position.x <= chunks[i][j].x + 2.5 &&
-				camera.position.x >= chunks[i][j].x - 2.5 &&
-				camera.position.z <= chunks[i][j].z + 2.5 &&
-				camera.position.z >= chunks[i][j].z - 2.5
+				camera.position.x <= block.x + 2.5 &&
+				camera.position.x >= block.x - 2.5 &&
+				camera.position.y <= block.y + 2.5 &&
+				camera.position.y >= block.y - 2.5 &&
+				camera.position.z <= block.z + 2.5 &&
+				camera.position.z >= block.z - 2.5
 			) {
-				if (
-					camera.position.y <= chunks[i][j].y + 2.5 &&
-					camera.position.y >= chunks[i][j].y - 2.5
-				) {
-					camera.position.y = chunks[i][j].y + 2.5;
-					ySpeed = 0;
-					canJump = true;
-					break
-				}
+				camera.position.y = block.y + 2.5;
+				ySpeed = 0;
+				canJump = true
 			}
-		}
-	}
+		})
+	});
+
 	// Infinite terrain genetation
-	if (camera.position.z <= getLowestBlockZ() + 15) {
-		// 15 = 3 blocks
+	if (camera.position.z <= getBlock("lowest", "z") + 15) {
 		/*
 			[0], [3], [6],
 			[1], [x], [7],
 			[2], [5], [8]
 		*/
+
 		// Remove chunks behind the player
-		for (let i = 0; i < chunks.length; i++) {
+		for (let i in chunks) {
 			if ((i + 1) % renderDistance == 0) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					scene.remove(chunks[i][j].mesh)
-				}
+				// Remove chunks behind the player
+				chunks[i].forEach(chunk => {scene.remove(chunk.mesh)})
 			}
 		}
-		// Add new chunks in front of the player
 		let newChunks = [];
-		for (let i = 0; i < chunks.length; i++) {
+		for (let i in chunks) {
 			if ((i + 1) % renderDistance != 0) {
+				// Add new chunks in front of the player
 				newChunks.push(chunks[i])
 			}
 		}
+
 		// Add blocks
-		let lowestX = getLowestBlockX();
-			lowestZ = getLowestBlockZ();
-		for (let i = 0; i < renderDistance; i++) {
+		let lowestX = getBlock("lowest", "x"),
+			lowestZ = getBlock("lowest", "z");
+		for (let i in renderDistance) {
 			let chunk = [];
-			for (let x = lowestX + (i * chunkSize * 5); x < lowestX + (i * chunkSize * 5) + (chunkSize * 5); x += 5) {
-				for (let z = lowestZ - (chunkSize * 5); z < lowestZ; z += 5) {
+			for (
+				let x = lowestX + (i * chunkSize * 5);
+				x < lowestX + (i * chunkSize * 5) + (chunkSize * 5);
+				x += 5
+			) {
+				for (
+					let z = lowestZ - (chunkSize * 5);
+					z < lowestZ;
+					z += 5
+				) {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
 					chunk.push(new Block(
@@ -240,14 +221,15 @@ update = () => {
 			}
 			newChunks.splice(i * renderDistance, 0, chunk)
 		}
+
 		chunks = newChunks;
-		for (let i = 0; i < chunks.length; i++) {
+
+		// Display chunks
+		/*for (let i in chunks) {
 			if (i % renderDistance == 0) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					chunks[i][j].display()
-				}
+				chunks[i].forEach(block => {block.display()})
 			}
-		}
+		}*/
 	}
 },
 resize = () => {
@@ -264,7 +246,8 @@ toggleAutojump = button => {
 let amplitude = 30 + (Math.random() * 70),
 	inc = 0.05,
 	keys = [],
-	movingSpeed = .15,
+	// movingSpeed = .15,
+	movingSpeed = .7,
 	acc = .006,
 	ySpeed = 0,
 	canJump = true,
@@ -280,10 +263,6 @@ scene.background = new THREE.Color(0x1b4745);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const test = new Block("1", 22.5, 35, 22.5);
-scene.add(test);
-test.display();
-
 // Event listeners
 addEventListener("click", () => {controls.lock()});
 addEventListener("keydown", e => {
@@ -295,7 +274,7 @@ addEventListener("keydown", e => {
 });
 addEventListener("keyup", e => {
 	const newKeys = [];
-	for (let i = 0; i < keys.length; i++) {
+	for (let i in keys) {
 		if (keys[i] !== e.key) newKeys.push(keys[i])
 	}
 	keys = newKeys
