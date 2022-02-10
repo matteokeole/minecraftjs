@@ -15,22 +15,32 @@ BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")})
 ],
+BlockEdges = new THREE.EdgesGeometry(BlockGeometry),
 Block = function(x, y, z) {
 	// Block constructor
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.mesh;
+	this.line;
 	this.display = function() {
 		BlockMaterial.forEach(face => {
 			// Pixelise faces
 			face.map.magFilter = THREE.NearestFilter
 		});
+		// Create block
 		this.mesh = new THREE.Mesh(BlockGeometry, BlockMaterial);
-		Scene.add(this.mesh);
 		this.mesh.position.x = this.x;
 		this.mesh.position.y = this.y - 10;
-		this.mesh.position.z = this.z
+		this.mesh.position.z = this.z;
+		Scene.add(this.mesh);
+
+		// Create block borders
+		this.line = new THREE.LineSegments(BlockEdges, new THREE.LineBasicMaterial({color: 0xffff00}));
+		Scene.add(this.line);
+		this.line.position.x = this.x;
+		this.line.position.y = this.y - 10;
+		this.line.position.z = this.z
 	}
 },
 getBlock = (pos, axis) => {
@@ -135,7 +145,10 @@ update = () => {
 		// Remove chunks behind the player
 		for (let i in chunks) {
 			if ((i + 1) % renderDistance == 0) {
-				chunks[i].forEach(block => {Scene.remove(block.mesh)})
+				chunks[i].forEach(block => {
+					Scene.remove(block.mesh);
+					Scene.remove(block.line)
+				})
 			}
 		}
 
