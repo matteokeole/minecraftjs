@@ -1,176 +1,131 @@
 // Set random Perlin noise seed for the terrain generation
 noise.seed(Math.random());
 
-// Init
-const Database = {
-	blocks: [{
-			id: "1",
-			name: "minecraft:stone",
-			textures: ["stone", "stone", "stone", "stone", "stone", "stone"]
-		}, {
-			id: "2",
-			name: "minecraft:grass",
-			textures: ["grass_block_side", "grass_block_side", "grass_block_top", "grass_block_bottom", "grass_block_side", "grass_block_side"]
-		}, {
-			id: "3",
-			name: "minecraft:dirt",
-			textures: ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt"]
-		}, {
-			id: "3:2",
-			name: "minecraft:podzol",
-			textures: ["podzol_side", "podzol_side", "podzol_top", "dirt", "podzol_side", "podzol_side"]
-	}]
-},
-scene = new THREE.Scene(),
-renderer = new THREE.WebGLRenderer(),
-camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000),
-loader = new THREE.TextureLoader(),
-controls = new THREE.PointerLockControls(camera, document.body),
-Block = function(id, x, y, z) {
+const Scene = new THREE.Scene(),
+Renderer = new THREE.WebGLRenderer(),
+Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000),
+Loader = new THREE.TextureLoader(),
+Controls = new THREE.PointerLockControls(Camera, document.body),
+BlockGeometry = new THREE.BoxGeometry(5, 5, 5),
+BlockMaterial = [
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_top.png")}),
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/dirt.png")}),
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
+	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")})
+],
+Block = function(x, y, z) {
 	// Block constructor
-	this.id = id;
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.mesh;
 	this.display = function() {
-		for (let block of Database.blocks) {
-			if (block.id === this.id) {
-				const geometry = new THREE.BoxBufferGeometry(5, 5, 5),
-					material = block.textures.map(texture => {
-						let m = new THREE.MeshBasicMaterial({map: loader.load(`assets/textures/block/${texture}.png`)});
-						m.map.magFilter = THREE.NearestFilter;
-						return m
-					});
-				this.mesh = new THREE.Mesh(geometry, material);
-				scene.add(this.mesh);
-				this.mesh.position.x = this.x;
-				this.mesh.position.y = this.y - 10;
-				this.mesh.position.z = this.z
-			}
-		}
+		BlockMaterial.forEach(face => {
+			// Pixelise faces
+			face.map.magFilter = THREE.NearestFilter
+		});
+		this.mesh = new THREE.Mesh(BlockGeometry, BlockMaterial);
+		Scene.add(this.mesh);
+		this.mesh.position.x = this.x;
+		this.mesh.position.y = this.y - 10;
+		this.mesh.position.z = this.z
 	}
 },
 getBlock = (pos, axis) => {
 	const map = [];
-	for (let i in chunks) {
-		for (let j in chunks[i]) {
-			map.push(chunks[i][j][axis])
-		}
-	}
+	chunks.forEach(chunk => {
+		chunk.forEach(block => {
+			map.push(block[axis])
+		})
+	});
 	return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
 },
-render = () => {renderer.render(scene, camera)},
+render = () => {Renderer.render(Scene, Camera)},
 loop = () => {
 	requestAnimationFrame(loop);
 	update();
 	render()
 },
 update = () => {
-	// Forward key
-	if (keys.includes("z")) {
-		controls.moveForward(movingSpeed);
-		if (!settings.autojump) {
-			for (let i = 0; i < chunks.length; i++) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					if (
-						camera.position.x <= chunks[i][j].x + 2.5 &&
-						camera.position.x >= chunks[i][j].x - 2.5 &&
-						camera.position.z <= chunks[i][j].z + 2.5 &&
-						camera.position.z >= chunks[i][j].z - 2.5
-					) {
-						if (camera.position.y == chunks[i][j].y - 2.5) {
-							controls.moveForward(-movingSpeed)
-						}
-					}
-				}
-			}
-		}
-	}
-	// Left key
-	if (keys.includes("q")) {
-		controls.moveRight(-movingSpeed);
-		if (!settings.autojump) {
-			for (let i = 0; i < chunks.length; i++) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					if (
-						camera.position.x <= chunks[i][j].x + 2.5 &&
-						camera.position.x >= chunks[i][j].x - 2.5 &&
-						camera.position.z <= chunks[i][j].z + 2.5 &&
-						camera.position.z >= chunks[i][j].z - 2.5
-					) {
-						if (camera.position.y == chunks[i][j].y - 2.5) {
-							controls.moveRight(movingSpeed)
-						}
-					}
-				}
-			}
-		}
-	}
-	// Backward key
-	if (keys.includes("s")) {
-		controls.moveForward(-movingSpeed);
-		if (!settings.autojump) {
-			for (let i = 0; i < chunks.length; i++) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					if (
-						camera.position.x <= chunks[i][j].x + 2.5 &&
-						camera.position.x >= chunks[i][j].x - 2.5 &&
-						camera.position.z <= chunks[i][j].z + 2.5 &&
-						camera.position.z >= chunks[i][j].z - 2.5
-					) {
-						if (camera.position.y == chunks[i][j].y - 2.5) {
-							controls.moveForward(movingSpeed)
-						}
-					}
-				}
-			}
-		}
-	}
-	// Right key
-	if (keys.includes("d")) {
-		controls.moveRight(movingSpeed);
-		if (!settings.autojump) {
-			for (let i = 0; i < chunks.length; i++) {
-				for (let j = 0; j < chunks[i].length; j++) {
-					if (
-						camera.position.x <= chunks[i][j].x + 2.5 &&
-						camera.position.x >= chunks[i][j].x - 2.5 &&
-						camera.position.z <= chunks[i][j].z + 2.5 &&
-						camera.position.z >= chunks[i][j].z - 2.5
-					) {
-						if (camera.position.y == chunks[i][j].y - 2.5) {
-							controls.moveRight(-movingSpeed)
-						}
-					}
-				}
-			}
-		}
+	// Player movement
+	switch (true) {
+		case keys.includes("z"):
+			// Forward key
+			Controls.moveForward(movingSpeed);
+			break;
+		case keys.includes("q"):
+			// Left key
+			Controls.moveRight(-movingSpeed);
+			break;
+		case keys.includes("s"):
+			// Backward key
+			Controls.moveForward(-movingSpeed);
+			break;
+		case keys.includes("d"):
+			// Right key
+			Controls.moveRight(movingSpeed);
+			break
 	}
 
-	// General movement
-	camera.position.y -= ySpeed;
+	// Jump function
+	if (!Settings.autojump) {
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				if (
+					Camera.position.x <= block.x + 2.5 &&
+					Camera.position.x >= block.x - 2.5 &&
+					Camera.position.y == block.y - 2.5 &&
+					Camera.position.z <= block.z + 2.5 &&
+					Camera.position.z >= block.z - 2.5
+				) {
+					switch (true) {
+						case keys.includes("z"):
+							// Forward key
+							Controls.moveForward(-movingSpeed);
+							break;
+						case keys.includes("q"):
+							// Left key
+							Controls.moveRight(movingSpeed);
+							break;
+						case keys.includes("s"):
+							// Backward key
+							Controls.moveForward(movingSpeed);
+							break;
+						case keys.includes("d"):
+							// Right key
+							Controls.moveRight(-movingSpeed);
+							break
+					}
+				}
+			})
+		})
+	}
+
+	Camera.position.y -= ySpeed;
 	ySpeed += acc;
 
+	// Player gravity
 	chunks.forEach(chunk => {
 		chunk.forEach(block => {
 			if (
-				camera.position.x <= block.x + 2.5 &&
-				camera.position.x >= block.x - 2.5 &&
-				camera.position.y <= block.y + 2.5 &&
-				camera.position.y >= block.y - 2.5 &&
-				camera.position.z <= block.z + 2.5 &&
-				camera.position.z >= block.z - 2.5
+				Camera.position.x <= block.x + 2.5 &&
+				Camera.position.x >= block.x - 2.5 &&
+				Camera.position.y <= block.y + 2.5 &&
+				Camera.position.y >= block.y - 2.5 &&
+				Camera.position.z <= block.z + 2.5 &&
+				Camera.position.z >= block.z - 2.5
 			) {
-				camera.position.y = block.y + 2.5;
+				Camera.position.y = block.y + 2.5;
 				ySpeed = 0;
 				canJump = true
 			}
 		})
 	});
 
-	// Infinite terrain genetation
-	if (camera.position.z <= getBlock("lowest", "z") + 15) {
+	// Terrain generation
+	if (Camera.position.z <= getBlock("lowest", "z") + 15) {
 		/*
 			[0], [3], [6],
 			[1], [x], [7],
@@ -180,14 +135,15 @@ update = () => {
 		// Remove chunks behind the player
 		for (let i in chunks) {
 			if ((i + 1) % renderDistance == 0) {
-				// Remove chunks behind the player
-				chunks[i].forEach(block => {scene.remove(block.mesh)})
+				chunks[i].forEach(block => {Scene.remove(block.mesh)})
 			}
 		}
+
 		let newChunks = [];
+
+		// Add new chunks in front of the player
 		for (let i in chunks) {
 			if ((i + 1) % renderDistance != 0) {
-				// Add new chunks in front of the player
 				newChunks.push(chunks[i])
 			}
 		}
@@ -195,7 +151,7 @@ update = () => {
 		// Add blocks
 		let lowestX = getBlock("lowest", "x"),
 			lowestZ = getBlock("lowest", "z");
-		for (let i in renderDistance) {
+		for (let i = 0; i < renderDistance; i++) {
 			let chunk = [];
 			for (
 				let x = lowestX + (i * chunkSize * 5);
@@ -210,7 +166,6 @@ update = () => {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
 					chunk.push(new Block(
-						"3:2",
 						x,
 						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
 						z
@@ -229,60 +184,63 @@ update = () => {
 			}
 		}
 	}
-},
-resize = () => {
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix()
-},
-toggleAutojump = button => {
-	// Toggle autojump setting
-	settings.autojump = !settings.autojump;
-	button.textContent = `Autojump: ${settings.autojump ? "ON" : "OFF"}`
 };
-// Game variables
-let amplitude = 30 + (Math.random() * 70),
+
+let // Generation variables
+	amplitude = 30 + (Math.random() * 70),
 	inc = .05,
+	// Chunks and render distance variables
 	chunks = [],
-	chunkSize = 1,
+	chunkSize = 3,
 	renderDistance = 3,
+	// Movement variables
 	keys = [],
-	// movingSpeed = .15,
-	movingSpeed = .7,
-	acc = .006,
+	movingSpeed = .5,
+	acc = .065,
 	ySpeed = 0,
 	canJump = true,
-	settings = {autojump: false};
+	// Player settings
+	Settings = {autojump: false};
 
 // Set scene background color
-scene.background = new THREE.Color(0x1b4745);
+Scene.background = new THREE.Color(0x282923);
 
 // Set renderer size
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+Renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(Renderer.domElement);
 
 // Event listeners
-addEventListener("click", () => {controls.lock()});
+addEventListener("click", () => {
+	// Focus page event
+	Controls.lock()
+});
 addEventListener("keydown", e => {
+	// Press key event
 	keys.push(e.key);
 	if (e.key === " " && canJump) {
 		canJump = false;
-		ySpeed = -.28
+		ySpeed = -1
 	}
 });
 addEventListener("keyup", e => {
+	// Release key event
 	const newKeys = [];
 	for (let i in keys) {
 		if (keys[i] !== e.key) newKeys.push(keys[i])
 	}
 	keys = newKeys
 });
-addEventListener("resize", resize);
+addEventListener("resize", () => {
+	// Resize window event
+	Renderer.setSize(window.innerWidth, window.innerHeight);
+	Camera.aspect = window.innerWidth / window.innerHeight;
+	Camera.updateProjectionMatrix()
+});
 
 // Generate chunks
-camera.position.x = renderDistance * chunkSize / 2 * 5;
-camera.position.z = renderDistance * chunkSize / 2 * 5;
-camera.position.y = 50;
+Camera.position.x = renderDistance * chunkSize / 2 * 5;
+Camera.position.z = renderDistance * chunkSize / 2 * 5;
+Camera.position.y = 50;
 for (let i = 0; i < renderDistance; i++) {
 	for (let j = 0; j < renderDistance; j++) {
 		let chunk = [];
@@ -299,7 +257,6 @@ for (let i = 0; i < renderDistance; i++) {
 				xOff = inc * x;
 				zOff = inc * z;
 				chunk.push(new Block(
-					"3:2",
 					x * 5,
 					Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
 					z * 5
