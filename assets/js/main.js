@@ -36,28 +36,26 @@ Block = function(id, x, y, z) {
 	this.display = function() {
 		for (let block of Database.blocks) {
 			if (block.id === this.id) {
-				const geometry = new THREE.BoxGeometry(5, 5, 5),
+				const geometry = new THREE.BoxBufferGeometry(5, 5, 5),
 					material = block.textures.map(texture => {
 						let m = new THREE.MeshBasicMaterial({map: loader.load(`assets/textures/block/${texture}.png`)});
 						m.map.magFilter = THREE.NearestFilter;
 						return m
 					});
 				this.mesh = new THREE.Mesh(geometry, material);
+				scene.add(this.mesh);
 				this.mesh.position.x = this.x;
 				this.mesh.position.y = this.y - 10;
-				this.mesh.position.z = this.z;
-				this.mesh.castShadow = true;
-				this.mesh.receiveShadow = true;
-				scene.add(this.mesh)
+				this.mesh.position.z = this.z
 			}
 		}
 	}
 },
 getBlock = (pos, axis) => {
 	const map = [];
-	for (let chunk of chunks) {
-		for (let block of chunk) {
-			map.push(block[axis])
+	for (let i in chunks) {
+		for (let j in chunks[i]) {
+			map.push(chunks[i][j][axis])
 		}
 	}
 	return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
@@ -183,7 +181,7 @@ update = () => {
 		for (let i in chunks) {
 			if ((i + 1) % renderDistance == 0) {
 				// Remove chunks behind the player
-				chunks[i].forEach(chunk => {scene.remove(chunk.mesh)})
+				chunks[i].forEach(block => {scene.remove(block.mesh)})
 			}
 		}
 		let newChunks = [];
@@ -201,7 +199,7 @@ update = () => {
 			let chunk = [];
 			for (
 				let x = lowestX + (i * chunkSize * 5);
-				x < lowestX + (i * chunkSize * 5) + (chunkSize * 5);
+				x < lowestX + ((i + 1) * chunkSize * 5);
 				x += 5
 			) {
 				for (
@@ -225,11 +223,11 @@ update = () => {
 		chunks = newChunks;
 
 		// Display chunks
-		/*for (let i in chunks) {
+		for (let i in chunks) {
 			if (i % renderDistance == 0) {
 				chunks[i].forEach(block => {block.display()})
 			}
-		}*/
+		}
 	}
 },
 resize = () => {
@@ -244,16 +242,16 @@ toggleAutojump = button => {
 };
 // Game variables
 let amplitude = 30 + (Math.random() * 70),
-	inc = 0.05,
+	inc = .05,
+	chunks = [],
+	chunkSize = 1,
+	renderDistance = 3,
 	keys = [],
 	// movingSpeed = .15,
 	movingSpeed = .7,
 	acc = .006,
 	ySpeed = 0,
 	canJump = true,
-	chunks = [],
-	chunkSize = 3,
-	renderDistance = 3,
 	settings = {autojump: false};
 
 // Set scene background color
@@ -284,12 +282,20 @@ addEventListener("resize", resize);
 // Generate chunks
 camera.position.x = renderDistance * chunkSize / 2 * 5;
 camera.position.z = renderDistance * chunkSize / 2 * 5;
-camera.position.y = 20;
+camera.position.y = 50;
 for (let i = 0; i < renderDistance; i++) {
-	let chunk = [];
 	for (let j = 0; j < renderDistance; j++) {
-		for (let x = (i * chunkSize); x < (i * chunkSize) + chunkSize; x++) {
-			for (let z = (j * chunkSize); z < (j * chunkSize) + chunkSize; z++) {
+		let chunk = [];
+		for (
+			let x = (i * chunkSize);
+			x < (i * chunkSize) + chunkSize;
+			x++
+		) {
+			for (
+				let z = (j * chunkSize);
+				z < (j * chunkSize) + chunkSize;
+				z++
+			) {
 				xOff = inc * x;
 				zOff = inc * z;
 				chunk.push(new Block(
@@ -300,8 +306,8 @@ for (let i = 0; i < renderDistance; i++) {
 				))
 			}
 		}
+		chunks.push(chunk)
 	}
-	chunks.push(chunk)
 }
 
 // Display terrain elements
