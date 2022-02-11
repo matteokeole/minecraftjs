@@ -60,24 +60,10 @@ loop = () => {
 },
 update = () => {
 	// Player movement
-	switch (true) {
-		case keys.includes("z"):
-			// Forward key
-			Controls.moveForward(movingSpeed);
-			break;
-		case keys.includes("q"):
-			// Left key
-			Controls.moveRight(-movingSpeed);
-			break;
-		case keys.includes("s"):
-			// Backward key
-			Controls.moveForward(-movingSpeed);
-			break;
-		case keys.includes("d"):
-			// Right key
-			Controls.moveRight(movingSpeed);
-			break
-	}
+	if (keys.includes("z")) Controls.moveForward(movingSpeed);
+	if (keys.includes("q")) Controls.moveRight(-movingSpeed);
+	if (keys.includes("s")) Controls.moveForward(-movingSpeed);
+	if (keys.includes("d")) Controls.moveRight(movingSpeed);
 
 	// Jump function
 	if (!Settings.autojump) {
@@ -135,7 +121,7 @@ update = () => {
 	});
 
 	// Terrain generation
-	if (Camera.position.z <= getBlock("lowest", "z") + 15) {
+	if (Camera.position.z <= getBlock("lowest", "z") + 20) {
 		/*
 			[0], [3], [6],
 			[1], [x], [7],
@@ -191,16 +177,191 @@ update = () => {
 		chunks = newChunks;
 
 		// Display chunks
+		for (let i = 0; i < chunks.length - renderDistance + 1; i += renderDistance) {
+			chunks[i].forEach(block => {block.display()})
+		}
+	}
+
+	if (Camera.position.z >= getBlock("highest", "z") - 20) {
+		/*
+			[0], [3], [6],
+			[1], [x], [7],
+			[2], [5], [8]
+		*/
+
+		// Remove chunks behind the player
 		for (let i in chunks) {
 			if (i % renderDistance == 0) {
+				chunks[i].forEach(block => {
+					Scene.remove(block.mesh);
+					Scene.remove(block.line)
+				})
+			}
+		}
+
+		let newChunks = [];
+
+		// Add new chunks in front of the player
+		for (let i in chunks) {
+			if (i % renderDistance != 0) {
+				newChunks.push(chunks[i])
+			}
+		}
+
+		// Add blocks
+		let lowestX = getBlock("lowest", "x"),
+			highestZ = getBlock("highest", "z");
+		for (let i = 0; i < renderDistance; i++) {
+			let chunk = [];
+			for (
+				let x = lowestX + (i * chunkSize * 5);
+				x < lowestX + ((i + 1) * chunkSize * 5);
+				x += 5
+			) {
+				for (
+					let z = highestZ + 5;
+					z < (highestZ + 5) + (chunkSize * 5);
+					z += 5
+				) {
+					xOff = inc * x / 5;
+					zOff = inc * z / 5;
+					chunk.push(new Block(
+						x,
+						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
+						z
+					))
+				}
+			}
+			newChunks.splice((i * renderDistance) + 2, 0, chunk)
+		}
+
+		chunks = newChunks;
+
+		// Display chunks
+		for (let i = renderDistance - 1; i < chunks.length; i += renderDistance) {
+			if ((i + 1) % renderDistance == 0) {
 				chunks[i].forEach(block => {block.display()})
 			}
+		}
+	}
+
+	if (Camera.position.x >= getBlock("highest", "x") - 20) {
+		/*
+			[0], [3], [6],
+			[1], [x], [7],
+			[2], [5], [8]
+		*/
+
+		// Remove chunks behind the player
+		for (let i = 0; i < renderDistance; i++) {
+			chunks[i].forEach(block => {
+				Scene.remove(block.mesh);
+				Scene.remove(block.line)
+			})
+		}
+
+		let newChunks = [];
+
+		// Add new chunks in front of the player
+		for (let i = renderDistance; i < chunks.length; i++) {
+			newChunks.push(chunks[i])
+		}
+
+		// Add blocks
+		let highestX = getBlock("highest", "x"),
+			lowestZ = getBlock("lowest", "z");
+		for (let i = 0; i < renderDistance; i++) {
+			let chunk = [];
+			for (
+				let z = lowestZ + (i * chunkSize * 5);
+				z < lowestZ + ((i + 1) * chunkSize * 5);
+				z += 5
+			) {
+				for (
+					let x = highestX + 5;
+					x < highestX + 5 + (chunkSize * 5);
+					x += 5
+				) {
+					xOff = inc * x / 5;
+					zOff = inc * z / 5;
+					chunk.push(new Block(
+						x,
+						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
+						z
+					))
+				}
+			}
+			newChunks.splice(chunks.length - (renderDistance - i), 0, chunk)
+		}
+
+		chunks = newChunks;
+
+		// Display chunks
+		for (let i = chunks.length - renderDistance; i < chunks.length; i++) {
+			chunks[i].forEach(block => {block.display()})
+		}
+	}
+
+	if (Camera.position.x <= getBlock("lowest", "x") + 20) {
+		/*
+			[0], [3], [6],
+			[1], [x], [7],
+			[2], [5], [8]
+		*/
+
+		// Remove chunks behind the player
+		for (let i = chunks.length - renderDistance; i < chunks.length; i++) {
+			chunks[i].forEach(block => {
+				Scene.remove(block.mesh);
+				Scene.remove(block.line)
+			})
+		}
+
+		let newChunks = [];
+
+		// Add new chunks in front of the player
+		for (let i = 0; i < chunks.length - renderDistance; i++) {
+			newChunks.push(chunks[i])
+		}
+
+		// Add blocks
+		let lowestX = getBlock("lowest", "x"),
+			lowestZ = getBlock("lowest", "z");
+		for (let i = 0; i < renderDistance; i++) {
+			let chunk = [];
+			for (
+				let z = lowestZ + (i * chunkSize * 5);
+				z < lowestZ + ((i + 1) * chunkSize * 5);
+				z += 5
+			) {
+				for (
+					let x = lowestX - (chunkSize * 5);
+					x < lowestX;
+					x += 5
+				) {
+					xOff = inc * x / 5;
+					zOff = inc * z / 5;
+					chunk.push(new Block(
+						x,
+						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
+						z
+					))
+				}
+			}
+			newChunks.splice(i, 0, chunk)
+		}
+
+		chunks = newChunks;
+
+		// Display chunks
+		for (let i = 0; i < renderDistance; i++) {
+			chunks[i].forEach(block => {block.display()})
 		}
 	}
 };
 
 let // Generation variables
-	amplitude = 30 + (Math.random() * 70),
+	amplitude = 30,
 	inc = .05,
 	// Chunks and render distance variables
 	chunks = [],
@@ -250,10 +411,12 @@ addEventListener("resize", () => {
 	Camera.updateProjectionMatrix()
 });
 
-// Generate chunks
+// Set camera position
 Camera.position.x = renderDistance * chunkSize / 2 * 5;
 Camera.position.z = renderDistance * chunkSize / 2 * 5;
 Camera.position.y = 50;
+
+// Generate chunks
 for (let i = 0; i < renderDistance; i++) {
 	for (let j = 0; j < renderDistance; j++) {
 		let chunk = [];
