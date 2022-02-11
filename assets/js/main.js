@@ -31,7 +31,7 @@ Faces = [
 SelectorMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0}),
 SelectorOutline = new THREE.LineSegments(
 	new THREE.EdgesGeometry(BlockGeometry),
-	new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 2})
+	new THREE.LineBasicMaterial({color: 0x000000, linewidth: 2})
 ),
 Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial),
 getBlock = (pos, axis) => {
