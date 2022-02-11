@@ -6,7 +6,8 @@ Renderer = new THREE.WebGLRenderer(),
 Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000),
 Loader = new THREE.TextureLoader(),
 Controls = new THREE.PointerLockControls(Camera, document.body),
-BlockGeometry = new THREE.BoxGeometry(5, 5, 5),
+stats = new Stats(),
+BlockGeometry = new THREE.BoxBufferGeometry(5, 5, 5),
 BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
@@ -15,7 +16,14 @@ BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")})
 ],
-BlockEdges = new THREE.EdgesGeometry(BlockGeometry),
+Faces = [
+	{dir: [-5,  0,  0, "left"]},
+	{dir: [ 5,  0,  0, "right"]},
+	{dir: [ 0, -5,  0, "bottom"]},
+	{dir: [ 0,  5,  0, "top"]},
+	{dir: [ 0,  0, -5, "back"]},
+	{dir: [ 0,  0,  5, "front"]}
+],
 Block = function(x, y, z) {
 	// Block constructor
 	this.x = x;
@@ -23,19 +31,50 @@ Block = function(x, y, z) {
 	this.z = z;
 	this.mesh;
 	this.line;
-	this.display = function() {
-		BlockMaterial.forEach(face => {
-			// Pixelise faces
-			face.map.magFilter = THREE.NearestFilter
+	this.getVoxel = function(x, y, z) {
+		let response = false;
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				if (
+					block.x == x &&
+					block.y == y &&
+					block.z == z
+				) response = true
+			})
 		});
+		return response
+	};
+	this.directions = [];
+	this.adjustFaces = function() {
+		for (const {dir} of Faces) {
+			const neighbor = this.getVoxel(
+				this.x + dir[0],
+				this.y + dir[1],
+				this.z + dir[2]
+			);
+			if (neighbor) this.directions.push(dir[3])
+		}
+	};
+	this.display = function() {
+		// Remove unwanted faces
+		this.adjustFaces();
+
 		// Create block
-		this.mesh = new THREE.Mesh(BlockGeometry, BlockMaterial);
+		this.mesh = new THREE.Mesh(BlockGeometry, [
+			(this.directions.includes("right") ? null : BlockMaterial[0]),
+			(this.directions.includes("left") ? null : BlockMaterial[1]),
+			(this.directions.includes("top") ? null : BlockMaterial[2]),
+			(this.directions.includes("bottom") ? null : BlockMaterial[3]),
+			(this.directions.includes("front") ? null : BlockMaterial[4]),
+			(this.directions.includes("back") ? null : BlockMaterial[5])
+		]);
 		this.mesh.position.x = this.x;
 		this.mesh.position.y = this.y - 10;
 		this.mesh.position.z = this.z;
 		Scene.add(this.mesh);
 
 		// Create block borders
+		const BlockEdges = new THREE.EdgesGeometry(BlockGeometry);
 		this.line = new THREE.LineSegments(BlockEdges, new THREE.LineBasicMaterial({color: 0xffff00}));
 		Scene.add(this.line);
 		this.line.position.x = this.x;
@@ -358,14 +397,20 @@ update = () => {
 			chunks[i].forEach(block => {block.display()})
 		}
 	}
+},
+animate = () => {
+	stats.begin();
+	//
+	stats.end();
+	requestAnimationFrame(animate)
 };
 
 let // Generation variables
-	amplitude = 30,
+	amplitude = 30 + (Math.random() * 70),
 	inc = .05,
 	// Chunks and render distance variables
 	chunks = [],
-	chunkSize = 3,
+	chunkSize = 10,
 	renderDistance = 3,
 	// Movement variables
 	keys = [],
@@ -376,8 +421,20 @@ let // Generation variables
 	// Player settings
 	Settings = {autojump: false};
 
-// Set scene background color
+// Show stats panel
+// 0 - fps
+// 1 - ms
+// 2 - mb
+// 3+ - custom
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+// Set scene background color and fog
 Scene.background = new THREE.Color(0x282923);
+Scene.fog = new THREE.Fog(0x000000, 10, 200);
+
+// Pixelise block faces
+BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
 
 // Set renderer size
 Renderer.setSize(window.innerWidth, window.innerHeight);
@@ -450,5 +507,6 @@ chunks.forEach(chunk => {
 	})
 });
 
-// Loop rendering function
-loop()
+// Loop rendering and stats function
+loop();
+requestAnimationFrame(animate)
