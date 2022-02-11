@@ -1,1 +1,23 @@
 body {margin: 0}
+
+#pointer {
+	width: 4px;
+	height: 4px;
+	margin: auto;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	background-color: #FFF
+}
+
+#debug {
+	padding: 4px;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	background-color: rgba(0, 0, 0, .5);
+	color: #FFF;
+	font-family: Consolas, monospace
+}

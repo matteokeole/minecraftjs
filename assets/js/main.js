@@ -9,7 +9,6 @@ Raycaster = new THREE.Raycaster(),
 Pointer = new THREE.Vector2(),
 Loader = new THREE.TextureLoader(),
 Controls = new THREE.PointerLockControls(Camera, document.body),
-u = 4,
 BlockGeometry = new THREE.BoxGeometry(u, u, u),
 BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
@@ -20,18 +19,18 @@ BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")})
 ],
 Faces = [
-	{dir: [-u,  0,  0, "left"]},
 	{dir: [ u,  0,  0, "right"]},
-	{dir: [ 0, -u,  0, "bottom"]},
+	{dir: [-u,  0,  0, "left"]},
 	{dir: [ 0,  u,  0, "top"]},
-	{dir: [ 0,  0, -u, "back"]},
-	{dir: [ 0,  0,  u, "front"]}
+	{dir: [ 0, -u,  0, "bottom"]},
+	{dir: [ 0,  0,  u, "front"]},
+	{dir: [ 0,  0, -u, "back"]}
 ],
 // Selector mesh elements
 SelectorMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0}),
 SelectorOutline = new THREE.LineSegments(
 	new THREE.EdgesGeometry(BlockGeometry),
-	new THREE.LineBasicMaterial({color: 0x000000, linewidth: 2})
+	new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 2})
 ),
 Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial),
 getBlock = (pos, axis) => {
@@ -46,12 +45,32 @@ getBlock = (pos, axis) => {
 loop = () => {
 	requestAnimationFrame(loop);
 	update();
-	render()
-};
+	render();
+	debug(20, `X: ${Camera.position.x}<br>Y: ${Camera.position.y}<br>Z: ${Camera.position.z}`)
+},
+debug = (requestId, requestContent) => {
+	// Debug function
+	let requestFound = false;
+	debugRequests.forEach(request => {
+		if (request && request.id === requestId) requestFound = true;
+	})
+	if (!requestFound) {
+		debugRequests.push({
+			id: requestId,
+			content: requestContent
+		})
+	}
 
-// Set scene background color and fog
+	let debugContent = "";
+	debugRequests.forEach(request => {debugContent += request.content + "<br>"});
+	debugElement.innerHTML = debugContent
+},
+debugElement = document.querySelector("#debug"),
+debugRequests = [];
+
+// Set sky color and fog
 Scene.background = new THREE.Color(0x000000);
-Scene.fog = new THREE.Fog(0x000000, 10, 40);
+Scene.fog = new THREE.Fog(0x000000, 10, fogDistance);
 
 // Pixelise block faces
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
@@ -61,9 +80,9 @@ Renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(Renderer.domElement);
 
 // Set camera and pointer position
-Camera.position.x = renderDistance * chunkSize / 2 * u;
-Camera.position.z = renderDistance * chunkSize / 2 * u;
-Camera.position.y = 50;
+Camera.position.x = 0;
+Camera.position.z = 0;
+Camera.position.y = 20;
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 
@@ -104,7 +123,6 @@ for (let i = 0; i < renderDistance; i++) {
 		chunks.push(chunk)
 	}
 }
-
 Scene.add(instancedChunk);
 
 // Loop rendering and stats function
