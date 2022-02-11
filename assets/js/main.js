@@ -7,7 +7,7 @@ Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 Loader = new THREE.TextureLoader(),
 Controls = new THREE.PointerLockControls(Camera, document.body),
 stats = new Stats(),
-BlockGeometry = new THREE.BoxBufferGeometry(5, 5, 5),
+BlockGeometry = new THREE.BoxGeometry(5, 5, 5),
 BlockMaterial = [
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
 	new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
@@ -76,7 +76,7 @@ Block = function(x, y, z) {
 		// Create block borders
 		const BlockEdges = new THREE.EdgesGeometry(BlockGeometry);
 		this.line = new THREE.LineSegments(BlockEdges, new THREE.LineBasicMaterial({color: 0xffff00}));
-		Scene.add(this.line);
+		// Scene.add(this.line);
 		this.line.position.x = this.x;
 		this.line.position.y = this.y - 10;
 		this.line.position.z = this.z
@@ -147,12 +147,12 @@ update = () => {
 			if (
 				Camera.position.x <= block.x + 2.5 &&
 				Camera.position.x >= block.x - 2.5 &&
-				Camera.position.y <= block.y + 2.5 &&
-				Camera.position.y >= block.y - 2.5 &&
+				Camera.position.y <= block.y + 10 &&
+				Camera.position.y >= block.y &&
 				Camera.position.z <= block.z + 2.5 &&
 				Camera.position.z >= block.z - 2.5
 			) {
-				Camera.position.y = block.y + 2.5;
+				Camera.position.y = block.y + 10;
 				ySpeed = 0;
 				canJump = true
 			}
@@ -168,14 +168,6 @@ update = () => {
 		*/
 
 		// Remove chunks behind the player
-		for (let i in chunks) {
-			if ((i + 1) % renderDistance == 0) {
-				chunks[i].forEach(block => {
-					Scene.remove(block.mesh);
-					Scene.remove(block.line)
-				})
-			}
-		}
 
 		let newChunks = [];
 
@@ -203,11 +195,8 @@ update = () => {
 				) {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
-					chunk.push(new Block(
-						x,
-						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-						z
-					))
+					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5;
+					chunk.push(new Block(x, v, z))
 				}
 			}
 			newChunks.splice(i * renderDistance, 0, chunk)
@@ -215,10 +204,26 @@ update = () => {
 
 		chunks = newChunks;
 
-		// Display chunks
-		for (let i = 0; i < chunks.length - renderDistance + 1; i += renderDistance) {
-			chunks[i].forEach(block => {block.display()})
-		}
+		Scene.remove(instancedChunk)
+
+		instancedChunk = new THREE.InstancedMesh(
+			BlockGeometry,
+			BlockMaterial,
+			(chunkSize * chunkSize * renderDistance * renderDistance)
+		);
+		let count = 0;
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				let matrix = new THREE.Matrix4().makeTranslation(
+					block.x,
+					block.y,
+					block.z
+				);
+				instancedChunk.setMatrixAt(count, matrix);
+				count++
+			})
+		});
+		Scene.add(instancedChunk)
 	}
 
 	if (Camera.position.z >= getBlock("highest", "z") - 20) {
@@ -229,14 +234,6 @@ update = () => {
 		*/
 
 		// Remove chunks behind the player
-		for (let i in chunks) {
-			if (i % renderDistance == 0) {
-				chunks[i].forEach(block => {
-					Scene.remove(block.mesh);
-					Scene.remove(block.line)
-				})
-			}
-		}
 
 		let newChunks = [];
 
@@ -264,11 +261,8 @@ update = () => {
 				) {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
-					chunk.push(new Block(
-						x,
-						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-						z
-					))
+					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5;
+					chunk.push(new Block(x, v, z))
 				}
 			}
 			newChunks.splice((i * renderDistance) + 2, 0, chunk)
@@ -276,12 +270,26 @@ update = () => {
 
 		chunks = newChunks;
 
-		// Display chunks
-		for (let i = renderDistance - 1; i < chunks.length; i += renderDistance) {
-			if ((i + 1) % renderDistance == 0) {
-				chunks[i].forEach(block => {block.display()})
-			}
-		}
+		Scene.remove(instancedChunk)
+
+		instancedChunk = new THREE.InstancedMesh(
+			BlockGeometry,
+			BlockMaterial,
+			(chunkSize * chunkSize * renderDistance * renderDistance)
+		);
+		let count = 0;
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				let matrix = new THREE.Matrix4().makeTranslation(
+					block.x,
+					block.y,
+					block.z
+				);
+				instancedChunk.setMatrixAt(count, matrix);
+				count++
+			})
+		});
+		Scene.add(instancedChunk)
 	}
 
 	if (Camera.position.x >= getBlock("highest", "x") - 20) {
@@ -292,12 +300,6 @@ update = () => {
 		*/
 
 		// Remove chunks behind the player
-		for (let i = 0; i < renderDistance; i++) {
-			chunks[i].forEach(block => {
-				Scene.remove(block.mesh);
-				Scene.remove(block.line)
-			})
-		}
 
 		let newChunks = [];
 
@@ -323,11 +325,8 @@ update = () => {
 				) {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
-					chunk.push(new Block(
-						x,
-						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-						z
-					))
+					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5;
+					chunk.push(new Block(x, v, z))
 				}
 			}
 			newChunks.splice(chunks.length - (renderDistance - i), 0, chunk)
@@ -335,10 +334,26 @@ update = () => {
 
 		chunks = newChunks;
 
-		// Display chunks
-		for (let i = chunks.length - renderDistance; i < chunks.length; i++) {
-			chunks[i].forEach(block => {block.display()})
-		}
+		Scene.remove(instancedChunk)
+
+		instancedChunk = new THREE.InstancedMesh(
+			BlockGeometry,
+			BlockMaterial,
+			(chunkSize * chunkSize * renderDistance * renderDistance)
+		);
+		let count = 0;
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				let matrix = new THREE.Matrix4().makeTranslation(
+					block.x,
+					block.y,
+					block.z
+				);
+				instancedChunk.setMatrixAt(count, matrix);
+				count++
+			})
+		});
+		Scene.add(instancedChunk)
 	}
 
 	if (Camera.position.x <= getBlock("lowest", "x") + 20) {
@@ -349,12 +364,6 @@ update = () => {
 		*/
 
 		// Remove chunks behind the player
-		for (let i = chunks.length - renderDistance; i < chunks.length; i++) {
-			chunks[i].forEach(block => {
-				Scene.remove(block.mesh);
-				Scene.remove(block.line)
-			})
-		}
 
 		let newChunks = [];
 
@@ -380,11 +389,8 @@ update = () => {
 				) {
 					xOff = inc * x / 5;
 					zOff = inc * z / 5;
-					chunk.push(new Block(
-						x,
-						Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-						z
-					))
+					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5;
+					chunk.push(new Block(x, v, z))
 				}
 			}
 			newChunks.splice(i, 0, chunk)
@@ -392,10 +398,26 @@ update = () => {
 
 		chunks = newChunks;
 
-		// Display chunks
-		for (let i = 0; i < renderDistance; i++) {
-			chunks[i].forEach(block => {block.display()})
-		}
+		Scene.remove(instancedChunk)
+
+		instancedChunk = new THREE.InstancedMesh(
+			BlockGeometry,
+			BlockMaterial,
+			(chunkSize * chunkSize * renderDistance * renderDistance)
+		);
+		let count = 0;
+		chunks.forEach(chunk => {
+			chunk.forEach(block => {
+				let matrix = new THREE.Matrix4().makeTranslation(
+					block.x,
+					block.y,
+					block.z
+				);
+				instancedChunk.setMatrixAt(count, matrix);
+				count++
+			})
+		});
+		Scene.add(instancedChunk)
 	}
 },
 animate = () => {
@@ -410,7 +432,7 @@ let // Generation variables
 	inc = .05,
 	// Chunks and render distance variables
 	chunks = [],
-	chunkSize = 10,
+	chunkSize = 6,
 	renderDistance = 3,
 	// Movement variables
 	keys = [],
@@ -430,8 +452,8 @@ stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 // Set scene background color and fog
-Scene.background = new THREE.Color(0x282923);
-Scene.fog = new THREE.Fog(0x000000, 10, 200);
+// Scene.background = new THREE.Color(0x282923);
+Scene.fog = new THREE.Fog(0x000000, 10, 100);
 
 // Pixelise block faces
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
@@ -473,7 +495,13 @@ Camera.position.x = renderDistance * chunkSize / 2 * 5;
 Camera.position.z = renderDistance * chunkSize / 2 * 5;
 Camera.position.y = 50;
 
-// Generate chunks
+// Generate chunks 
+let instancedChunk = new THREE.InstancedMesh(
+	BlockGeometry,
+	BlockMaterial,
+	(chunkSize * chunkSize * renderDistance * renderDistance)
+),
+count = 0;
 for (let i = 0; i < renderDistance; i++) {
 	for (let j = 0; j < renderDistance; j++) {
 		let chunk = [];
@@ -489,23 +517,18 @@ for (let i = 0; i < renderDistance; i++) {
 			) {
 				xOff = inc * x;
 				zOff = inc * z;
-				chunk.push(new Block(
-					x * 5,
-					Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5,
-					z * 5
-				))
+				const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / 5) * 5;
+				chunk.push(new Block(x * 5, v, z * 5));
+				let matrix = new THREE.Matrix4().makeTranslation(x * 5, v, z * 5);
+				instancedChunk.setMatrixAt(count, matrix);
+				count++
 			}
 		}
 		chunks.push(chunk)
 	}
 }
 
-// Display terrain elements
-chunks.forEach(chunk => {
-	chunk.forEach(block => {
-		block.display()
-	})
-});
+Scene.add(instancedChunk);
 
 // Loop rendering and stats function
 loop();
