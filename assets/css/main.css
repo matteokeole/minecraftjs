@@ -21,3 +21,13 @@ body {margin: 0}
 	color: #FFF;
 	font-family: Consolas, monospace
 }
+
+#debug .request {display: flex}
+
+#debug .request-id {
+	min-width: 32px;
+	margin-top: 2px;
+	opacity: .5;
+	font-size: 12px;
+	font-style: italic
+}

@@ -12,4 +12,7 @@ const
 	movingSpeed = .5,
 	acc = .065,
 	// Player settings
-	Settings = {autojump: false};
+	Settings = {
+		autojump: false,
+		borders: true
+	}

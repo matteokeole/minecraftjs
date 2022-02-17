@@ -11,27 +11,29 @@ const
 	Loader = new THREE.TextureLoader(),
 	Controls = new THREE.PointerLockControls(Camera, document.body),
 	BlockGeometry = new THREE.BoxGeometry(u, u, u),
-	BlockMaterial = [
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_top.png")}),
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/dirt.png")}),
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")}),
-		new THREE.MeshBasicMaterial({map: Loader.load("assets/textures/block/podzol_side.png")})
-	],
+	BlockMaterial = ([
+		"podzol_side",	// Right
+		"podzol_side",	// Left
+		"podzol_top",	// Top
+		"dirt",			// Bottom
+		"podzol_side",	// Front
+		"podzol_side",	// Back
+	]).map(face => {
+		return new THREE.MeshBasicMaterial({map: Loader.load(`assets/textures/block/${face}.png`)})
+	}),
 	Faces = [
 		{dir: [ u,  0,  0, "right"]},
 		{dir: [-u,  0,  0, "left"]},
 		{dir: [ 0,  u,  0, "top"]},
 		{dir: [ 0, -u,  0, "bottom"]},
 		{dir: [ 0,  0,  u, "front"]},
-		{dir: [ 0,  0, -u, "back"]}
+		{dir: [ 0,  0, -u, "back"]},
 	],
 	// Selector mesh elements
 	SelectorMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0}),
 	SelectorOutline = new THREE.LineSegments(
 		new THREE.EdgesGeometry(BlockGeometry),
-		new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 2})
+		new THREE.LineBasicMaterial({color: 0x000000, linewidth: 2})
 	),
 	Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial),
 	getBlock = (pos, axis) => {
@@ -44,26 +46,39 @@ const
 		return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
 	},
 	loop = () => {
+		debug("pos", `X: ${Camera.position.x.toFixed(2)}<br>Y: ${Camera.position.y.toFixed(2)}<br>Z: ${Camera.position.z.toFixed(2)}`);
 		requestAnimationFrame(loop);
 		update();
-		render();
-		debug(20, `X: ${Camera.position.x}<br>Y: ${Camera.position.y}<br>Z: ${Camera.position.z}`)
+		render()
 	},
 	debug = (requestId, requestContent) => {
 		// Debug function
 		let requestFound = false;
 		debugRequests.forEach(request => {
-			if (request && request.id === requestId) requestFound = true;
-		})
+			if (request.id === requestId) {
+				// The request is already registered, just change its content
+				requestFound = true;
+				request.content = requestContent;
+			}
+		});
+		// This is a new debug request, add it to the request list
 		if (!requestFound) {
 			debugRequests.push({
 				id: requestId,
-				content: requestContent
+				content: requestContent,
 			})
-		}
+		};
 
+		// Print debug content on the debugger
 		let debugContent = "";
-		debugRequests.forEach(request => {debugContent += request.content + "<br>"});
+		debugRequests.forEach(request => {
+			debugContent += `
+				<div class='request'>
+					<div class='request-id'>${request.id}</div>
+					${request.content}
+				</div>
+			`
+		});
 		debugElement.innerHTML = debugContent
 	},
 	debugElement = document.querySelector("#debug"),

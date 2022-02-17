@@ -4,7 +4,7 @@ const Block = function(x, y, z) {
 	this.z = z;
 	this.mesh;
 	this.line;
-	this.getVoxel = function(x, y, z) {
+	/*this.getVoxel = function(x, y, z) {
 		let response = false;
 		chunks.forEach(chunk => {
 			chunk.forEach(block => {
@@ -16,9 +16,9 @@ const Block = function(x, y, z) {
 			})
 		});
 		return response
-	};
-	this.directions = [];
-	this.adjustFaces = function() {
+	};*/
+	// this.directions = [];
+	/*this.adjustFaces = function() {
 		for (const {dir} of Faces) {
 			const neighbor = this.getVoxel(
 				this.x + dir[0],
@@ -27,8 +27,8 @@ const Block = function(x, y, z) {
 			);
 			if (neighbor) this.directions.push(dir[3])
 		}
-	};
-	this.display = function() {
+	};*/
+	/*this.display = function() {
 		// Remove unwanted faces
 		this.adjustFaces();
 
@@ -47,11 +47,14 @@ const Block = function(x, y, z) {
 		Scene.add(this.mesh);
 
 		// Create block borders
-		const BlockEdges = new THREE.EdgesGeometry(BlockGeometry);
-		this.line = new THREE.LineSegments(BlockEdges, new THREE.LineBasicMaterial({color: 0xffff00}));
-		// Scene.add(this.line);
-		this.line.position.x = this.x;
-		this.line.position.y = this.y - 10;
-		this.line.position.z = this.z
-	}
+		
+		if (Settings.borders) {
+			const BlockEdges = new THREE.EdgesGeometry(BlockGeometry);
+			this.line = new THREE.LineSegments(BlockEdges, new THREE.LineBasicMaterial({color: 0xffff00}));
+			Scene.add(this.line);
+			this.line.position.x = this.x;
+			this.line.position.y = this.y - 10;
+			this.line.position.z = this.z
+		}
+	}*/
 }

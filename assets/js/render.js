@@ -35,7 +35,7 @@ const render = () => {
 		Selector.position.x = x;
 		Selector.position.y = y;
 		Selector.position.z = z;
-		debug(100, `Facing: ${Faces[materialIndex].dir[3]}`)
+		debug("fac", `Facing: ${Faces[materialIndex].dir[3]}`)
 	} else Selector.visible = false
 
 	// Render the scene
