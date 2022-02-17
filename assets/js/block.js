@@ -1,5 +1,4 @@
 const Block = function(x, y, z) {
-	// Block constructor
 	this.x = x;
 	this.y = y;
 	this.z = z;

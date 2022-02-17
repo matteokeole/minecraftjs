@@ -24,4 +24,4 @@ addEventListener("resize", () => {
 	Renderer.setSize(window.innerWidth, window.innerHeight);
 	Camera.aspect = window.innerWidth / window.innerHeight;
 	Camera.updateProjectionMatrix()
-});
+})

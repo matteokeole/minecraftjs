@@ -1,9 +1,10 @@
-const stats = new Stats(),
-loopStats = () => {
-	stats.begin();
-	stats.end();
-	requestAnimationFrame(loopStats)
-};
+const
+	stats = new Stats(),
+	loopStats = () => {
+		stats.begin();
+		stats.end();
+		requestAnimationFrame(loopStats)
+	};
 
 // Show stats panel
 // 0 - fps
