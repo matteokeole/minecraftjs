@@ -47,9 +47,9 @@ const
 	},
 	loop = () => {
 		debug("pos", `X: ${Camera.position.x.toFixed(2)}<br>Y: ${Camera.position.y.toFixed(2)}<br>Z: ${Camera.position.z.toFixed(2)}`);
-		requestAnimationFrame(loop);
 		update();
-		render()
+		render();
+		setTimeout(() => {requestAnimationFrame(loop)}, (1000 / fps))
 	},
 	debug = (requestId, requestContent) => {
 		// Debug function

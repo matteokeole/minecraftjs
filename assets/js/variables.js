@@ -1,5 +1,6 @@
 const
 	u = 4, // Block size
+	fps = 60,
 	// Generation variables
 	amplitude = 30,
 	inc = .05,
