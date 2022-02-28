@@ -1,33 +1,36 @@
-body {margin: 0}
+@font-face {
+	font-family: minecraft_regular;
+	src: url(../textures/font/regular.otf) format("opentype");
+}
 
-#pointer {
-	width: 4px;
-	height: 4px;
-	margin: auto;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	position: absolute;
-	background-color: #FFF
+@font-face {
+	font-family: minecraft_regular_italic;
+	src: url(../textures/font/regular_italic.otf) format("opentype");
+}
+
+@font-face {
+	font-family: minecraft_bold;
+	src: url(../textures/font/bold.otf) format("opentype");
+}
+
+@font-face {
+	font-family: minecraft_bold_italic;
+	src: url(../textures/font/bold_italic.otf) format("opentype");
+}
+
+body {
+	margin: 0;
+	overflow: hidden;
+	text-rendering: optimizeLegibility;
+	font-family: minecraft_regular;
+	font-size: 20px;
 }
 
 #debug {
-	padding: 4px;
-	bottom: 0;
+	padding: 0 4px;
+	top: 0;
 	left: 0;
 	position: absolute;
 	background-color: rgba(0, 0, 0, .5);
 	color: #FFF;
-	font-family: Consolas, monospace
-}
-
-#debug .request {display: flex}
-
-#debug .request-id {
-	min-width: 32px;
-	margin-top: 2px;
-	opacity: .5;
-	font-size: 12px;
-	font-style: italic
 }

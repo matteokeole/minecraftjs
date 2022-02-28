@@ -5,7 +5,7 @@ noise.seed(Math.random());
 const
 	Scene = new THREE.Scene(),
 	Renderer = new THREE.WebGLRenderer(),
-	Camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, .1, 1000),
+	Camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, .1, 1000),
 	Raycaster = new THREE.Raycaster(),
 	Pointer = new THREE.Vector2(),
 	Loader = new THREE.TextureLoader(),
@@ -33,7 +33,7 @@ const
 	SelectorMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0}),
 	SelectorOutline = new THREE.LineSegments(
 		new THREE.EdgesGeometry(BlockGeometry),
-		new THREE.LineBasicMaterial({color: 0x000000, linewidth: 2})
+		new THREE.LineBasicMaterial({color: 0x000000, linewidth: 4})
 	),
 	Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial),
 	getBlock = (pos, axis) => {
@@ -46,7 +46,8 @@ const
 		return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
 	},
 	loop = () => {
-		debug("pos", `X: ${Camera.position.x.toFixed(2)}<br>Y: ${Camera.position.y.toFixed(2)}<br>Z: ${Camera.position.z.toFixed(2)}`);
+		debug("pos", `XYZ: ${Camera.position.x.toFixed(3)} / ${Camera.position.y.toFixed(5)} / ${Camera.position.z.toFixed(3)}`);
+		debug("block", `Block: ${Camera.position.x.toFixed(0)} ${Camera.position.y.toFixed(0)} ${Camera.position.z.toFixed(0)}`);
 		update();
 		render();
 		setTimeout(() => {requestAnimationFrame(loop)}, (1000 / fps))
@@ -72,12 +73,7 @@ const
 		// Print debug content on the debugger
 		let debugContent = "";
 		debugRequests.forEach(request => {
-			debugContent += `
-				<div class='request'>
-					<div class='request-id'>${request.id}</div>
-					${request.content}
-				</div>
-			`
+			debugContent += request.content + "<br>"
 		});
 		debugElement.innerHTML = debugContent
 	},
@@ -90,7 +86,7 @@ let chunks = [],
 
 // Set sky color and fog
 Scene.background = new THREE.Color(0x000000);
-Scene.fog = new THREE.Fog(0x000000, 10, fogDistance);
+Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
 
 // Pixelise block faces
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
@@ -101,8 +97,9 @@ document.body.appendChild(Renderer.domElement);
 
 // Set camera and pointer position
 Camera.position.x = 0;
-Camera.position.z = 0;
 Camera.position.y = 20;
+Camera.position.z = 2;
+Camera.rotation.y = Math.PI;
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 

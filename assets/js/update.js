@@ -5,27 +5,7 @@ const update = () => {
 	if (keys.includes("KeyS")) Controls.moveForward(-movingSpeed);
 	if (keys.includes("KeyD")) Controls.moveRight(movingSpeed);
 
-	// Jump function
-	if (!Settings.autojump) {
-		chunks.forEach(chunk => {
-			chunk.forEach(block => {
-				if (
-					Camera.position.x <= block.x + (u / 2) &&
-					Camera.position.x >= block.x - (u / 2) &&
-					Camera.position.y == block.y - (u / 2) &&
-					Camera.position.z <= block.z + (u / 2) &&
-					Camera.position.z >= block.z - (u / 2)
-				) {
-					if (keys.includes("KeyW")) Controls.moveForward(-movingSpeed);
-					if (keys.includes("KeyA")) Controls.moveRight(movingSpeed);
-					if (keys.includes("KeyS")) Controls.moveForward(movingSpeed);
-					if (keys.includes("KeyD")) Controls.moveRight(-movingSpeed)
-				}
-			})
-		})
-	}
-
-	Camera.position.y -= ySpeed;
+	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;
 
 	// Player gravity
@@ -34,12 +14,12 @@ const update = () => {
 			if (
 				Camera.position.x <= block.x + (u / 2) &&
 				Camera.position.x >= block.x - (u / 2) &&
-				Camera.position.y <= block.y + (u * 2) &&
+				Camera.position.y <= block.y + (u * 2.12) &&
 				Camera.position.y >= block.y &&
 				Camera.position.z <= block.z + (u / 2) &&
 				Camera.position.z >= block.z - (u / 2)
 			) {
-				Camera.position.y = block.y + (u * 2);
+				Camera.position.y = block.y + (u * 2.12);
 				ySpeed = 0;
 				canJump = true
 			}
@@ -51,8 +31,8 @@ const update = () => {
 		ratio = .4;
 	if (Camera.position.z <= getBlock("lowest", "z") + (worldWide * ratio)) {
 		/*
-			[0], [3], [6],
-			[1], [x], [7],
+			[0], [3], [6]
+			[1], [x], [7]
 			[2], [5], [8]
 		*/
 
@@ -117,8 +97,8 @@ const update = () => {
 
 	if (Camera.position.z >= getBlock("highest", "z") - (worldWide * ratio)) {
 		/*
-			[0], [3], [6],
-			[1], [x], [7],
+			[0], [3], [6]
+			[1], [x], [7]
 			[2], [5], [8]
 		*/
 
@@ -183,8 +163,8 @@ const update = () => {
 
 	if (Camera.position.x >= getBlock("highest", "x") - (worldWide * ratio)) {
 		/*
-			[0], [3], [6],
-			[1], [x], [7],
+			[0], [3], [6]
+			[1], [x], [7]
 			[2], [5], [8]
 		*/
 
@@ -247,8 +227,8 @@ const update = () => {
 
 	if (Camera.position.x <= getBlock("lowest", "x") + (worldWide * ratio)) {
 		/*
-			[0], [3], [6],
-			[1], [x], [7],
+			[0], [3], [6]
+			[1], [x], [7]
 			[2], [5], [8]
 		*/
 
