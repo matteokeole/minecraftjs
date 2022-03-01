@@ -35,8 +35,7 @@ const render = () => {
 		Selector.position.x = x;
 		Selector.position.y = y;
 		Selector.position.z = z;
-		// debug("fac", `Facing: ${Faces[materialIndex].dir[3]}`)
-	} else Selector.visible = false
+	} else Selector.visible = false;
 
 	// Render the scene
 	Renderer.render(Scene, Camera)

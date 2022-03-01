@@ -48,6 +48,7 @@ const
 	loop = () => {
 		debug("pos", `XYZ: ${Camera.position.x.toFixed(3)} / ${Camera.position.y.toFixed(5)} / ${Camera.position.z.toFixed(3)}`);
 		debug("block", `Block: ${Camera.position.x.toFixed(0)} ${Camera.position.y.toFixed(0)} ${Camera.position.z.toFixed(0)}`);
+		debug("facing", `Facing: (${Camera.rotation.x.toFixed(1)} / ${Camera.rotation.y.toFixed(1)} / ${Camera.rotation.z.toFixed(1)})`);
 		update();
 		render();
 		setTimeout(() => {requestAnimationFrame(loop)}, (1000 / fps))
@@ -98,10 +99,19 @@ document.body.appendChild(Renderer.domElement);
 // Set camera and pointer position
 Camera.position.x = 0;
 Camera.position.y = 20;
-Camera.position.z = 2;
-Camera.rotation.y = Math.PI;
+Camera.position.z = 0;
+Scene.add(Camera);
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
+
+let test = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), BlockMaterial);
+Camera.add(test);
+test.position.set(1.45, -1.2, -1.35);
+test.rotation.set(
+	0,
+	Math.PI / 5.5,
+	Math.PI / 55,
+);
 
 // Add outline to selector
 Selector.add(SelectorOutline);
@@ -143,4 +153,4 @@ for (let i = 0; i < renderDistance; i++) {
 Scene.add(instancedChunk);
 
 // Loop rendering and stats function
-loop()
+loop();

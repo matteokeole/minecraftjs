@@ -7,7 +7,10 @@ const update = () => {
 
 	// Hotbar slot keybinds
 	for (let i in Keybinds.hotbar_slots) {
-		if (keys.includes(Keybinds.hotbar_slots[i])) inventory_bar_selector.updateX(inventory_bar_selector_slots[i]);
+		if (keys.includes(Keybinds.hotbar_slots[i])) {
+			selected_slot = i;
+			inventory_bar_selector.updateX(inventory_bar_selector_slots[selected_slot]);
+		}
 	}
 
 	if (keys.includes(Keybinds.jump) && canJump) {
