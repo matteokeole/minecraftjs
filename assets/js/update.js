@@ -1,9 +1,19 @@
 const update = () => {
 	// Player movement
-	if (keys.includes("KeyW")) Controls.moveForward(movingSpeed);
-	if (keys.includes("KeyA")) Controls.moveRight(-movingSpeed);
-	if (keys.includes("KeyS")) Controls.moveForward(-movingSpeed);
-	if (keys.includes("KeyD")) Controls.moveRight(movingSpeed);
+	if (keys.includes(Keybinds.walk_forwards)) Controls.moveForward(movingSpeed);
+	if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
+	if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
+	if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
+
+	// Hotbar slot keybinds
+	for (let i in Keybinds.hotbar_slots) {
+		if (keys.includes(Keybinds.hotbar_slots[i])) inventory_bar_selector.updateX(inventory_bar_selector_slots[i]);
+	}
+
+	if (keys.includes(Keybinds.jump) && canJump) {
+		canJump = false;
+		ySpeed = -1
+	}
 
 	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;

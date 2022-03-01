@@ -4,10 +4,6 @@ addEventListener("click", () => {Controls.lock()});
 // Press key event
 addEventListener("keydown", e => {
 	keys.push(e.code);
-	if (e.code === "Space" && canJump) {
-		canJump = false;
-		ySpeed = -1
-	}
 });
 
 // Release key event
