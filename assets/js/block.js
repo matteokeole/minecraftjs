@@ -2,9 +2,9 @@ const Block = function(x, y, z) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
-	this.mesh;
+	/*this.mesh;
 	this.line;
-	/*this.getVoxel = function(x, y, z) {
+	this.getVoxel = function(x, y, z) {
 		let response = false;
 		chunks.forEach(chunk => {
 			chunk.forEach(block => {
@@ -16,9 +16,9 @@ const Block = function(x, y, z) {
 			})
 		});
 		return response
-	};*/
-	// this.directions = [];
-	/*this.adjustFaces = function() {
+	};
+	this.directions = [];
+	this.adjustFaces = function() {
 		for (const {dir} of Faces) {
 			const neighbor = this.getVoxel(
 				this.x + dir[0],
@@ -27,8 +27,8 @@ const Block = function(x, y, z) {
 			);
 			if (neighbor) this.directions.push(dir[3])
 		}
-	};*/
-	/*this.display = function() {
+	};
+	this.display = function() {
 		// Remove unwanted faces
 		this.adjustFaces();
 

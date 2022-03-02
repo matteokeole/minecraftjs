@@ -18,10 +18,12 @@ const update = () => {
 		ySpeed = -1
 	}
 
-	/*if (keys.includes(Keybinds.open_inventory)) {
+	if (keys.includes(Keybinds.open_inventory)) {
 		inventoryOpened = !inventoryOpened;
+		if (inventoryOpened) Camera.enableRotate = false;
+		else Camera.enableRotate = true;
 		toggleInventory();
-	}*/
+	}
 
 	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;

@@ -3,14 +3,18 @@ noise.seed(Math.random());
 
 // Init Three.js objects
 const
+	WINDOW = {
+		WIDTH: window.innerWidth,
+		HEIGHT: window.innerHeight,
+	},
 	Scene = new THREE.Scene(),
 	Renderer = new THREE.WebGLRenderer(),
-	Camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, .1, 1000),
-	Raycaster = new THREE.Raycaster(),
+	Camera = new THREE.PerspectiveCamera(90, WINDOW.WIDTH / WINDOW.HEIGHT, .1, 1000),
 	Pointer = new THREE.Vector2(),
+	Raycaster = new THREE.Raycaster(),
 	Loader = new THREE.TextureLoader(),
 	Controls = new THREE.PointerLockControls(Camera, document.body),
-	BlockGeometry = new THREE.BoxGeometry(u, u, u),
+	BlockGeometry = new THREE.BoxGeometry(1, 1, 1),
 	BlockMaterial = ([
 		"podzol_side",	// Right
 		"podzol_side",	// Left
@@ -22,12 +26,12 @@ const
 		return new THREE.MeshBasicMaterial({map: Loader.load(`assets/textures/block/${face}.png`)})
 	}),
 	Faces = [
-		{dir: [ u,  0,  0, "right"]},
-		{dir: [-u,  0,  0, "left"]},
-		{dir: [ 0,  u,  0, "top"]},
-		{dir: [ 0, -u,  0, "bottom"]},
-		{dir: [ 0,  0,  u, "front"]},
-		{dir: [ 0,  0, -u, "back"]},
+		{dir: [1, 0, 0, "right"]},
+		{dir: [-1, 0, 0, "left"]},
+		{dir: [0, 1, 0, "top"]},
+		{dir: [0, -1, 0, "bottom"]},
+		{dir: [0, 0, 1, "front"]},
+		{dir: [0, 0, -1, "back"]},
 	],
 	// Selector mesh elements
 	SelectorMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0}),
@@ -76,7 +80,7 @@ const
 		debugRequests.forEach(request => {
 			debugContent += `<div><span>${request.content}</span></div>`;
 		});
-		debugElement.innerHTML = debugContent
+		debugElement.innerHTML = debugContent;
 	},
 	debugElement = document.querySelector("#debug"),
 	debugRequests = [];
@@ -87,7 +91,7 @@ let chunks = [],
 
 // Set sky color and fog
 Scene.background = new THREE.Color(0x000000);
-Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
+// Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
 
 // Pixelise block faces
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
@@ -115,7 +119,6 @@ test.rotation.set(
 
 // Add outline to selector
 Selector.add(SelectorOutline);
-
 Scene.add(Selector);
 
 // Generate chunks 

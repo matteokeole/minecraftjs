@@ -33,7 +33,7 @@ const
 			"Digit8",
 			"Digit9",
 		],
-		open_inventory: "Tab",
+		open_inventory: "KeyI",
 	},
 	// Player settings
 	Settings = {
@@ -43,7 +43,7 @@ const
 	// Player stats
 	Player = {
 		maxHealth: 20,
-		health: 20,
+		health: 16,
 		maxHunger: 20,
-		hunger: 20,
+		hunger: 6,
 	};

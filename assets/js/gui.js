@@ -10,7 +10,7 @@ const
 		this.uv = uv;
 		this.id = id;
 		this.texture = {
-			src: tsrc,
+			src: `assets/textures/${tsrc}`,
 			w: 0,
 			h: 0,
 		};
@@ -24,7 +24,7 @@ const
 			top: ${window.innerHeight / 2 - (h / 2) + y}px;
 			position: absolute;
 			background-color: transparent;
-			background-image: url(${tsrc});
+			background-image: url(assets/textures/${tsrc});
 			background-position: ${-uv[0]}px ${-uv[1]}px;
 			background-repeat: no-repeat;
 			image-rendering: pixelated;
@@ -51,13 +51,13 @@ const
 		});
 		TEXTURE.src = this.texture.src;
 	},
-	/*toggleInventory = () => {
+	toggleInventory = () => {
 		let container = document.querySelector("#inventory_container");
 		if (inventoryOpened) container.style.display = "block";
 		else container.style.display = "none";
-	},*/
-	crosshair = new UIElement([4.5, 4.5], [0, 0], ["assets/textures/gui/widgets.png", [121.5, 1.5]], "crosshair"),
-	inventory_bar = new UIElement([91, 11], [0, (window.innerHeight / 2 - (11 / 2) * 4)], ["assets/textures/gui/widgets.png", [0, 0]], "inventory_bar"),
+	},
+	crosshair = new UIElement([4.5, 4.5], [0, 0], ["gui/widgets.png", [121.5, 1.5]], "crosshair"),
+	inventory_bar = new UIElement([91, 11], [0, (window.innerHeight / 2 - (11 / 2) * 4)], ["gui/widgets.png", [0, 0]], "inventory_bar"),
 	inventory_bar_selector_slots = [
 		-159,
 		-119,
@@ -93,9 +93,25 @@ const
 		45,
 		29,
 	],
-	inventory_bar_selector = new UIElement([12, 12], [inventory_bar_selector_slots[0], (window.innerHeight / 2 - (11 / 2) * 4 + 1), 1], ["assets/textures/gui/widgets.png", [0, 11]], "inventory_bar_selector"),
-	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["assets/textures/gui/icons.png", [0, 32]], "experience_bar");
-	// inventory_container = new UIElement([88, 83], [0, 0], ["assets/textures/gui/container/inventory.png", [0, 0]], "inventory_container");
+	inventory_bar_selector = new UIElement([12, 12], [inventory_bar_selector_slots[0], (window.innerHeight / 2 - (11 / 2) * 4 + 1), 1], ["gui/widgets.png", [0, 11]], "inventory_bar_selector"),
+	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["gui/icons.png", [0, 32]], "experience_bar"),
+	inventory_container = new UIElement([88, 83], [0, 0], ["gui/container/inventory.png", [0, 0]], "inventory_container");
+
+const slots = {
+	// armor: [],
+	inventory: Array.from({length: 27}, (_, i) => {
+		return {
+			x: -144 + (i % 9) * 36,
+			y: 18 + Math.floor(i / 9) * 36,
+			item: null,
+		};
+	}),
+	// hotbar: [],
+};
+
+for (let i of slots.inventory) {
+	let slot = new UIElement([8, 8], [i.x, i.y], ["", []]);
+}
 
 let selected_slot = 0,
 	inventoryOpened = false;
@@ -103,25 +119,25 @@ let selected_slot = 0,
 // Set max health & max hunger
 for (let i = 0; i < Player.maxHealth; i++) {
 	if (i % 2 === 0) {
-		let heart_outline = new UIElement([4.5, 4.5], [hearth_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 0]], `heart-${i}`);
+		let heart_outline = new UIElement([4.5, 4.5], [hearth_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["gui/icons.png", [8, 0]], `heart-${i}`);
 	}
 }
 for (let i = 0; i < Player.maxHunger; i++) {
 	if (i % 2 === 0) {
-		let hunger_outline = new UIElement([4.5, 4.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 13.5]], `hunger-${i}`);
+		let hunger_outline = new UIElement([4.5, 4.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["gui/icons.png", [8, 13.5]], `hunger-${i}`);
 	}
 }
 
 // Set health points
 for (let i = 0; i < Player.health; i++) {
 	if (i % 2 === 0) {
-		let heart_inner = new UIElement([4, 3.5], [hearth_slots[i / 2] + 1, (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, .5]], `heart-${i}`);
+		let heart_inner = new UIElement([4, 3.5], [hearth_slots[i / 2] + 1, (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["gui/icons.png", [26.5, .5]], `heart-${i}`);
 	}
 }
 
 // Set hunger points
 for (let i = 0; i < Player.hunger; i++) {
 	if (i % 2 === 0) {
-		let hunger_inner = new UIElement([3.5, 3.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, 14]], `hunger-${i}`);
+		let hunger_inner = new UIElement([3.5, 3.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["gui/icons.png", [26.5, 14]], `hunger-${i}`);
 	}
 }
