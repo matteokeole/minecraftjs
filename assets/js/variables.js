@@ -43,7 +43,7 @@ const
 	// Player stats
 	Player = {
 		maxHealth: 20,
-		health: 16,
+		health: 20,
 		maxHunger: 20,
-		hunger: 6,
+		hunger: 20,
 	};

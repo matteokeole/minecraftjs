@@ -56,7 +56,7 @@ const
 		if (inventoryOpened) container.style.display = "block";
 		else container.style.display = "none";
 	},
-	crosshair = new UIElement([4.5, 4.5], [0, 0], ["gui/widgets.png", [121.5, 1.5]], "crosshair"),
+	crosshair = new UIElement([4.5, 4.5], [0, 0], ["gui/icons.png", [1.25, 1.25]], "crosshair"),
 	inventory_bar = new UIElement([91, 11], [0, (window.innerHeight / 2 - (11 / 2) * 4)], ["gui/widgets.png", [0, 0]], "inventory_bar"),
 	inventory_bar_selector_slots = [
 		-159,
@@ -108,6 +108,8 @@ const slots = {
 	}),
 	// hotbar: [],
 };
+
+document.querySelector("#inventory_container").style.display = "none";
 
 for (let i of slots.inventory) {
 	let slot = new UIElement([8, 8], [i.x, i.y], ["", []]);
