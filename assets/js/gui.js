@@ -51,11 +51,11 @@ const
 		});
 		TEXTURE.src = this.texture.src;
 	},
-	toggleInventory = () => {
+	/*toggleInventory = () => {
 		let container = document.querySelector("#inventory_container");
 		if (inventoryOpened) container.style.display = "block";
 		else container.style.display = "none";
-	},
+	},*/
 	crosshair = new UIElement([4.5, 4.5], [0, 0], ["assets/textures/gui/widgets.png", [121.5, 1.5]], "crosshair"),
 	inventory_bar = new UIElement([91, 11], [0, (window.innerHeight / 2 - (11 / 2) * 4)], ["assets/textures/gui/widgets.png", [0, 0]], "inventory_bar"),
 	inventory_bar_selector_slots = [
@@ -94,8 +94,8 @@ const
 		29,
 	],
 	inventory_bar_selector = new UIElement([12, 12], [inventory_bar_selector_slots[0], (window.innerHeight / 2 - (11 / 2) * 4 + 1), 1], ["assets/textures/gui/widgets.png", [0, 11]], "inventory_bar_selector"),
-	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["assets/textures/gui/icons.png", [0, 32]], "experience_bar"),
-	inventory_container = new UIElement([88, 83], [0, 0], ["assets/textures/gui/container/inventory.png", [0, 0]], "inventory_container");
+	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["assets/textures/gui/icons.png", [0, 32]], "experience_bar");
+	// inventory_container = new UIElement([88, 83], [0, 0], ["assets/textures/gui/container/inventory.png", [0, 0]], "inventory_container");
 
 let selected_slot = 0,
 	inventoryOpened = false;

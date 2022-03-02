@@ -74,7 +74,7 @@ const
 		// Print debug content on the debugger
 		let debugContent = "";
 		debugRequests.forEach(request => {
-			debugContent += request.content + "<br>"
+			debugContent += `<div><span>${request.content}</span></div>`;
 		});
 		debugElement.innerHTML = debugContent
 	},
