@@ -104,7 +104,7 @@ Scene.add(Camera);
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 
-let test = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), BlockMaterial);
+let test = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xff9800}));
 Camera.add(test);
 test.position.set(1.45, -1.2, -1.35);
 test.rotation.set(

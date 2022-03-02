@@ -33,9 +33,17 @@ const
 			"Digit8",
 			"Digit9",
 		],
+		open_inventory: "Tab",
 	},
 	// Player settings
 	Settings = {
 		autojump: false,
 		borders: true,
+	},
+	// Player stats
+	Player = {
+		maxHealth: 20,
+		health: 20,
+		maxHunger: 20,
+		hunger: 20,
 	};

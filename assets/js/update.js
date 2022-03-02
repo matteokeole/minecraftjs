@@ -9,13 +9,18 @@ const update = () => {
 	for (let i in Keybinds.hotbar_slots) {
 		if (keys.includes(Keybinds.hotbar_slots[i])) {
 			selected_slot = i;
-			inventory_bar_selector.updateX(inventory_bar_selector_slots[selected_slot]);
+			inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
 		}
 	}
 
 	if (keys.includes(Keybinds.jump) && canJump) {
 		canJump = false;
 		ySpeed = -1
+	}
+
+	if (keys.includes(Keybinds.open_inventory)) {
+		inventoryOpened = !inventoryOpened;
+		toggleInventory();
 	}
 
 	Camera.position.y -= ySpeed / 4;

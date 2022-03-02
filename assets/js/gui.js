@@ -15,6 +15,7 @@ const
 			h: 0,
 		};
 		this.element = document.createElement("div");
+		this.element.id = this.id;
 		this.element.style.cssText = `
 			width: ${w}px;
 			height: ${h}px;
@@ -31,9 +32,13 @@ const
 			transform: scale(4);
 		`;
 
-		this.updateX = function(x) {
+		this.setPosition = function(x, y) {
+			if (x === undefined) x = this.x;
+			if (y === undefined) y = this.y;
+			// Update element position
 			this.element.style.left = `${window.innerWidth / 2 - (w / 2) + x}px`;
-		};
+			this.element.style.top = `${window.innerHeight / 2 - (h / 2) + y}px`;
+		}
 
 		document.body.append(this.element);
 
@@ -45,6 +50,11 @@ const
 			this.element.style.backgroundSize = `${this.texture.w / 2}px`;
 		});
 		TEXTURE.src = this.texture.src;
+	},
+	toggleInventory = () => {
+		let container = document.querySelector("#inventory_container");
+		if (inventoryOpened) container.style.display = "block";
+		else container.style.display = "none";
 	},
 	crosshair = new UIElement([4.5, 4.5], [0, 0], ["assets/textures/gui/widgets.png", [121.5, 1.5]], "crosshair"),
 	inventory_bar = new UIElement([91, 11], [0, (window.innerHeight / 2 - (11 / 2) * 4)], ["assets/textures/gui/widgets.png", [0, 0]], "inventory_bar"),
@@ -72,32 +82,46 @@ const
 		-29,
 	],
 	hunger_slots = [
-		29,
-		45,
-		61,
-		77,
-		93,
-		109,
-		125,
-		141,
-		157,
 		173,
+		157,
+		141,
+		125,
+		109,
+		93,
+		77,
+		61,
+		45,
+		29,
 	],
 	inventory_bar_selector = new UIElement([12, 12], [inventory_bar_selector_slots[0], (window.innerHeight / 2 - (11 / 2) * 4 + 1), 1], ["assets/textures/gui/widgets.png", [0, 11]], "inventory_bar_selector"),
-	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["assets/textures/gui/icons.png", [0, 32]], "experience_bar");
-	health_bar = [],
-	hunger_bar = [];
+	experience_bar = new UIElement([91, 2.5], [0, (window.innerHeight / 2 - (11 / 2) * 4 - 31)],  ["assets/textures/gui/icons.png", [0, 32]], "experience_bar"),
+	inventory_container = new UIElement([88, 83], [0, 0], ["assets/textures/gui/container/inventory.png", [0, 0]], "inventory_container");
 
-let selected_slot = 0;
+let selected_slot = 0,
+	inventoryOpened = false;
 
+// Set max health & max hunger
+for (let i = 0; i < Player.maxHealth; i++) {
+	if (i % 2 === 0) {
+		let heart_outline = new UIElement([4.5, 4.5], [hearth_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 0]], `heart-${i}`);
+	}
+}
+for (let i = 0; i < Player.maxHunger; i++) {
+	if (i % 2 === 0) {
+		let hunger_outline = new UIElement([4.5, 4.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 13.5]], `hunger-${i}`);
+	}
+}
 
+// Set health points
+for (let i = 0; i < Player.health; i++) {
+	if (i % 2 === 0) {
+		let heart_inner = new UIElement([4, 3.5], [hearth_slots[i / 2] + 1, (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, .5]], `heart-${i}`);
+	}
+}
 
-for (let i = 0; i < 10; i++) {
-	let heart_outline = new UIElement([4.5, 4.5], [hearth_slots[i], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 0]], `heart-${i}`),
-		heart_inner = new UIElement([4, 3.5], [hearth_slots[i] + 1, (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, .5]], `heart-${i}`);
-	health_bar.push([heart_outline, heart_inner]);
-
-	let hunger_outline = new UIElement([4.5, 4.5], [hunger_slots[i], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [8, 13.5]], `hunger-${i}`);
-		hunger_inner = new UIElement([3.5, 3.5], [hunger_slots[i], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, 14]], `hunger-${i}`);
-	health_bar.push([hunger_outline]);
+// Set hunger points
+for (let i = 0; i < Player.hunger; i++) {
+	if (i % 2 === 0) {
+		let hunger_inner = new UIElement([3.5, 3.5], [hunger_slots[i / 2], (window.innerHeight / 2 - (11 / 2) * 4 - 48)], ["assets/textures/gui/icons.png", [26.5, 14]], `hunger-${i}`);
+	}
 }

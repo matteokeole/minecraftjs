@@ -31,5 +31,5 @@ addEventListener("wheel", e => {
 		// Left
 		selected_slot = (selected_slot > 0) ? --selected_slot : 8;
 	}
-	inventory_bar_selector.updateX(inventory_bar_selector_slots[selected_slot]);
+	inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
 });
