@@ -98,22 +98,38 @@ const
 	inventory_container = new UIElement([88, 83], [0, 0], ["gui/container/inventory.png", [0, 0]], "inventory_container");
 
 const slots = {
-	// armor: [],
-	inventory: Array.from({length: 27}, (_, i) => {
-		return {
-			x: -144 + (i % 9) * 36,
-			y: 18 + Math.floor(i / 9) * 36,
-			item: null,
-		};
+	armor: Array.from({length: 4}, (_, i) => {
+		return new Slot({
+			id: i,
+			x: -144,
+			y: 134 - i * 36,
+		});
 	}),
-	// hotbar: [],
+	inventory: Array.from({length: 27}, (_, i) => {
+		return new Slot({
+			id: i,
+			x: -144 + (i % 9) * 36,
+			y: -18 - Math.floor(i / 9) * 36,
+		});
+	}),
+	hotbar: Array.from({length: 9}, (_, i) => {
+		return new Slot({
+			id: i,
+			x: -144 + i * 36,
+			y: -134,
+		});
+	}),
 };
 
-document.querySelector("#inventory_container").style.display = "none";
 
-for (let i of slots.inventory) {
-	let slot = new UIElement([8, 8], [i.x, i.y], ["", []]);
-}
+let netherite_chestplate = new Item("Plastron en Netherite", "item/netherite_chestplate.png");
+slots.armor[1].assign(netherite_chestplate);
+
+let bread = new Item("Pain", "item/bread.png");
+bread.setStack(17);
+slots.hotbar[8].assign(bread);
+
+// document.querySelector("#inventory_container").style.display = "none";
 
 let selected_slot = 0,
 	inventoryOpened = false;

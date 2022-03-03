@@ -38,7 +38,7 @@ const
 	// Player settings
 	Settings = {
 		autojump: false,
-		borders: true,
+		borders: false,
 	},
 	// Player stats
 	Player = {

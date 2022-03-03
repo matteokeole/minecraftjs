@@ -39,4 +39,5 @@ body {
 	color: #FFF;
 }
 
-#undefined:hover {background-color: rgba(255, 255, 255, .4) !important}
+.slot:hover {background-color: rgba(255, 255, 255, .4)}
+/*.item:hover {opacity: .4}*/
