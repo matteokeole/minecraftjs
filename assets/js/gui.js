@@ -122,10 +122,13 @@ const slots = {
 };
 
 
-let netherite_chestplate = new Item("Plastron en Netherite", "item/netherite_chestplate.png");
+let netherite_chestplate = new Item("Netherite Chestplate", "item/netherite_chestplate.png");
 slots.armor[1].assign(netherite_chestplate);
 
-let bread = new Item("Pain", "item/bread.png");
+let stone_sword = new Item("Stone Sword", "item/stone_sword.png");
+slots.hotbar[0].assign(stone_sword);
+
+let bread = new Item("Bread", "item/bread.png");
 bread.setStack(17);
 slots.hotbar[8].assign(bread);
 

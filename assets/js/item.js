@@ -41,6 +41,9 @@ function Item(name, tsrc, uv) {
 	this.element = document.createElement("div");
 	this.element.className = "item";
 	this.element.style.cssText = `
+		display: flex;
+		justify-content: flex-end;
+		align-items: end;
 		width: ${this.w}px;
 		height: ${this.h}px;
 		background-color: transparent;
@@ -48,13 +51,19 @@ function Item(name, tsrc, uv) {
 		background-size: 100%;
 		image-rendering: pixelated;
 	`;
+	let stackElement = document.createElement("span");
+	stackElement.className = "stack-count";
+	if (this.stack > 1) stackElement.textContent = this.stack;
+	this.element.append(stackElement);
 	this.setStack = count => {
 		if (count > 64) {
 			console.error("You can't set more than 64 objects in a stack.");
 			return;
 		}
 		this.stack = count;
+		if (this.stack > 1) stackElement.textContent = this.stack;
 		console.info(`Updated ${name} stack count to ${this.stack}!`);
+		return this;
 	};
 
 	this.element.setAttribute("title", this.name);
