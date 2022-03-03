@@ -28,7 +28,7 @@ const
 				this.uv.y,
 				this.size.x / 2,
 				this.size.y / 2,
-				(WINDOW_WIDTH / 2) - (this.size.x / 2) + this.origin.x,
+				(WINDOW_WIDTH  / 2) - (this.size.x / 2) + this.origin.x,
 				(WINDOW_HEIGHT / 2) - (this.size.y / 2) - this.origin.y,
 				this.size.x,
 				this.size.y,
@@ -57,16 +57,36 @@ const
 	hotbar = new InterfaceComponent(
 		"hotbar",
 		{
-			origin: [0, -(WINDOW_HEIGHT / 2) + 21],
+			origin: [
+				0,
+				-(WINDOW_HEIGHT / 2) + 21
+			],
 			size: [364, 44],
 			uv: [0, 0],
 		},
 		"gui/widgets.png",
 	),
+	hotbar_selector = setTimeout(() => {
+		new InterfaceComponent(
+			"hotbar_selector",
+			{
+				origin: [
+					-160,
+					-(WINDOW_HEIGHT / 2) + 21
+				],
+				size: [48, 48],
+				uv: [0, 22],
+			},
+			"gui/widgets.png",
+		)
+	}),
 	experience_bar = new InterfaceComponent(
 		"experience_bar",
 		{
-			origin: [0, -(WINDOW_HEIGHT / 2) + 52],
+			origin: [
+				0,
+				-(WINDOW_HEIGHT / 2) + 52
+			],
 			size: [364, 10],
 			uv: [0, 64],
 		},
@@ -135,37 +155,41 @@ const
 				);
 			});
 		}),
-	];
+	],
+	inventory_container = new InterfaceComponent(
+		"inventory_container",
+		{
+			origin: [0, 0],
+			size: [352, 332],
+			uv: [0, 0],
+		},
+		"gui/container/inventory.png",
+	);
 
 ctx.canvas.width = WINDOW_WIDTH;
 ctx.canvas.height = WINDOW_HEIGHT;
 ctx.imageSmoothingEnabled = false;
-
-/*const
-	inventory_bar_selector_slots = [-159, -119, -79, -39, 1, 41, 81, 121, 161],
-	inventory_bar_selector = new UIElement([12, 12], [inventory_bar_selector_slots[0], -(WINDOW_HEIGHT / 2 - (11 / 2) * 4 + 1), 1], ["gui/widgets.png", [0, 44]], "inventory_bar_selector"),
-	inventory_container = new UIElement([88, 83], [0, 0], ["gui/container/inventory.png", [0, 0]], "inventory_container");
 
 const slots = {
 	armor: Array.from({length: 4}, (_, i) => {
 		return new Slot({
 			id: i,
 			x: -144,
-			y: 134 - i * 36,
+			y: 135 - i * 36,
 		});
 	}),
 	inventory: Array.from({length: 27}, (_, i) => {
 		return new Slot({
 			id: i,
 			x: -144 + (i % 9) * 36,
-			y: -18 - Math.floor(i / 9) * 36,
+			y: -17 - Math.floor(i / 9) * 36,
 		});
 	}),
 	hotbar: Array.from({length: 9}, (_, i) => {
 		return new Slot({
 			id: i,
 			x: -144 + i * 36,
-			y: -134,
+			y: -133,
 		});
 	}),
 };
@@ -180,7 +204,5 @@ let bread = new Item("Bread", "item/bread.png");
 bread.setStack(17);
 slots.hotbar[8].assign(bread);
 
-document.querySelector("#inventory_container").style.display = "none";
-
 let selected_slot = 0,
-	inventoryOpened = false;*/
+	inventoryOpened = false;

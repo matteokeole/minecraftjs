@@ -52,13 +52,13 @@ function Item(name, tsrc, uv) {
 	`;
 	let stackElement = document.createElement("span");
 	stackElement.className = "stack-count";
-	if (this.stack > 1) stackElement.textContent = this.stack;
+	// if (this.stack > 1) stackElement.textContent = this.stack;
 	this.element.append(stackElement);
 	this.setStack = count => {
 		// Can't get more than 64 items in one slot
 
 		this.stack = count;
-		if (this.stack > 1) stackElement.textContent = this.stack;
+		// if (this.stack > 1) stackElement.textContent = this.stack;
 		return this;
 	};
 
