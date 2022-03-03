@@ -26,6 +26,14 @@ body {
 	font-size: 20px;
 }
 
+canvas.gui {
+	background-color: #222;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-crisp-edges;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+}
+
 #debug {
 	top: 0;
 	left: 0;
