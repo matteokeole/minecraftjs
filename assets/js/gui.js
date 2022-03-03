@@ -131,7 +131,7 @@ const
 				{
 					origin: [
 						173 - (i % 10) * 16,
-						-(WINDOW_HEIGHT / 2) + 68 + (Math.floor(i / 10) * 20),
+						-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
 					],
 					size: [18, 18],
 					uv: [16, 27],
@@ -146,7 +146,7 @@ const
 					{
 						origin: [
 							174 - (i % 10) * 16,
-							-(WINDOW_HEIGHT / 2) + 69 + (Math.floor(i / 10) * 20),
+							-(WINDOW_HEIGHT / 2) + 69 + Math.floor(i / 10) * 20,
 						],
 						size: [16, 16],
 						uv: [53, 27],
