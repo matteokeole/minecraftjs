@@ -1,31 +1,30 @@
-const UI_SIZE = 4;
-
 /**
  * Construct a slot which can contain an item
  * @param {object} slot - Slot informations, such as id and position
  */
 function Slot(slot) {
 	this.id = slot.id;
-	this.w = 8 * 4;
-	this.h = 8 * 4;
+	this.w = 8 * UI_SIZE;
+	this.h = 8 * UI_SIZE;
 	this.x = slot.x;
 	this.y = slot.y;
+	this.item = null;
 	this.element = document.createElement("div");
 	this.element.className = "slot";
 	this.element.style.cssText = `
 		width: ${this.w}px;
 		height: ${this.h}px;
 		position: absolute;
-		left: ${window.innerWidth / 2 - (this.w / 2) + this.x}px;
-		top: ${window.innerHeight / 2 - (this.h / 2) - this.y}px;
+		left: ${WINDOW_WIDTH / 2 - (this.w / 2) + this.x}px;
+		top: ${WINDOW_HEIGHT / 2 - (this.h / 2) - this.y}px;
 	`;
 	this.assign = item => {
+		this.item = item;
 		this.element.append(item.element);
 	};
 	this.empty = () => {
-		while (this.element.firstChild) {
-			this.element.firstChild.remove();
-		}
+		this.element.firstChild.remove();
+		this.item = null;
 	};
 
 	document.body.append(this.element);
@@ -34,8 +33,8 @@ function Slot(slot) {
 }
 
 function Item(name, tsrc, uv) {
-	this.w = 8 * 4;
-	this.h = 8 * 4;
+	this.w = 8 * UI_SIZE;
+	this.h = 8 * UI_SIZE;
 	this.name = name;
 	this.stack = 1;
 	this.element = document.createElement("div");
@@ -56,13 +55,10 @@ function Item(name, tsrc, uv) {
 	if (this.stack > 1) stackElement.textContent = this.stack;
 	this.element.append(stackElement);
 	this.setStack = count => {
-		if (count > 64) {
-			console.error("You can't set more than 64 objects in a stack.");
-			return;
-		}
+		// Can't get more than 64 items in one slot
+
 		this.stack = count;
 		if (this.stack > 1) stackElement.textContent = this.stack;
-		console.info(`Updated ${name} stack count to ${this.stack}!`);
 		return this;
 	};
 

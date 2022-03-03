@@ -2,7 +2,7 @@ function Entity(x, y, z, name) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
-	this.name = name
+	this.name = name;
 
 	this.entity = new THREE.Mesh();
 	this.entity.position.set(this.x, this.y, this.z);
@@ -16,7 +16,6 @@ Entity.prototype.setModel = function(model) {
 			this.model = response;
 
 			// Construct entity model
-			// let bone = this.model[`geometry.${this.name}`].bones[0];
 			for (let bone of this.model[`geometry.${this.name}`].bones) {
 				const obj = new THREE.Mesh(
 					new THREE.BoxGeometry(

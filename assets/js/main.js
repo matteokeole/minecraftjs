@@ -3,13 +3,9 @@ noise.seed(Math.random());
 
 // Init Three.js objects
 const
-	WINDOW = {
-		WIDTH: window.innerWidth,
-		HEIGHT: window.innerHeight,
-	},
 	Scene = new THREE.Scene(),
 	Renderer = new THREE.WebGLRenderer(),
-	Camera = new THREE.PerspectiveCamera(90, WINDOW.WIDTH / WINDOW.HEIGHT, .1, 1000),
+	Camera = new THREE.PerspectiveCamera(90, WINDOW_WIDTH / WINDOW_HEIGHT, .1, 1000),
 	Pointer = new THREE.Vector2(),
 	Raycaster = new THREE.Raycaster(),
 	Loader = new THREE.TextureLoader(),
@@ -97,7 +93,7 @@ Scene.background = new THREE.Color(0x000000);
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
 
 // Set renderer size
-Renderer.setSize(window.innerWidth, window.innerHeight);
+Renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 document.body.appendChild(Renderer.domElement);
 
 // Set camera and pointer position

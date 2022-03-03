@@ -2,24 +2,24 @@
 addEventListener("click", () => {Controls.lock()});
 
 // Press key event
-addEventListener("keydown", e => {
-	keys.push(e.code);
-});
+addEventListener("keydown", e => {keys.push(e.code)});
 
 // Release key event
 addEventListener("keyup", e => {
 	const newKeys = [];
 	keys.forEach(key => {
-		if (key !== e.code) newKeys.push(key)
+		if (key !== e.code) newKeys.push(key);
 	});
-	keys = newKeys
+	keys = newKeys;
 });
 
 // Resize window event
 addEventListener("resize", () => {
-	Renderer.setSize(window.innerWidth, window.innerHeight);
-	Camera.aspect = window.innerWidth / window.innerHeight;
-	Camera.updateProjectionMatrix()
+	WINDOW_WIDTH = window.innerWidth;
+	WINDOW_HEIGHT = window.innerHeight;
+	Renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	Camera.aspect = WINDOW_WIDTH / WINDOW_HEIGHT;
+	Camera.updateProjectionMatrix();
 });
 
 // Switch selected item (wheel event)

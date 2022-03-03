@@ -47,3 +47,8 @@ const
 		maxHunger: 20,
 		hunger: 20,
 	};
+
+let
+	WINDOW_WIDTH = window.innerWidth,
+	WINDOW_HEIGHT = window.innerHeight,
+	UI_SIZE = 4;
