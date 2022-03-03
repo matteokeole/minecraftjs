@@ -19,6 +19,7 @@ const update = () => {
 	}
 
 	if (keys.includes(Keybinds.open_inventory)) {
+		keys.splice(keys.indexOf("KeyI"), 1);
 		inventoryOpened = !inventoryOpened;
 		if (inventoryOpened) Camera.enableRotate = false;
 		else Camera.enableRotate = true;
