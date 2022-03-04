@@ -134,7 +134,7 @@ for (let i = 0; i < 10; i++) {
 }
 HungerLayer.update();
 
-UIContainerLayer.setVisibility(false);
+UIContainerLayer.setVisibility(true);
 UIContainerLayer.components.add(
 	new InterfaceComponent(
 		"inventory_container",
@@ -148,7 +148,7 @@ UIContainerLayer.components.add(
 );
 UIContainerLayer.update();
 
-/*const slots = {
+const slots = {
 	armor: Array.from({length: 4}, (_, i) => {
 		return new Slot({
 			x: -144,
@@ -175,11 +175,11 @@ let iron_chestplate = new Item("Iron Chestplate", "item/iron_chestplate.png");
 slots.armor[1].assign(iron_chestplate);
 
 let stone_sword = new Item("Stone Sword", "item/stone_sword.png");
-slots.hotbar[0].assign(stone_sword);
+slots.inventory[9].assign(stone_sword);
 
 let bread = new Item("Bread", "item/bread.png");
 bread.setStack(17);
-slots.hotbar[8].assign(bread);*/
+slots.hotbar[8].assign(bread);
 
 let selected_slot = 0,
-	inventoryOpened = false;
+	inventoryOpened = true;

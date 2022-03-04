@@ -102,9 +102,7 @@ Renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 document.body.appendChild(Renderer.domElement);
 
 // Set camera and pointer position
-Camera.position.x = 0;
-Camera.position.y = 20;
-Camera.position.z = 0;
+Camera.position.set(0, 10, 0);
 Scene.add(Camera);
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
