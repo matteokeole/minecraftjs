@@ -3,8 +3,8 @@
  * @param {object} slot - Slot informations, such as id and position
  */
 function Slot(slot) {
-	this.w = 8 * UI_SIZE;
-	this.h = 8 * UI_SIZE;
+	this.w = 8 * SETTINGS.ui_size;
+	this.h = 8 * SETTINGS.ui_size;
 	this.x = slot.x;
 	this.y = slot.y;
 	this.item = null;
@@ -32,8 +32,8 @@ function Slot(slot) {
 }
 
 function Item(name, tsrc, uv) {
-	this.w = 8 * UI_SIZE;
-	this.h = 8 * UI_SIZE;
+	this.w = 8 * SETTINGS.ui_size;
+	this.h = 8 * SETTINGS.ui_size;
 	this.name = name;
 	this.stack = 1;
 	this.element = document.createElement("div");

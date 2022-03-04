@@ -5,6 +5,10 @@ const update = () => {
 		if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
 		if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
 		if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
+		if (keys.includes(Keybinds.jump) && canJump) {
+			canJump = false;
+			ySpeed = -1;
+		}
 	}
 
 	// Hotbar slot keybinds
@@ -20,11 +24,6 @@ const update = () => {
 		}
 	}
 
-	if (keys.includes(Keybinds.jump) && canJump) {
-		canJump = false;
-		ySpeed = -1
-	}
-
 	if (keys.includes(Keybinds.open_inventory)) {
 		keys.splice(keys.indexOf("KeyI"), 1);
 		inventoryOpened = !inventoryOpened;
@@ -37,8 +36,8 @@ const update = () => {
 	ySpeed += acc;
 
 	// Player gravity
-	chunks.forEach(chunk => {
-		chunk.forEach(block => {
+	for (let chunk of chunks) {
+		for (let block of chunk) {
 			if (
 				Camera.position.x <= block.x + (u / 2) &&
 				Camera.position.x >= block.x - (u / 2) &&
@@ -49,10 +48,10 @@ const update = () => {
 			) {
 				Camera.position.y = block.y + (u * 2.12);
 				ySpeed = 0;
-				canJump = true
+				canJump = true;
 			}
-		})
-	});
+		}
+	}
 
 	// Terrain generation
 	const worldWide = chunkSize * renderDistance * u,
@@ -69,7 +68,7 @@ const update = () => {
 		// Add new chunks in front of the player
 		for (let i in chunks) {
 			if ((i + 1) % renderDistance != 0) {
-				newChunks.push(chunks[i])
+				newChunks.push(chunks[i]);
 			}
 		}
 
@@ -91,20 +90,20 @@ const update = () => {
 					xOff = inc * x / u;
 					zOff = inc * z / u;
 					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / u) * u;
-					chunk.push(new Block(x, v, z))
+					chunk.push(new Block(x, v, z));
 				}
 			}
-			newChunks.splice(i * renderDistance, 0, chunk)
+			newChunks.splice(i * renderDistance, 0, chunk);
 		}
 
 		chunks = newChunks;
 
-		Scene.remove(instancedChunk)
+		Scene.remove(instancedChunk);
 
 		instancedChunk = new THREE.InstancedMesh(
 			BlockGeometry,
 			BlockMaterial,
-			(chunkSize * chunkSize * renderDistance * renderDistance)
+			(chunkSize * chunkSize * renderDistance * renderDistance),
 		);
 		let count = 0;
 		chunks.forEach(chunk => {
@@ -112,13 +111,13 @@ const update = () => {
 				let matrix = new THREE.Matrix4().makeTranslation(
 					block.x,
 					block.y,
-					block.z
+					block.z,
 				);
 				instancedChunk.setMatrixAt(count, matrix);
-				count++
+				count++;
 			})
 		});
-		Scene.add(instancedChunk)
+		Scene.add(instancedChunk);
 	}
 
 	if (Camera.position.z >= getBlock("highest", "z") - (worldWide * ratio)) {
@@ -133,7 +132,7 @@ const update = () => {
 		// Add new chunks in front of the player
 		for (let i in chunks) {
 			if (i % renderDistance != 0) {
-				newChunks.push(chunks[i])
+				newChunks.push(chunks[i]);
 			}
 		}
 
@@ -155,20 +154,20 @@ const update = () => {
 					xOff = inc * x / u;
 					zOff = inc * z / u;
 					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / u) * u;
-					chunk.push(new Block(x, v, z))
+					chunk.push(new Block(x, v, z));
 				}
 			}
-			newChunks.splice((i + 1) * renderDistance - 1, 0, chunk)
+			newChunks.splice((i + 1) * renderDistance - 1, 0, chunk);
 		}
 
 		chunks = newChunks;
 
-		Scene.remove(instancedChunk)
+		Scene.remove(instancedChunk);
 
 		instancedChunk = new THREE.InstancedMesh(
 			BlockGeometry,
 			BlockMaterial,
-			(chunkSize * chunkSize * renderDistance * renderDistance)
+			(chunkSize * chunkSize * renderDistance * renderDistance),
 		);
 		let count = 0;
 		chunks.forEach(chunk => {
@@ -176,13 +175,13 @@ const update = () => {
 				let matrix = new THREE.Matrix4().makeTranslation(
 					block.x,
 					block.y,
-					block.z
+					block.z,
 				);
 				instancedChunk.setMatrixAt(count, matrix);
-				count++
+				count++;
 			})
 		});
-		Scene.add(instancedChunk)
+		Scene.add(instancedChunk);
 	}
 
 	if (Camera.position.x >= getBlock("highest", "x") - (worldWide * ratio)) {
@@ -196,7 +195,7 @@ const update = () => {
 
 		// Add new chunks in front of the player
 		for (let i = renderDistance; i < chunks.length; i++) {
-			newChunks.push(chunks[i])
+			newChunks.push(chunks[i]);
 		}
 
 		// Add blocks
@@ -217,20 +216,20 @@ const update = () => {
 					xOff = inc * x / u;
 					zOff = inc * z / u;
 					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / u) * u;
-					chunk.push(new Block(x, v, z))
+					chunk.push(new Block(x, v, z));
 				}
 			}
-			newChunks.splice(chunks.length - (renderDistance - i), 0, chunk)
+			newChunks.splice(chunks.length - (renderDistance - i), 0, chunk);
 		}
 
 		chunks = newChunks;
 
-		Scene.remove(instancedChunk)
+		Scene.remove(instancedChunk);
 
 		instancedChunk = new THREE.InstancedMesh(
 			BlockGeometry,
 			BlockMaterial,
-			(chunkSize * chunkSize * renderDistance * renderDistance)
+			(chunkSize * chunkSize * renderDistance * renderDistance),
 		);
 		let count = 0;
 		chunks.forEach(chunk => {
@@ -238,13 +237,13 @@ const update = () => {
 				let matrix = new THREE.Matrix4().makeTranslation(
 					block.x,
 					block.y,
-					block.z
+					block.z,
 				);
 				instancedChunk.setMatrixAt(count, matrix);
-				count++
+				count++;
 			})
 		});
-		Scene.add(instancedChunk)
+		Scene.add(instancedChunk);
 	}
 
 	if (Camera.position.x <= getBlock("lowest", "x") + (worldWide * ratio)) {
@@ -258,7 +257,7 @@ const update = () => {
 
 		// Add new chunks in front of the player
 		for (let i = 0; i < chunks.length - renderDistance; i++) {
-			newChunks.push(chunks[i])
+			newChunks.push(chunks[i]);
 		}
 
 		// Add blocks
@@ -279,20 +278,20 @@ const update = () => {
 					xOff = inc * x / u;
 					zOff = inc * z / u;
 					const v = Math.round(noise.perlin2(xOff, zOff) * amplitude / u) * u;
-					chunk.push(new Block(x, v, z))
+					chunk.push(new Block(x, v, z));
 				}
 			}
-			newChunks.splice(i, 0, chunk)
+			newChunks.splice(i, 0, chunk);
 		}
 
 		chunks = newChunks;
 
-		Scene.remove(instancedChunk)
+		Scene.remove(instancedChunk);
 
 		instancedChunk = new THREE.InstancedMesh(
 			BlockGeometry,
 			BlockMaterial,
-			(chunkSize * chunkSize * renderDistance * renderDistance)
+			(chunkSize * chunkSize * renderDistance * renderDistance),
 		);
 		let count = 0;
 		chunks.forEach(chunk => {
@@ -300,12 +299,12 @@ const update = () => {
 				let matrix = new THREE.Matrix4().makeTranslation(
 					block.x,
 					block.y,
-					block.z
+					block.z,
 				);
 				instancedChunk.setMatrixAt(count, matrix);
-				count++
+				count++;
 			})
 		});
-		Scene.add(instancedChunk)
+		Scene.add(instancedChunk);
 	}
 }

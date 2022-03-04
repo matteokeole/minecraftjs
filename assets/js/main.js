@@ -3,23 +3,28 @@ noise.seed(Math.random());
 
 // Init Three.js objects
 const
-	Scene = new THREE.Scene(),
-	Renderer = new THREE.WebGLRenderer(),
-	Camera = new THREE.PerspectiveCamera(90, WINDOW_WIDTH / WINDOW_HEIGHT, .1, 1000),
-	Pointer = new THREE.Vector2(),
-	Raycaster = new THREE.Raycaster(),
-	Loader = new THREE.TextureLoader(),
-	Controls = new THREE.PointerLockControls(Camera, document.body),
-	BlockGeometry = new THREE.BoxGeometry(1, 1, 1),
+	Scene				= new THREE.Scene(),
+	Renderer			= new THREE.WebGLRenderer(),
+	Camera				= new THREE.PerspectiveCamera(FIELD_OF_VIEW, WINDOW_WIDTH / WINDOW_HEIGHT, .1, 1000),
+	Pointer				= new THREE.Vector2(),
+	Raycaster			= new THREE.Raycaster(),
+	Loader				= new THREE.TextureLoader(),
+	Controls			= new THREE.PointerLockControls(Camera, document.body),
+	BlockGeometry		= new THREE.BoxGeometry(1, 1, 1),
+	SlabGeometry		= new THREE.BoxGeometry(1, .5, 1),
+	DoorGeometry		= new THREE.BoxGeometry(1, 2, .25),
+	TrapdoorGeometry	= new THREE.BoxGeometry(1, 1, .25),
 	BlockMaterial = ([
-		"podzol_side",	// Right
-		"podzol_side",	// Left
-		"podzol_top",	// Top
-		"dirt",			// Bottom
-		"podzol_side",	// Front
-		"podzol_side",	// Back
+		"sand",	// Right
+		"sand",	// Left
+		"sand",	// Top
+		"sand",	// Bottom
+		"sand",	// Front
+		"sand",	// Back
 	]).map(face => {
-		return new THREE.MeshBasicMaterial({map: Loader.load(`assets/textures/block/${face}.png`)})
+		return new THREE.MeshBasicMaterial(
+			{map: Loader.load(`assets/textures/block/${face}.png`)},
+		);
 	}),
 	Faces = [
 		{dir: [1, 0, 0, "right"]},
@@ -87,7 +92,7 @@ let chunks = [],
 
 // Set sky color and fog
 Scene.background = new THREE.Color(0x000000);
-// Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
+Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
 
 // Pixelise block faces
 BlockMaterial.forEach(face => {face.map.magFilter = THREE.NearestFilter});
@@ -104,10 +109,10 @@ Scene.add(Camera);
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 
-/*let test = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xff9800}));
-Camera.add(test);
-test.position.set(1.45, -1.2, -1.35);
-test.rotation.set(
+/*let hand = new THREE.Mesh(BlockGeometry, BlockMaterial);
+Camera.add(hand);
+hand.position.set(1.45, -1.2, -1.35);
+hand.rotation.set(
 	0,
 	Math.PI / 5.5,
 	Math.PI / 55,
@@ -121,9 +126,10 @@ Scene.add(Selector);
 let instancedChunk = new THREE.InstancedMesh(
 		BlockGeometry,
 		BlockMaterial,
-		(chunkSize * chunkSize * renderDistance * renderDistance)
+		(chunkSize * chunkSize * renderDistance * renderDistance),
 	),
 	count = 0;
+
 for (let i = 0; i < renderDistance; i++) {
 	for (let j = 0; j < renderDistance; j++) {
 		let chunk = [];
@@ -143,10 +149,10 @@ for (let i = 0; i < renderDistance; i++) {
 				chunk.push(new Block(x * u, v, z * u));
 				let matrix = new THREE.Matrix4().makeTranslation(x * u, v, z * u);
 				instancedChunk.setMatrixAt(count, matrix);
-				count++
+				count++;
 			}
 		}
-		chunks.push(chunk)
+		chunks.push(chunk);
 	}
 }
 Scene.add(instancedChunk);

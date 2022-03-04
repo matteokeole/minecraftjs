@@ -61,6 +61,7 @@ function Layer(id, width = WINDOW_WIDTH, height = WINDOW_HEIGHT) {
 }
 
 const
+	DebugLayer			= new Layer("debug-layer"),
 	UILayer				= new Layer("ui-layer"),
 	SelectorLayer		= new Layer("selector-layer"),
 	ExperienceLayer		= new Layer("experience-layer"),

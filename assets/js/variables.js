@@ -36,7 +36,8 @@ const
 		open_inventory: "KeyI",
 	},
 	// Player settings
-	Settings = {
+	SETTINGS = {
+		ui_size: 4,
 		autojump: false,
 		borders: false,
 	},
@@ -52,4 +53,4 @@ const
 let
 	WINDOW_WIDTH = window.innerWidth,
 	WINDOW_HEIGHT = window.innerHeight,
-	UI_SIZE = 4;
+	FIELD_OF_VIEW = 90;
