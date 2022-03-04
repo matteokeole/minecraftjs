@@ -23,7 +23,7 @@ addEventListener("resize", () => {
 });
 
 // Switch selected item (wheel event)
-addEventListener("wheel", e => {
+/*addEventListener("wheel", e => {
 	if (e.deltaY > 0) {
 		// Right
 		selected_slot = (selected_slot < 8) ? ++selected_slot : 0;
@@ -32,4 +32,4 @@ addEventListener("wheel", e => {
 		selected_slot = (selected_slot > 0) ? --selected_slot : 8;
 	}
 	inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
-});
+});*/

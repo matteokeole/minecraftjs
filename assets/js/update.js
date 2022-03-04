@@ -6,25 +6,25 @@ const update = () => {
 	if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
 
 	// Hotbar slot keybinds
-	for (let i in Keybinds.hotbar_slots) {
+	/*for (let i in Keybinds.hotbar_slots) {
 		if (keys.includes(Keybinds.hotbar_slots[i])) {
 			selected_slot = i;
 			inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
 		}
-	}
+	}*/
 
 	if (keys.includes(Keybinds.jump) && canJump) {
 		canJump = false;
 		ySpeed = -1
 	}
 
-	if (keys.includes(Keybinds.open_inventory)) {
+	/*if (keys.includes(Keybinds.open_inventory)) {
 		keys.splice(keys.indexOf("KeyI"), 1);
 		inventoryOpened = !inventoryOpened;
 		if (inventoryOpened) Camera.enableRotate = false;
 		else Camera.enableRotate = true;
 		toggleInventory();
-	}
+	}*/
 
 	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;

@@ -1,6 +1,32 @@
 const
 	gui = document.querySelector("canvas.gui"),
 	ctx = gui.getContext("2d"),
+	updateGUI = () => {
+		setTimeout(() => {
+			ctx.clearRect(0, 0, gui.width, gui.height);
+
+			// Draw all components here
+			for (let component of Object.values(InterfaceComponents)) {
+				if (component.state === "visible") {
+					const texture = new Image();
+					texture.addEventListener("load", () => {
+						ctx.drawImage(
+							texture,
+							component.uv.x,
+							component.uv.y,
+							component.size.x / 2,
+							component.size.y / 2,
+							(WINDOW_WIDTH  / 2) - (component.size.x / 2) + component.origin.x,
+							(WINDOW_HEIGHT / 2) - (component.size.y / 2) - component.origin.y,
+							component.size.x,
+							component.size.y,
+						);
+					});
+					texture.src = `assets/textures/${component.texture}`;
+				}
+			}
+		}, 100);
+	},
 	InterfaceComponent = function(id, obj, tsrc) {
 		// Set object ID
 		this.id = id;
@@ -19,8 +45,12 @@ const
 			y: obj.uv[1],
 		};
 
+		this.state = "visible";
+
+		this.texture = tsrc;
+
 		// Load object texture
-		this.texture = new Image();
+		/*this.texture = new Image();
 		this.texture.addEventListener("load", () => {
 			ctx.drawImage(
 				this.texture,
@@ -34,9 +64,13 @@ const
 				this.size.y,
 			);
 		});
-		this.texture.src = `assets/textures/${tsrc}`;
+		this.texture.src = `assets/textures/${tsrc}`;*/
 
 		this.setPosition = (x, y) => {};
+		this.setState = state => {
+			this.state = state;
+			updateGUI();
+		};
 
 		return this;
 	},
@@ -45,126 +79,128 @@ const
 		if (inventoryOpened) container.style.display = "block";
 		else container.style.display = "none";
 	},
-	crosshair = new InterfaceComponent(
-		"crosshair",
-		{
-			origin: [0, 0],
-			size: [18, 18],
-			uv: [3, 3],
-		},
-		"gui/icons.png",
-	),
-	hotbar = new InterfaceComponent(
-		"hotbar",
-		{
-			origin: [
-				0,
-				-(WINDOW_HEIGHT / 2) + 21
-			],
-			size: [364, 44],
-			uv: [0, 0],
-		},
-		"gui/widgets.png",
-	),
-	hotbar_selector = setTimeout(() => {
-		new InterfaceComponent(
-			"hotbar_selector",
+	InterfaceComponents = {
+		crosshair: new InterfaceComponent(
+			"crosshair",
+			{
+				origin: [0, 0],
+				size: [18, 18],
+				uv: [3, 3],
+			},
+			"gui/icons.png",
+		),
+		hotbar: new InterfaceComponent(
+			"hotbar",
 			{
 				origin: [
-					-160,
+					0,
 					-(WINDOW_HEIGHT / 2) + 21
 				],
-				size: [48, 48],
-				uv: [0, 22],
+				size: [364, 44],
+				uv: [0, 0],
 			},
 			"gui/widgets.png",
-		)
-	}),
-	experience_bar = new InterfaceComponent(
-		"experience_bar",
-		{
-			origin: [
-				0,
-				-(WINDOW_HEIGHT / 2) + 52
-			],
-			size: [364, 10],
-			uv: [0, 64],
-		},
-		"gui/icons.png",
-	),
-	health_bar = [
-		Array.from({length: 10}, (_, i) => {
-			return new InterfaceComponent(
-				"heart_outline",
+		),
+		/*hotbar_selector: setTimeout(() => {
+			new InterfaceComponent(
+				"hotbar_selector",
 				{
 					origin: [
-						-173 + (i % 10) * 16,
-						-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
+						-160,
+						-(WINDOW_HEIGHT / 2) + 21
 					],
-					size: [18, 18],
-					uv: [16, 0],
+					size: [48, 48],
+					uv: [0, 22],
 				},
-				"gui/icons.png",
-			);
-		}),
-		Array.from({length: Player.hearts}, (_, i) => {
-			setTimeout(() => {
+				"gui/widgets.png",
+			)
+		}),*/
+		experience_bar: new InterfaceComponent(
+			"experience_bar",
+			{
+				origin: [
+					0,
+					-(WINDOW_HEIGHT / 2) + 52
+				],
+				size: [364, 10],
+				uv: [0, 64],
+			},
+			"gui/icons.png",
+		),
+		/*health_bar: [
+			Array.from({length: 10}, (_, i) => {
 				return new InterfaceComponent(
-					"heart_inner",
+					"heart_outline",
 					{
 						origin: [
-							-172 + (i % 10) * 16,
+							-173 + (i % 10) * 16,
 							-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
 						],
-						size: [16, 14],
-						uv: [53, 1],
+						size: [18, 18],
+						uv: [16, 0],
 					},
 					"gui/icons.png",
 				);
-			});
-		}),
-	],
-	hunger_bar = [
-		Array.from({length: 10}, (_, i) => {
-			return new InterfaceComponent(
-				"hunger_outline",
-				{
-					origin: [
-						173 - (i % 10) * 16,
-						-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
-					],
-					size: [18, 18],
-					uv: [16, 27],
-				},
-				"gui/icons.png",
-			);
-		}),
-		Array.from({length: 10}, (_, i) => {
-			setTimeout(() => {
+			}),
+			Array.from({length: Player.hearts}, (_, i) => {
+				setTimeout(() => {
+					return new InterfaceComponent(
+						"heart_inner",
+						{
+							origin: [
+								-172 + (i % 10) * 16,
+								-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
+							],
+							size: [16, 14],
+							uv: [53, 1],
+						},
+						"gui/icons.png",
+					);
+				});
+			}),
+		],
+		hunger_bar: [
+			Array.from({length: 10}, (_, i) => {
 				return new InterfaceComponent(
-					"hunger_inner",
+					"hunger_outline",
 					{
 						origin: [
-							174 - (i % 10) * 16,
-							-(WINDOW_HEIGHT / 2) + 69 + Math.floor(i / 10) * 20,
+							173 - (i % 10) * 16,
+							-(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20,
 						],
-						size: [16, 16],
-						uv: [53, 27],
+						size: [18, 18],
+						uv: [16, 27],
 					},
 					"gui/icons.png",
 				);
-			});
-		}),
-	],
-	inventory_container = new InterfaceComponent(
-		"inventory_container",
-		{
-			origin: [0, 0],
-			size: [352, 332],
-			uv: [0, 0],
-		},
-		"gui/container/inventory.png",
-	);
+			}),
+			Array.from({length: 10}, (_, i) => {
+				setTimeout(() => {
+					return new InterfaceComponent(
+						"hunger_inner",
+						{
+							origin: [
+								174 - (i % 10) * 16,
+								-(WINDOW_HEIGHT / 2) + 69 + Math.floor(i / 10) * 20,
+							],
+							size: [16, 16],
+							uv: [53, 27],
+						},
+						"gui/icons.png",
+					);
+				});
+			}),
+		],*/
+		inventory_container: new InterfaceComponent(
+			"inventory_container",
+			{
+				origin: [0, 0],
+				size: [352, 332],
+				uv: [0, 0],
+			},
+			"gui/container/inventory.png",
+		),
+	};
 
 ctx.canvas.width = WINDOW_WIDTH;
 ctx.canvas.height = WINDOW_HEIGHT;
@@ -204,5 +240,6 @@ let bread = new Item("Bread", "item/bread.png");
 bread.setStack(17);
 slots.hotbar[8].assign(bread);
 
-let selected_slot = 0,
-	inventoryOpened = false;
+// let selected_slot = 0, inventoryOpened = false;
+
+updateGUI();
