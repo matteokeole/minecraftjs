@@ -1,9 +1,11 @@
 const update = () => {
 	// Player movement
-	if (keys.includes(Keybinds.walk_forwards)) Controls.moveForward(movingSpeed);
-	if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
-	if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
-	if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
+	if (!inventoryOpened) {
+		if (keys.includes(Keybinds.walk_forwards)) Controls.moveForward(movingSpeed);
+		if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
+		if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
+		if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
+	}
 
 	// Hotbar slot keybinds
 	for (let i in Keybinds.hotbar_slots) {
@@ -26,8 +28,8 @@ const update = () => {
 	if (keys.includes(Keybinds.open_inventory)) {
 		keys.splice(keys.indexOf("KeyI"), 1);
 		inventoryOpened = !inventoryOpened;
-		if (inventoryOpened) Camera.enableRotate = false;
-		else Camera.enableRotate = true;
+		if (inventoryOpened) Controls.unlock();
+		else Controls.lock();
 		UIContainerLayer.setVisibility(inventoryOpened);
 	}
 

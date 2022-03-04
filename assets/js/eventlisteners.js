@@ -1,5 +1,7 @@
 // Focus page event
-addEventListener("click", () => {Controls.lock()});
+addEventListener("click", () => {
+	if (!inventoryOpened) Controls.lock();
+});
 
 // Press key event
 addEventListener("keydown", e => {keys.push(e.code)});
