@@ -26,12 +26,17 @@ body {
 	font-size: 20px;
 }
 
-canvas.gui {
-	background-color: #222;
+.layer {
+	position: absolute;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
+}
+
+.layer#ui-container-layer {
+	background-color: rgba(0, 0, 0, .7);
+	z-index: 1;
 }
 
 #debug {

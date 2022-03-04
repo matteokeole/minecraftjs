@@ -6,25 +6,30 @@ const update = () => {
 	if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
 
 	// Hotbar slot keybinds
-	/*for (let i in Keybinds.hotbar_slots) {
+	for (let i in Keybinds.hotbar_slots) {
 		if (keys.includes(Keybinds.hotbar_slots[i])) {
+			keys.splice(i, 1);
 			selected_slot = i;
-			inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
+			SelectorLayer.components.get("hotbar_selector").setPosition([
+				-160 + selected_slot * 40,
+				SelectorLayer.components.get("hotbar_selector").origin.y,
+			]);
+			SelectorLayer.update();
 		}
-	}*/
+	}
 
 	if (keys.includes(Keybinds.jump) && canJump) {
 		canJump = false;
 		ySpeed = -1
 	}
 
-	/*if (keys.includes(Keybinds.open_inventory)) {
+	if (keys.includes(Keybinds.open_inventory)) {
 		keys.splice(keys.indexOf("KeyI"), 1);
 		inventoryOpened = !inventoryOpened;
 		if (inventoryOpened) Camera.enableRotate = false;
 		else Camera.enableRotate = true;
-		toggleInventory();
-	}*/
+		UIContainerLayer.setVisibility(inventoryOpened);
+	}
 
 	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;
@@ -56,8 +61,6 @@ const update = () => {
 			[1], [x], [7]
 			[2], [5], [8]
 		*/
-
-		// Remove chunks behind the player
 
 		let newChunks = [];
 
@@ -123,8 +126,6 @@ const update = () => {
 			[2], [5], [8]
 		*/
 
-		// Remove chunks behind the player
-
 		let newChunks = [];
 
 		// Add new chunks in front of the player
@@ -189,8 +190,6 @@ const update = () => {
 			[2], [5], [8]
 		*/
 
-		// Remove chunks behind the player
-
 		let newChunks = [];
 
 		// Add new chunks in front of the player
@@ -252,8 +251,6 @@ const update = () => {
 			[1], [x], [7]
 			[2], [5], [8]
 		*/
-
-		// Remove chunks behind the player
 
 		let newChunks = [];
 

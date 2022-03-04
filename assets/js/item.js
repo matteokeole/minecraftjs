@@ -3,7 +3,6 @@
  * @param {object} slot - Slot informations, such as id and position
  */
 function Slot(slot) {
-	this.id = slot.id;
 	this.w = 8 * UI_SIZE;
 	this.h = 8 * UI_SIZE;
 	this.x = slot.x;

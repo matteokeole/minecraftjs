@@ -23,7 +23,7 @@ addEventListener("resize", () => {
 });
 
 // Switch selected item (wheel event)
-/*addEventListener("wheel", e => {
+addEventListener("wheel", e => {
 	if (e.deltaY > 0) {
 		// Right
 		selected_slot = (selected_slot < 8) ? ++selected_slot : 0;
@@ -31,5 +31,10 @@ addEventListener("resize", () => {
 		// Left
 		selected_slot = (selected_slot > 0) ? --selected_slot : 8;
 	}
-	inventory_bar_selector.setPosition(inventory_bar_selector_slots[selected_slot]);
-});*/
+
+	SelectorLayer.components.get("hotbar_selector").setPosition([
+		-160 + selected_slot * 40,
+		SelectorLayer.components.get("hotbar_selector").origin.y,
+	]);
+	SelectorLayer.update();
+});
