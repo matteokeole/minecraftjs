@@ -107,14 +107,14 @@ Scene.add(Camera);
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 
-/*let hand = new THREE.Mesh(BlockGeometry, BlockMaterial);
+let hand = new THREE.Mesh(BlockGeometry, BlockMaterial);
 Camera.add(hand);
 hand.position.set(1.45, -1.2, -1.35);
 hand.rotation.set(
 	0,
 	Math.PI / 5.5,
 	Math.PI / 55,
-);*/
+);
 
 // Add outline to selector
 Selector.add(SelectorOutline);

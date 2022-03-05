@@ -1,35 +1,60 @@
 const update = () => {
-	// Player movement
-	if (!inventoryOpened) {
-		if (keys.includes(Keybinds.walk_forwards)) Controls.moveForward(movingSpeed);
-		if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
-		if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
-		if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
-		if (keys.includes(Keybinds.jump) && canJump) {
-			canJump = false;
-			ySpeed = -1;
-		}
-	}
+	switch (true) {
+		default:
+			if (!ContainerLayer.visible) {
+				// Control keys
+				if (keys.includes(Keybinds.walk_forwards)) Controls.moveForward(movingSpeed);
+				if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
+				if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
+				if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
+				if (keys.includes(Keybinds.jump) && canJump) {
+					canJump = false;
+					ySpeed = -1;
+				}
 
-	// Hotbar slot keybinds
-	for (let i in Keybinds.hotbar_slots) {
-		if (keys.includes(Keybinds.hotbar_slots[i])) {
-			keys.splice(i, 1);
-			selected_slot = i;
-			SelectorLayer.components.get("hotbar_selector").setPosition([
-				-160 + selected_slot * 40,
-				SelectorLayer.components.get("hotbar_selector").origin.y,
-			]);
-			SelectorLayer.update();
-		}
-	}
+				// Hotbar slots
+				for (let i in Keybinds.hotbar_slots) {
+					if (keys.includes(Keybinds.hotbar_slots[i])) {
+						// Remove key from keylist
+						keys.splice(i, 1);
 
-	if (keys.includes(Keybinds.open_inventory)) {
-		keys.splice(keys.indexOf("KeyI"), 1);
-		inventoryOpened = !inventoryOpened;
-		if (inventoryOpened) Controls.unlock();
-		else Controls.lock();
-		UIContainerLayer.setVisibility(inventoryOpened);
+						// Update selector position on the hotbar
+						SelectorLayer.components.get("hotbar_selector").setPosition([
+							-160 + i * 40,
+							SelectorLayer.components.get("hotbar_selector").origin.y,
+						]);
+						SelectorLayer.update();
+					}
+				}
+			}
+
+			break;
+		// Escape key
+		case keys.includes(Keybinds.escape):
+			// Remove key from keylist
+			keys.splice(keys.indexOf(Keybinds.escape), 1);
+
+			// Hide container layer if visible
+			if (ContainerLayer.visible) {
+				ContainerLayer.toggle(0);
+				setTimeout(() => {Controls.lock()}, 300);
+			}
+			else {
+				// Toggle pause menu layer display
+				MenuLayer.visible ? Controls.unlock() : Controls.lock();
+				MenuLayer.toggle();
+			}
+
+			break;
+		// Inventory key
+		case keys.includes(Keybinds.open_inventory):
+			// Remove key from keylist
+			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
+
+			ContainerLayer.toggle();
+			ContainerLayer.visible ? Controls.unlock() : Controls.lock();
+
+			break;
 	}
 
 	Camera.position.y -= ySpeed / 4;

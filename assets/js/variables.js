@@ -17,6 +17,7 @@ const
 	acc = .115,
 	// Player keybinds
 	Keybinds = {
+		escape: "Escape",
 		jump: "Space",
 		strafe_left: "KeyA",
 		strafe_right: "KeyD",

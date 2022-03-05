@@ -2,18 +2,27 @@
  * Constructs a new layer
  * @param {string} id - Layer ID (will also be the canvas ID)
  */
-function Layer(id, width = WINDOW_WIDTH, height = WINDOW_HEIGHT) {
+function Layer(id, size = [], visible = true) {
 	this.id = id;
-	this.visible = true;
-	this.setVisibility = visibility => {
-		this.visible = visibility;
+	this.size = [
+		size[0] ? size[0] : WINDOW_WIDTH,
+		size[1] ? size[1] : WINDOW_HEIGHT,
+	];
+	this.visible = visible;
+	/**
+	 * Toggle layer visibility
+	 * @param {boolean} state - The visibility status, will be !this.visible if omitted
+	 */
+	this.toggle = (state = !this.visible) => {
+		this.visible = state;
 		this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 	};
 	this.canvas = document.createElement("canvas");
 	this.canvas.id = this.id;
 	this.canvas.className = "layer";
-	this.canvas.width = width;
-	this.canvas.height = height;
+	this.canvas.width = this.size[0];
+	this.canvas.height = this.size[1];
+	this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 	this.ctx = this.canvas.getContext("2d");
 	this.ctx.imageSmoothingEnabled = false;
 	this.components = {
@@ -24,6 +33,7 @@ function Layer(id, width = WINDOW_WIDTH, height = WINDOW_HEIGHT) {
 			return this.components;
 		},
 		get: component => {
+			// Admitting each component ID is unique
 			return this.components.list.filter(c => component === c.id)[0];
 		},
 	};
@@ -61,10 +71,11 @@ function Layer(id, width = WINDOW_WIDTH, height = WINDOW_HEIGHT) {
 }
 
 const
-	DebugLayer			= new Layer("debug-layer"),
-	UILayer				= new Layer("ui-layer"),
-	SelectorLayer		= new Layer("selector-layer"),
-	ExperienceLayer		= new Layer("experience-layer"),
-	HealthLayer			= new Layer("health-layer"),
-	HungerLayer			= new Layer("hunger-layer"),
-	UIContainerLayer	= new Layer("ui-container-layer");
+	DebugLayer			= new Layer("debug-layer", [], 0),
+	UILayer				= new Layer("ui-layer", [], 1),
+	SelectorLayer		= new Layer("selector-layer", [], 1),
+	ExperienceLayer		= new Layer("experience-layer", [], 1),
+	HealthLayer			= new Layer("health-layer", [], 1),
+	HungerLayer			= new Layer("hunger-layer", [], 1),
+	ContainerLayer		= new Layer("container-layer", [], 1),
+	MenuLayer			= new Layer("menu-layer", [], 0);

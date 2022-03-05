@@ -1,10 +1,13 @@
 // Focus page event
 addEventListener("click", () => {
-	if (!inventoryOpened) Controls.lock();
+	if (!ContainerLayer.visible) Controls.lock();
 });
 
 // Press key event
-addEventListener("keydown", e => {keys.push(e.code)});
+addEventListener("keydown", e => {
+	if (!/^(ControlLeft|F.+)$/.test(e.code)) e.preventDefault();
+	keys.push(e.code);
+});
 
 // Release key event
 addEventListener("keyup", e => {
@@ -39,4 +42,10 @@ addEventListener("wheel", e => {
 		SelectorLayer.components.get("hotbar_selector").origin.y,
 	]);
 	SelectorLayer.update();
+});
+
+addEventListener("mousemove", e => {
+	let tooltip = document.querySelector(".tooltip");
+	tooltip.style.left = `${e.clientX + 16}px`;
+	tooltip.style.top = `${e.clientY - 32}px`;
 });

@@ -35,7 +35,7 @@ body {
 	image-rendering: crisp-edges;
 }
 
-.layer#ui-container-layer {
+#container-layer, #menu-layer {
 	background-color: rgba(0, 0, 0, .7);
 	z-index: 1;
 }
@@ -73,15 +73,10 @@ body {
 }
 
 .tooltip {
-	/*display: none;*/
 	width: fit-content;
 	height: fit-content;
 	margin: auto;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	padding: 2px 4px 0 6px;
+	padding: 2px 4px 4px 6px;
 	position: absolute;
 	opacity: .9375; /* .936 - .939 */
 	border: 2px solid #000;

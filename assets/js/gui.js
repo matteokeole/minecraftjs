@@ -21,8 +21,8 @@ function InterfaceComponent(id, obj, tsrc) {
 		this.origin.x = pos[0];
 		this.origin.y = pos[1];
 	};
-	this.setVisibility = visibility => {
-		this.visible = visibility;
+	this.toggle = state => {
+		this.visible = state;
 	};
 
 	return this;
@@ -134,8 +134,7 @@ for (let i = 0; i < 10; i++) {
 }
 HungerLayer.update();
 
-UIContainerLayer.setVisibility(true);
-UIContainerLayer.components.add(
+ContainerLayer.components.add(
 	new InterfaceComponent(
 		"inventory_container",
 		{
@@ -146,40 +145,4 @@ UIContainerLayer.components.add(
 		"gui/container/inventory.png",
 	),
 );
-UIContainerLayer.update();
-
-const slots = {
-	armor: Array.from({length: 4}, (_, i) => {
-		return new Slot({
-			x: -144,
-			y: 135 - i * 36,
-		});
-	}),
-	inventory: Array.from({length: 27}, (_, i) => {
-		return new Slot({
-			x: -144 + (i % 9) * 36,
-			y: -17 - Math.floor(i / 9) * 36,
-		});
-	}),
-	hotbar: Array.from({length: 9}, (_, i) => {
-		return new Slot({
-			x: -144 + i * 36,
-			y: -133,
-		});
-	}),
-};
-
-// Add items to slots
-
-let iron_chestplate = new Item("Iron Chestplate", "item/iron_chestplate.png");
-slots.armor[1].assign(iron_chestplate);
-
-let stone_sword = new Item("Stone Sword", "item/stone_sword.png");
-slots.inventory[9].assign(stone_sword);
-
-let bread = new Item("Bread", "item/bread.png");
-bread.setStack(17);
-slots.hotbar[8].assign(bread);
-
-let selected_slot = 0,
-	inventoryOpened = true;
+ContainerLayer.update();
