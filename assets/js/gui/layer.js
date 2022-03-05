@@ -71,7 +71,7 @@ function Layer(id, size = [], visible = true) {
 }
 
 const
-	DebugLayer			= new Layer("debug-layer", [], 0),
+	// DebugLayer			= new Layer("debug-layer", [], 0),
 	UILayer				= new Layer("ui-layer", [], 1),
 	SelectorLayer		= new Layer("selector-layer", [], 1),
 	ExperienceLayer		= new Layer("experience-layer", [], 1),

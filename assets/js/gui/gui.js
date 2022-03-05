@@ -93,7 +93,7 @@ for (let i = 0; i < 10; i++) {
 				"gui/icons.png",
 			),
 		)
-		/*.add(
+		.add(
 			new InterfaceComponent(
 				"heart_inner",
 				{
@@ -103,7 +103,7 @@ for (let i = 0; i < 10; i++) {
 				},
 				"gui/icons.png",
 			),
-		)*/;
+		);
 }
 HealthLayer.update();
 
@@ -120,7 +120,7 @@ for (let i = 0; i < 10; i++) {
 				"gui/icons.png",
 			),
 		)
-		/*.add(
+		.add(
 			new InterfaceComponent(
 				"hunger_inner",
 				{
@@ -130,7 +130,7 @@ for (let i = 0; i < 10; i++) {
 				},
 				"gui/icons.png",
 			),
-		)*/;
+		);
 }
 HungerLayer.update();
 

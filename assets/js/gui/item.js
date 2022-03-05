@@ -33,20 +33,6 @@ function Item(name, tsrc, uv) {
 	return this;
 }
 
-// Add items to slots
-
-let iron_chestplate = new Item("Iron Chestplate", "item/iron_chestplate.png");
-SLOTS.armor[1].assign(iron_chestplate);
-
-let stone_sword = new Item("Stone Sword", "item/stone_sword.png");
-SLOTS.inventory_hotbar[0].assign(stone_sword);
-
-let bread = new Item("Bread", "item/bread.png");
-bread.setStack(17);
-SLOTS.inventory[4].assign(bread);
-
-
-
 let flowing_item = undefined;
 addEventListener("mousedown", e => {
 	const slot = Slot.getSlotAt(e.clientX, e.clientY);
@@ -89,6 +75,8 @@ addEventListener("mousedown", e => {
 				removeEventListener("mousemove", moveItemOnCursor);
 
 				// Show tooltip after drag & drop end
+				Tooltip.print(slot.item.name);
+				Tooltip.move(e.clientX, e.clientY);
 				Tooltip.toggle();
 			}
 		}
@@ -98,3 +86,27 @@ addEventListener("mousedown", e => {
 function moveItemOnCursor(e) {
 	flowing_item.move(e.clientX - flowing_item.w / 2, e.clientY - flowing_item.h / 2);
 };
+
+
+
+// Test itemss
+const
+	netherite_helmet = new Item("Netherite Helmet", "item/netherite_helmet.png"),
+	elytra = new Item("Elytra", "item/elytra.png"),
+	netherite_leggings = new Item("Netherite Leggings", "item/netherite_leggings.png"),
+	netherite_boots = new Item("Netherite Boots", "item/netherite_boots.png"),
+	netherite_sword = new Item("Netherite Sword", "item/netherite_sword.png"),
+	bow = new Item("Bow", "item/bow.png"),
+	netherite_pickaxe = new Item("Netherite Pickaxe", "item/netherite_pickaxe.png"),
+	water_bucket = new Item("Water Bucket", "item/water_bucket.png"),
+	bread = new Item("Bread", "item/bread.png");
+
+SLOTS.armor[0].assign(netherite_helmet);
+SLOTS.armor[1].assign(elytra);
+SLOTS.armor[2].assign(netherite_leggings);
+SLOTS.armor[3].assign(netherite_boots);
+SLOTS.inventory_hotbar[0].assign(netherite_sword);
+SLOTS.inventory_hotbar[1].assign(bow);
+SLOTS.inventory_hotbar[2].assign(netherite_pickaxe);
+SLOTS.inventory_hotbar[7].assign(water_bucket);
+SLOTS.inventory_hotbar[8].assign(bread);

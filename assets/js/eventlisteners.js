@@ -44,7 +44,3 @@ addEventListener("wheel", e => {
 	]);
 	SelectorLayer.update();
 });
-
-addEventListener("mousemove", e => {
-	Tooltip.move(e.clientX, e.clientY);
-});

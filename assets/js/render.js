@@ -38,5 +38,5 @@ const render = () => {
 	} else Selector.visible = false;
 
 	// Render the scene
-	Renderer.render(Scene, Camera)
+	Renderer.render(Scene, Camera);
 }
