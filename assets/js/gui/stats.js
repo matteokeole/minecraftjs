@@ -3,7 +3,7 @@ const
 	loopStats = () => {
 		stats.begin();
 		stats.end();
-		requestAnimationFrame(loopStats)
+		requestAnimationFrame(loopStats);
 	};
 
 // Show stats panel
@@ -13,8 +13,7 @@ const
 // 3+ - custom
 stats.showPanel(0);
 
-// Append to body
 document.body.appendChild(stats.dom);
 
 // Loop function
-requestAnimationFrame(loopStats)
+requestAnimationFrame(loopStats);

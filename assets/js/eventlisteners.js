@@ -28,6 +28,7 @@ addEventListener("resize", () => {
 });
 
 // Switch selected item (wheel event)
+let selected_slot = 0;
 addEventListener("wheel", e => {
 	if (e.deltaY > 0) {
 		// Right
@@ -45,7 +46,5 @@ addEventListener("wheel", e => {
 });
 
 addEventListener("mousemove", e => {
-	let tooltip = document.querySelector(".tooltip");
-	tooltip.style.left = `${e.clientX + 16}px`;
-	tooltip.style.top = `${e.clientY - 32}px`;
+	Tooltip.move(e.clientX, e.clientY);
 });
