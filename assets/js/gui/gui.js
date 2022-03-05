@@ -134,15 +134,71 @@ for (let i = 0; i < 10; i++) {
 }
 HungerLayer.update();
 
-ContainerLayer.components.add(
-	new InterfaceComponent(
-		"inventory_container",
-		{
-			origin: [0, 0],
-			size: [352, 332],
-			uv: [0, 0],
-		},
-		"gui/container/inventory.png",
-	),
-);
+ContainerLayer.components
+	.add(
+		new InterfaceComponent(
+			"inventory_container",
+			{
+				origin: [0, 0],
+				size: [352, 332],
+				uv: [0, 0],
+			},
+			"gui/container/inventory.png",
+		),
+	)
+	.add(
+		new InterfaceComponent(
+			"placeholder_helmet",
+			{
+				origin: [-144, 134],
+				size: [32, 32],
+				uv: [0, 0],
+			},
+			"item/empty_armor_slot_helmet.png",
+		),
+	)
+	.add(
+		new InterfaceComponent(
+			"placeholder_chesplate",
+			{
+				origin: [-144, 98],
+				size: [32, 32],
+				uv: [0, 0],
+			},
+			"item/empty_armor_slot_chestplate.png",
+		),
+	)
+	.add(
+		new InterfaceComponent(
+			"placeholder_leggings",
+			{
+				origin: [-144, 62],
+				size: [32, 32],
+				uv: [0, 0],
+			},
+			"item/empty_armor_slot_leggings.png",
+		),
+	)
+	.add(
+		new InterfaceComponent(
+			"placeholder_boots",
+			{
+				origin: [-144, 26],
+				size: [32, 32],
+				uv: [0, 0],
+			},
+			"item/empty_armor_slot_boots.png",
+		),
+	)
+	.add(
+		new InterfaceComponent(
+			"placeholder_shield",
+			{
+				origin: [-6, 26],
+				size: [32, 32],
+				uv: [0, 0],
+			},
+			"item/empty_armor_slot_shield.png",
+		),
+	);
 ContainerLayer.update();

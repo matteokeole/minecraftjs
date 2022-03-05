@@ -3,6 +3,7 @@
  * @param {object} slot - Slot informations, such as id and position
  */
 function Slot(slot) {
+	this.type = slot.type;
 	this.w = 9 * SETTINGS.ui_size;
 	this.h = 9 * SETTINGS.ui_size;
 	this.x = slot.x;
@@ -46,22 +47,34 @@ Slot.getSlotAt = (x, y) => {
 };
 
 const SLOTS = {
-	armor: Array.from({length: 4}, (_, i) => {
+	inventory_hotbar: Array.from({length: 9}, (_, i) => {
 		return new Slot({
-			x: -144,
-			y: 135 - i * 36,
+			type: "inventory_hotbar",
+			x: -144 + i * 36,
+			y: -133,
+			// placeholder: `item/empty_armor_slot_${["helmet", "chestplate", "leggings", "boots"][i]}.png`,
 		});
 	}),
 	inventory: Array.from({length: 27}, (_, i) => {
 		return new Slot({
+			type: "inventory",
 			x: -144 + (i % 9) * 36,
 			y: -17 - Math.floor(i / 9) * 36,
 		});
 	}),
-	hotbar: Array.from({length: 9}, (_, i) => {
+	armor: Array.from({length: 4}, (_, i) => {
 		return new Slot({
-			x: -144 + i * 36,
-			y: -133,
+			type: "armor",
+			x: -144,
+			y: 135 - i * 36,
 		});
 	}),
+	shield: [
+		new Slot({
+			type: "shield",
+			x: -6,
+			y: 26,
+			// placeholder: "item/empty_armor_slot_shield.png",
+		}),
+	],
 };
