@@ -34,7 +34,7 @@ const
 			"Digit8",
 			"Digit9",
 		],
-		open_inventory: "KeyI",
+		open_inventory: "Tab",
 	},
 	// Player settings
 	SETTINGS = {
@@ -46,7 +46,7 @@ const
 let
 	WINDOW_WIDTH = window.innerWidth,
 	WINDOW_HEIGHT = window.innerHeight,
-	FIELD_OF_VIEW = 65;
+	FIELD_OF_VIEW = 90;
 
 
 

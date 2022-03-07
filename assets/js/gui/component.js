@@ -151,6 +151,7 @@ ContainerLayer
 			size: [352, 332],
 			texture: "gui/container/inventory.png",
 			uv: [0, 0],
+			visible: false,
 			slots: {
 				armor: Array.from({length: 4}, (_, i) => {
 					return new Slot({

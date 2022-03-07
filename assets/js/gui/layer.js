@@ -73,5 +73,5 @@ const
 	ExperienceLayer		= new Layer("experience-layer", [], 1),
 	HealthLayer			= new Layer("health-layer", [], 1),
 	HungerLayer			= new Layer("hunger-layer", [], 1),
-	ContainerLayer		= new Layer("container-layer", [], 1),
+	ContainerLayer		= new Layer("container-layer", [], 0),
 	MenuLayer			= new Layer("menu-layer", [], 0);

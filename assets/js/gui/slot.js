@@ -14,6 +14,7 @@ function Slot(slot) {
 	this.element.dataset.id = this.id;
 	this.element.className = `slot ${lastSlotId}`;
 	this.element.style.cssText = `
+		visibility: hidden;
 		width: ${this.w}px;
 		height: ${this.h}px;
 		position: absolute;

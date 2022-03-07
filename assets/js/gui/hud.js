@@ -1,4 +1,7 @@
 const
+	HUDScene = new THREE.Scene(),
+	HUDRenderer = new THREE.WebGLRenderer({alpha: true}),
+	HUDCamera = new THREE.PerspectiveCamera(65, WINDOW_WIDTH / WINDOW_HEIGHT, .1, 1000),
 	holdBlockMaterial = ([
 		"spruce_planks",	// Right
 		"spruce_planks",	// Left
@@ -16,6 +19,8 @@ const
 // Set hold block position
 holdBlock.position.set(1.46, -1.28, -1.88);
 
+holdBlock.material.depthTest = true;
+
 // Set hold block rotation
 holdBlock.rotation.set(
 	0,
@@ -23,4 +28,10 @@ holdBlock.rotation.set(
 	0,
 );
 
-Camera.add(holdBlock);
+// Customize the renderer
+HUDRenderer.setClearColor(0xFFFFFF, 0);
+HUDRenderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+HUDRenderer.domElement.className = "scene";
+document.body.appendChild(HUDRenderer.domElement);
+
+HUDScene.add(holdBlock);

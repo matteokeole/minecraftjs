@@ -55,11 +55,6 @@ let chunks = [],
 Scene.background = new THREE.Color(0x000000);
 Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
 
-// Set renderer size
-Renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-Renderer.autoClear = false;
-document.body.appendChild(Renderer.domElement);
-
 // Set camera and pointer position
 Camera.position.set(0, 10, 0);
 Scene.add(Camera);

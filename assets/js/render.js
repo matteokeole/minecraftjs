@@ -38,5 +38,6 @@ const render = () => {
 	} else Selector.visible = false;
 
 	// Render the scene
+	HUDRenderer.render(HUDScene, HUDCamera);
 	Renderer.render(Scene, Camera);
 }

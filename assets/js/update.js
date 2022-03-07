@@ -40,6 +40,7 @@ const update = () => {
 				Tooltip.toggle(0);
 				ContainerLayer.toggle();
 				ContainerLayer.components.inventory.toggle();
+
 				setTimeout(() => {Controls.lock()}, 300);
 			}
 			else {
@@ -56,8 +57,10 @@ const update = () => {
 			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
 
 			ContainerLayer.components.inventory.toggle();
+			ContainerLayer.update();
 			ContainerLayer.toggle();
-			Tooltip.toggle(0);
+			Tooltip.toggle();
+
 			ContainerLayer.visible ? Controls.unlock() : Controls.lock();
 
 			break;
