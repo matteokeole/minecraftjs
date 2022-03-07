@@ -49,8 +49,7 @@ const
 	debugRequests = [];
 let chunks = [],
 	keys = [],
-	ySpeed = 0,
-	canJump = true;
+	ySpeed = 0;
 
 // Set sky color and fog
 Scene.background = new THREE.Color(0x000000);

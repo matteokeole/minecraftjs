@@ -7,8 +7,8 @@ const update = () => {
 				if (keys.includes(Keybinds.strafe_left)) Controls.moveRight(-movingSpeed);
 				if (keys.includes(Keybinds.walk_backwards)) Controls.moveForward(-movingSpeed);
 				if (keys.includes(Keybinds.strafe_right)) Controls.moveRight(movingSpeed);
-				if (keys.includes(Keybinds.jump) && canJump) {
-					canJump = false;
+				if (keys.includes(Keybinds.jump) && Player.canJump) {
+					Player.canJump = false;
 					ySpeed = -1;
 				}
 
@@ -29,6 +29,7 @@ const update = () => {
 			}
 
 			break;
+
 		// Escape key
 		case keys.includes(Keybinds.escape):
 			// Remove key from keylist
@@ -36,8 +37,9 @@ const update = () => {
 
 			// Hide container layer if visible
 			if (ContainerLayer.visible) {
-				ContainerLayer.toggle(0);
-				ContainerLayer.components.list[0].toggle();
+				Tooltip.toggle(0);
+				ContainerLayer.toggle();
+				ContainerLayer.components.inventory.toggle();
 				setTimeout(() => {Controls.lock()}, 300);
 			}
 			else {
@@ -47,22 +49,24 @@ const update = () => {
 			}
 
 			break;
+
 		// Inventory key
 		case keys.includes(Keybinds.open_inventory):
 			// Remove key from keylist
 			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
 
-			ContainerLayer.components.list[0].toggle();
+			ContainerLayer.components.inventory.toggle();
 			ContainerLayer.toggle();
+			Tooltip.toggle(0);
 			ContainerLayer.visible ? Controls.unlock() : Controls.lock();
 
 			break;
 	}
 
+	// Player gravity
 	Camera.position.y -= ySpeed / 4;
 	ySpeed += acc;
 
-	// Player gravity
 	for (let chunk of chunks) {
 		for (let block of chunk) {
 			if (
@@ -75,15 +79,16 @@ const update = () => {
 			) {
 				Camera.position.y = block.y + (u * 2.12);
 				ySpeed = 0;
-				canJump = true;
+				Player.canJump = true;
 			}
 		}
 	}
 
 	// Terrain generation
-	const worldWide = chunkSize * renderDistance * u,
-		ratio = .4;
-	if (Camera.position.z <= getBlock("lowest", "z") + (worldWide * ratio)) {
+	const
+		worldWide	= chunkSize * renderDistance * u,
+		ratio		= .4;
+	if (Camera.position.z <= getBlock("lowest", "z") + worldWide * ratio) {
 		/*
 			[0], [3], [6]
 			[1], [x], [7]
@@ -147,7 +152,7 @@ const update = () => {
 		Scene.add(instancedChunk);
 	}
 
-	if (Camera.position.z >= getBlock("highest", "z") - (worldWide * ratio)) {
+	if (Camera.position.z >= getBlock("highest", "z") - worldWide * ratio) {
 		/*
 			[0], [3], [6]
 			[1], [x], [7]
@@ -211,7 +216,7 @@ const update = () => {
 		Scene.add(instancedChunk);
 	}
 
-	if (Camera.position.x >= getBlock("highest", "x") - (worldWide * ratio)) {
+	if (Camera.position.x >= getBlock("highest", "x") - worldWide * ratio) {
 		/*
 			[0], [3], [6]
 			[1], [x], [7]
@@ -273,7 +278,7 @@ const update = () => {
 		Scene.add(instancedChunk);
 	}
 
-	if (Camera.position.x <= getBlock("lowest", "x") + (worldWide * ratio)) {
+	if (Camera.position.x <= getBlock("lowest", "x") + worldWide * ratio) {
 		/*
 			[0], [3], [6]
 			[1], [x], [7]

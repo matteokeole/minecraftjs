@@ -1,10 +1,9 @@
 /**
- * Construct a slot which can contain an item
+ * Construct a slot which acts as an item container
  * @param {object} slot - Slot informations, such as id and position
  */
 function Slot(slot) {
-	this.id = lastSlotId;
-	lastSlotId++;
+	this.id = lastSlotId++;
 	this.type = slot.type;
 	this.w = 9 * SETTINGS.ui_size;
 	this.h = 9 * SETTINGS.ui_size;
@@ -21,11 +20,35 @@ function Slot(slot) {
 		left: ${WINDOW_WIDTH / 2 - (this.w / 2) + this.x}px;
 		top: ${WINDOW_HEIGHT / 2 - (this.h / 2) - this.y}px;
 	`;
+
+	/**
+	 * Assign an item to the slot. The previous item will be dropped.
+	 * @param {object} item - The item to be assigned
+	 */
 	this.assign = item => {
 		this.item = item;
-		this.element.appendChild(this.item.element);
+		this.element.append(this.item.element);
+
 		this.item.element.style.position = "static";
 	};
+
+	/**
+	 * Assign an item to the slot and return the previous one.
+	 * @param {object} item - The item to be assigned
+	 */
+	this.swap = item => {
+		// Stock the previous item
+		let previousItem = this.item;
+
+		// Assign the new item
+		this.assign(item);
+
+		return previousItem;
+	};
+
+	/**
+	 * Remove the current item from the slot.
+	 */
 	this.empty = () => {
 		this.element.replaceChildren();
 		this.item = null;
@@ -37,23 +60,13 @@ function Slot(slot) {
 Slot.getSlotAt = e => {
 	if (e.target.className.includes("slot")) {
 		// Assuming slots have unique ID
-		for (let section of Object.values(ContainerLayer.components.list[0].slots)) {
-			for (let slot of section) {
+		for (let part of Object.values(ContainerLayer.components.inventory.slots)) {
+			for (let slot of part) {
 				if (slot.id == e.target.dataset.id) return slot;
 			}
 		}
 	}
 	return false;
-	/*for (let section of Object.values(SLOTS)) {
-		for (let slot of section) {
-			if (
-				slot.x - slot.w / 2 <= (x - WINDOW_WIDTH / 2).toFixed(0) &&
-				slot.x + slot.w / 2 > (x - WINDOW_WIDTH / 2).toFixed(0) &&
-				slot.y - slot.h / 2 <= -(y - WINDOW_HEIGHT / 2).toFixed(0) &&
-				slot.y + slot.h / 2 >= -(y - WINDOW_HEIGHT / 2).toFixed(0)
-			) return slot;
-		}
-	}*/
 };
 
 let lastSlotId = 0;

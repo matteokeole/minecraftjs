@@ -1,4 +1,5 @@
 const Player = {
+	canJump: true,
 	hearts: 10,
 	maxHealth: 20,
 	health: 20,

@@ -25,17 +25,13 @@ function Layer(id, size = [], visible = true) {
 	this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 	this.ctx = this.canvas.getContext("2d");
 	this.ctx.imageSmoothingEnabled = false;
-	this.components = {
-		list: [],
-		add: component => {
-			component.layer = this;
-			this.components.list.push(component);
-			return this.components;
-		},
-		get: component => {
-			// Admitting each component ID is unique
-			return this.components.list.filter(c => component === c.id)[0];
-		},
+	this.components = {};
+	this.add = component => {
+		// Set the parent layer attribute to the new component before creating it
+		component.layer = this;
+		this.components[component.id] = component;
+
+		return this;
 	};
 	this.update = () => {
 		// This will update the layer by re-drawing it with the list of its components this.components[]
@@ -43,7 +39,7 @@ function Layer(id, size = [], visible = true) {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		// Loop through layer components
-		for (let component of Object.values(this.components.list)) {
+		for (let component of Object.values(this.components)) {
 			if (component.visible) {
 				// Draw component
 				const texture = new Image();

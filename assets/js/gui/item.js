@@ -37,6 +37,7 @@ let flowing_item = undefined;
 addEventListener("mousedown", e => {
 	const slot = Slot.getSlotAt(e);
 	if (!flowing_item) {
+		// No pre-selected item
 		if (slot && slot.item) {
 			// Take item, drag & drop start
 			Tooltip.toggle();
@@ -51,14 +52,12 @@ addEventListener("mousedown", e => {
 			addEventListener("mousemove", moveItemOnCursor);
 		}
 	} else {
-		// Release item, drag & drop end
+		// Preselected item
 		if (slot) {
+			// Release item, drag & drop end
 			if (slot.item) {
 				// Swap items
-				let flowing_item_memory = slot.item;
-				slot.empty();
-				slot.assign(flowing_item);
-				flowing_item = flowing_item_memory;
+				flowing_item = slot.swap(flowing_item);
 				flowing_item.element.style.position = "absolute";
 				flowing_item.element.style.pointerEvents = "none";
 				flowing_item.element.style.zIndex = 2;
@@ -104,13 +103,13 @@ const
 	water_bucket = new Item("Water Bucket", "item/water_bucket.png"),
 	bread = new Item("Bread", "item/bread.png");
 
-ContainerLayer.components.list[0].slots.armor[0].assign(netherite_helmet);
-ContainerLayer.components.list[0].slots.armor[1].assign(elytra);
-ContainerLayer.components.list[0].slots.armor[2].assign(netherite_leggings);
-ContainerLayer.components.list[0].slots.armor[3].assign(netherite_boots);
-ContainerLayer.components.list[0].slots.hotbar[0].assign(netherite_sword);
-ContainerLayer.components.list[0].slots.hotbar[1].assign(bow);
-ContainerLayer.components.list[0].slots.hotbar[2].assign(netherite_pickaxe);
-ContainerLayer.components.list[0].slots.hotbar[7].assign(water_bucket);
-ContainerLayer.components.list[0].slots.hotbar[8].assign(bread);
+ContainerLayer.components.inventory.slots.armor[0].assign(netherite_helmet);
+ContainerLayer.components.inventory.slots.armor[1].assign(elytra);
+ContainerLayer.components.inventory.slots.armor[2].assign(netherite_leggings);
+ContainerLayer.components.inventory.slots.armor[3].assign(netherite_boots);
+ContainerLayer.components.inventory.slots.hotbar[0].assign(netherite_sword);
+ContainerLayer.components.inventory.slots.hotbar[1].assign(bow);
+ContainerLayer.components.inventory.slots.hotbar[2].assign(netherite_pickaxe);
+ContainerLayer.components.inventory.slots.hotbar[7].assign(water_bucket);
+ContainerLayer.components.inventory.slots.hotbar[8].assign(bread);
 ContainerLayer.update();

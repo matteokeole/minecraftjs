@@ -53,7 +53,7 @@ function InterfaceComponent(component) {
 	return this;
 }
 
-UILayer.components
+UILayer
 	.add(
 		new InterfaceComponent({
 			id: "crosshair",
@@ -74,7 +74,7 @@ UILayer.components
 	);
 UILayer.update();
 
-SelectorLayer.components.add(
+SelectorLayer.add(
 	new InterfaceComponent({
 		id: "hotbar_selector",
 		origin: [-160, -(WINDOW_HEIGHT / 2) + 21],
@@ -85,7 +85,7 @@ SelectorLayer.components.add(
 );
 SelectorLayer.update();
 
-ExperienceLayer.components.add(
+ExperienceLayer.add(
 	new InterfaceComponent({
 		id: "experience_bar",
 		origin: [0, -(WINDOW_HEIGHT / 2) + 52],
@@ -97,10 +97,10 @@ ExperienceLayer.components.add(
 ExperienceLayer.update();
 
 for (let i = 0; i < 10; i++) {
-	HealthLayer.components
+	HealthLayer
 		.add(
 			new InterfaceComponent({
-				id: "heart_outline",
+				id: `heart_outline_${i}`,
 				origin: [-173 + (i % 10) * 16, -(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20],
 				size: [18, 18],
 				texture: "gui/icons.png",
@@ -109,7 +109,7 @@ for (let i = 0; i < 10; i++) {
 		)
 		.add(
 			new InterfaceComponent({
-				id: "heart_inner",
+				id: `heart_inner_${i}`,
 				origin: [-172 + (i % 10) * 16, -(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20],
 				size: [16, 14],
 				texture: "gui/icons.png",
@@ -120,10 +120,10 @@ for (let i = 0; i < 10; i++) {
 HealthLayer.update();
 
 for (let i = 0; i < 10; i++) {
-	HungerLayer.components
+	HungerLayer
 		.add(
 			new InterfaceComponent({
-				id: "hunger_outline",
+				id: `hunger_outline_${i}`,
 				origin: [173 - (i % 10) * 16, -(WINDOW_HEIGHT / 2) + 68 + Math.floor(i / 10) * 20],
 				size: [18, 18],
 				texture: "gui/icons.png",
@@ -132,7 +132,7 @@ for (let i = 0; i < 10; i++) {
 		)
 		.add(
 			new InterfaceComponent({
-				id: "hunger_inner",
+				id: `hunger_inner_${i}`,
 				origin: [174 - (i % 10) * 16, -(WINDOW_HEIGHT / 2) + 69 + Math.floor(i / 10) * 20],
 				size: [16, 16],
 				texture: "gui/icons.png",
@@ -142,7 +142,7 @@ for (let i = 0; i < 10; i++) {
 }
 HungerLayer.update();
 
-ContainerLayer.components
+ContainerLayer
 	.add(
 		new InterfaceComponent({
 			type: "container",
