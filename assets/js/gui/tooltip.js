@@ -27,11 +27,11 @@ document.body.appendChild(Tooltip.element);
 Tooltip.print("Bread");
 Tooltip.move(0, 0);
 
-addEventListener("mousemove", e => {
+/*addEventListener("mousemove", e => {
 	const slot = Slot.getSlotAt(e.clientX, e.clientY);
 	if (slot && slot.item && !flowing_item) {
 		Tooltip.print(slot.item.name);
 		Tooltip.move(e.clientX, e.clientY);
 		Tooltip.toggle(1);
 	} else Tooltip.toggle(0);
-});
+});*/

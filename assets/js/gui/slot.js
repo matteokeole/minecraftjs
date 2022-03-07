@@ -46,7 +46,9 @@ Slot.getSlotAt = (x, y) => {
 	}
 };
 
-const SLOTS = {
+
+
+ContainerLayer.components.list[0].slots = {
 	inventory_hotbar: Array.from({length: 9}, (_, i) => {
 		return new Slot({
 			type: "inventory_hotbar",
@@ -75,6 +77,8 @@ const SLOTS = {
 			x: -6,
 			y: 26,
 			// placeholder: "item/empty_armor_slot_shield.png",
-		}),
+		})
 	],
 };
+
+ContainerLayer.update();

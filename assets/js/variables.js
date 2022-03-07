@@ -49,6 +49,8 @@ const
 		health: 20,
 		maxHunger: 20,
 		hunger: 20,
+		inventory: Array(27),
+		hotbar: Array(9),
 	};
 
 let

@@ -34,7 +34,7 @@ function Item(name, tsrc, uv) {
 }
 
 let flowing_item = undefined;
-addEventListener("mousedown", e => {
+/*addEventListener("mousedown", e => {
 	const slot = Slot.getSlotAt(e.clientX, e.clientY);
 	if (!flowing_item) {
 		if (slot && slot.item) {
@@ -81,10 +81,13 @@ addEventListener("mousedown", e => {
 			}
 		}
 	}
-});
+});*/
 
 function moveItemOnCursor(e) {
-	flowing_item.move(e.clientX - flowing_item.w / 2, e.clientY - flowing_item.h / 2);
+	flowing_item.move(
+		e.clientX - flowing_item.w / 2,
+		e.clientY - flowing_item.h / 2,
+	);
 };
 
 
@@ -101,12 +104,12 @@ const
 	water_bucket = new Item("Water Bucket", "item/water_bucket.png"),
 	bread = new Item("Bread", "item/bread.png");
 
-SLOTS.armor[0].assign(netherite_helmet);
-SLOTS.armor[1].assign(elytra);
-SLOTS.armor[2].assign(netherite_leggings);
-SLOTS.armor[3].assign(netherite_boots);
-SLOTS.inventory_hotbar[0].assign(netherite_sword);
-SLOTS.inventory_hotbar[1].assign(bow);
-SLOTS.inventory_hotbar[2].assign(netherite_pickaxe);
-SLOTS.inventory_hotbar[7].assign(water_bucket);
-SLOTS.inventory_hotbar[8].assign(bread);
+ContainerLayer.components.list[0].slots.armor[0].assign(netherite_helmet);
+ContainerLayer.components.list[0].slots.armor[1].assign(elytra);
+ContainerLayer.components.list[0].slots.armor[2].assign(netherite_leggings);
+ContainerLayer.components.list[0].slots.armor[3].assign(netherite_boots);
+ContainerLayer.components.list[0].slots.inventory_hotbar[0].assign(netherite_sword);
+ContainerLayer.components.list[0].slots.inventory_hotbar[1].assign(bow);
+ContainerLayer.components.list[0].slots.inventory_hotbar[2].assign(netherite_pickaxe);
+ContainerLayer.components.list[0].slots.inventory_hotbar[7].assign(water_bucket);
+ContainerLayer.components.list[0].slots.inventory_hotbar[8].assign(bread);
