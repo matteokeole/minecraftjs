@@ -26,10 +26,6 @@ addEventListener("resize", () => {
 	Renderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	Camera.aspect = WINDOW_WIDTH / WINDOW_HEIGHT;
 	Camera.updateProjectionMatrix();
-
-	HUDRenderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-	HUDCamera.aspect = WINDOW_WIDTH / WINDOW_HEIGHT;
-	HUDCamera.updateProjectionMatrix();
 });
 
 // Switch selected item (wheel event)

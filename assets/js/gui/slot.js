@@ -58,9 +58,12 @@ function Slot(slot) {
 	return this;
 }
 
+/**
+ * Return the slot which has the same coordinates as the specified event target. If no slot is found, return False.
+ * @param {object} e - The event object
+ */
 Slot.getSlotAt = e => {
 	if (e.target.className.includes("slot")) {
-		// Assuming slots have unique ID
 		for (let part of Object.values(ContainerLayer.components.inventory.slots)) {
 			for (let slot of part) {
 				if (slot.id == e.target.dataset.id) return slot;

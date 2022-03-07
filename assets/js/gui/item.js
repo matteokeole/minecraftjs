@@ -33,22 +33,22 @@ function Item(name, tsrc, uv) {
 	return this;
 }
 
-let flowing_item = undefined;
+let selectedItem = undefined;
 addEventListener("mousedown", e => {
 	const slot = Slot.getSlotAt(e);
-	if (!flowing_item) {
+	if (!selectedItem) {
 		// No pre-selected item
 		if (slot && slot.item) {
 			// Take item, drag & drop start
 			Tooltip.toggle();
-			flowing_item = slot.item;
+			selectedItem = slot.item;
 			slot.empty();
-			flowing_item.element.style.position = "absolute";
-			flowing_item.element.style.pointerEvents = "none";
-			flowing_item.element.style.zIndex = 2;
-			document.body.appendChild(flowing_item.element);
+			selectedItem.element.style.position = "absolute";
+			selectedItem.element.style.pointerEvents = "none";
+			selectedItem.element.style.zIndex = 2;
+			document.body.appendChild(selectedItem.element);
 
-			flowing_item.move(e.clientX - flowing_item.w / 2, e.clientY - flowing_item.h / 2);
+			selectedItem.move(e.clientX - selectedItem.w / 2, e.clientY - selectedItem.h / 2);
 			addEventListener("mousemove", moveItemOnCursor);
 		}
 	} else {
@@ -57,20 +57,20 @@ addEventListener("mousedown", e => {
 			// Release item, drag & drop end
 			if (slot.item) {
 				// Swap items
-				flowing_item = slot.swap(flowing_item);
-				flowing_item.element.style.position = "absolute";
-				flowing_item.element.style.pointerEvents = "none";
-				flowing_item.element.style.zIndex = 2;
-				document.body.appendChild(flowing_item.element);
+				selectedItem = slot.swap(selectedItem);
+				selectedItem.element.style.position = "absolute";
+				selectedItem.element.style.pointerEvents = "none";
+				selectedItem.element.style.zIndex = 2;
+				document.body.appendChild(selectedItem.element);
 
-				flowing_item.move(e.clientX - flowing_item.w / 2, e.clientY - flowing_item.h / 2);
+				selectedItem.move(e.clientX - selectedItem.w / 2, e.clientY - selectedItem.h / 2);
 				addEventListener("mousemove", moveItemOnCursor);
 			} else {
 				// Release item into this slot
-				flowing_item.element.style.pointerEvents = "auto";
-				flowing_item.element.remove();
-				slot.assign(flowing_item);
-				flowing_item = undefined;
+				selectedItem.element.style.pointerEvents = "auto";
+				selectedItem.element.remove();
+				slot.assign(selectedItem);
+				selectedItem = undefined;
 				removeEventListener("mousemove", moveItemOnCursor);
 
 				// Show tooltip after drag & drop end
@@ -83,9 +83,9 @@ addEventListener("mousedown", e => {
 });
 
 function moveItemOnCursor(e) {
-	flowing_item.move(
-		e.clientX - flowing_item.w / 2,
-		e.clientY - flowing_item.h / 2,
+	selectedItem.move(
+		e.clientX - selectedItem.w / 2,
+		e.clientY - selectedItem.h / 2,
 	);
 };
 
@@ -100,8 +100,9 @@ const
 	netherite_sword = new Item("Netherite Sword", "item/netherite_sword.png"),
 	bow = new Item("Bow", "item/bow.png"),
 	netherite_pickaxe = new Item("Netherite Pickaxe", "item/netherite_pickaxe.png"),
+	ender_pearl = new Item("Ender Pearl", "item/ender_pearl.png"),
 	water_bucket = new Item("Water Bucket", "item/water_bucket.png"),
-	bread = new Item("Bread", "item/bread.png");
+	baked_potato = new Item("Baked Potato", "item/baked_potato.png");
 
 ContainerLayer.components.inventory.slots.armor[0].assign(netherite_helmet);
 ContainerLayer.components.inventory.slots.armor[1].assign(elytra);
@@ -110,6 +111,7 @@ ContainerLayer.components.inventory.slots.armor[3].assign(netherite_boots);
 ContainerLayer.components.inventory.slots.hotbar[0].assign(netherite_sword);
 ContainerLayer.components.inventory.slots.hotbar[1].assign(bow);
 ContainerLayer.components.inventory.slots.hotbar[2].assign(netherite_pickaxe);
+ContainerLayer.components.inventory.slots.hotbar[6].assign(ender_pearl);
 ContainerLayer.components.inventory.slots.hotbar[7].assign(water_bucket);
-ContainerLayer.components.inventory.slots.hotbar[8].assign(bread);
+ContainerLayer.components.inventory.slots.hotbar[8].assign(baked_potato);
 ContainerLayer.update();

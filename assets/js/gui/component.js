@@ -66,11 +66,21 @@ UILayer
 	)
 	.add(
 		new InterfaceComponent({
+			type: "container",
 			id: "hotbar",
 			origin: [0, -(WINDOW_HEIGHT / 2) + 21],
 			size: [364, 44],
 			texture: "gui/widgets.png",
 			uv: [0, 0],
+			slots: {
+				hotbar: Array.from({length: 9}, (_, i) => {
+					return new Slot({
+						type: "hotbar",
+						x: -144 + i * 36,
+						y: -133,
+					});
+				}),
+			},
 		}),
 	);
 UILayer.update();

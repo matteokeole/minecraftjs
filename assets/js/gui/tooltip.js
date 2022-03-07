@@ -3,7 +3,7 @@ const Tooltip = {
 	value: "",
 	x: 0,
 	y: 0,
-	visible: true,
+	visible: false,
 	print: function(value) {
 		this.value = value;
 		this.element.innerHTML = this.value;
@@ -24,13 +24,11 @@ const Tooltip = {
 Tooltip.element.className = "tooltip";
 document.body.appendChild(Tooltip.element);
 
-Tooltip.print("Bread");
-Tooltip.move(0, 0);
-
 addEventListener("mousemove", e => {
+	// The tooltip is visible only on container layer slots
 	if (ContainerLayer.visible) {
 		const slot = Slot.getSlotAt(e);
-		if (slot && slot.item && !flowing_item) {
+		if (slot && slot.item && !selectedItem) {
 			Tooltip.print(slot.item.name);
 			Tooltip.move(e.clientX, e.clientY);
 			Tooltip.toggle(1);

@@ -37,9 +37,9 @@ const update = () => {
 
 			if (ContainerLayer.visible) {
 				// Hide container layer if visible
-				ContainerLayer.components.inventory.toggle();
-				ContainerLayer.toggle();
-				Tooltip.toggle();
+				ContainerLayer.components.inventory.toggle(0);
+				ContainerLayer.toggle(0);
+				Tooltip.toggle(0);
 
 				setTimeout(() => {Controls.lock()}, 300);
 			} else {
@@ -58,7 +58,7 @@ const update = () => {
 			if (!MenuLayer.visible) {
 				ContainerLayer.components.inventory.toggle();
 				ContainerLayer.toggle();
-				Tooltip.toggle();
+				Tooltip.toggle(ContainerLayer.visible);
 
 				ContainerLayer.visible ? Controls.unlock() : Controls.lock();
 			}

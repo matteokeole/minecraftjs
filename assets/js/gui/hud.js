@@ -29,7 +29,7 @@ holdBlock.rotation.set(
 );
 
 // Customize the renderer
-HUDRenderer.setClearColor(0xFFFFFF, 0);
+HUDRenderer.setClearColor(0x000000, 0);
 HUDRenderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 HUDRenderer.domElement.className = "scene";
 document.body.appendChild(HUDRenderer.domElement);

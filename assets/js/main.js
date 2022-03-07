@@ -55,9 +55,11 @@ let chunks = [],
 Scene.background = new THREE.Color(0x000000);
 Scene.fog = new THREE.Fog(0x000000, fogBlend, fogDistance);
 
-// Set camera and pointer position
+// Positionate camera
 Camera.position.set(0, 10, 0);
 Scene.add(Camera);
+
+// Positionate pointer
 Pointer.x = .5 * 2 - 1;
 Pointer.y = -.5 * 2 + 1;
 
