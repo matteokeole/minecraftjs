@@ -19,9 +19,9 @@ const update = () => {
 						keys.splice(i, 1);
 
 						// Update selector position on the hotbar
-						SelectorLayer.components.get("hotbar_selector").setPosition([
+						SelectorLayer.components.selector.setPosition([
 							-160 + i * 40,
-							SelectorLayer.components.get("hotbar_selector").origin.y,
+							SelectorLayer.components.selector.origin.y,
 						]);
 						SelectorLayer.update();
 					}
@@ -35,15 +35,14 @@ const update = () => {
 			// Remove key from keylist
 			keys.splice(keys.indexOf(Keybinds.escape), 1);
 
-			// Hide container layer if visible
 			if (ContainerLayer.visible) {
-				Tooltip.toggle(0);
-				ContainerLayer.toggle();
+				// Hide container layer if visible
 				ContainerLayer.components.inventory.toggle();
+				ContainerLayer.toggle();
+				Tooltip.toggle();
 
 				setTimeout(() => {Controls.lock()}, 300);
-			}
-			else {
+			} else {
 				// Toggle pause menu layer display
 				MenuLayer.visible ? Controls.unlock() : Controls.lock();
 				MenuLayer.toggle();
@@ -56,12 +55,13 @@ const update = () => {
 			// Remove key from keylist
 			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
 
-			ContainerLayer.components.inventory.toggle();
-			ContainerLayer.update();
-			ContainerLayer.toggle();
-			Tooltip.toggle();
+			if (!MenuLayer.visible) {
+				ContainerLayer.components.inventory.toggle();
+				ContainerLayer.toggle();
+				Tooltip.toggle();
 
-			ContainerLayer.visible ? Controls.unlock() : Controls.lock();
+				ContainerLayer.visible ? Controls.unlock() : Controls.lock();
+			}
 
 			break;
 	}

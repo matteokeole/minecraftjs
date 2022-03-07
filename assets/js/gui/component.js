@@ -42,6 +42,7 @@ function InterfaceComponent(component) {
 				}
 			}
 		}
+		this.layer.update();
 	};
 
 	for (let section in this.slots) {
@@ -76,7 +77,7 @@ UILayer.update();
 
 SelectorLayer.add(
 	new InterfaceComponent({
-		id: "hotbar_selector",
+		id: "selector",
 		origin: [-160, -(WINDOW_HEIGHT / 2) + 21],
 		size: [48, 48],
 		texture: "gui/widgets.png",

@@ -43,9 +43,9 @@ addEventListener("wheel", e => {
 		selected_slot = selected_slot > 0 ? --selected_slot : 8;
 	}
 
-	SelectorLayer.components.get("hotbar_selector").setPosition([
+	SelectorLayer.components.selector.setPosition([
 		-160 + selected_slot * 40,
-		SelectorLayer.components.get("hotbar_selector").origin.y,
+		SelectorLayer.components.selector.origin.y,
 	]);
 	SelectorLayer.update();
 });
