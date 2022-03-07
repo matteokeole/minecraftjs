@@ -26,7 +26,7 @@ function InterfaceComponent(component) {
 		x: component.uv[0],
 		y: component.uv[1],
 	};
-	this.visible = component.visible ? component.visible : true;
+	this.visible = component.visible !== undefined ? component.visible : true;
 	this.slots = this.type === "container" ? component.slots : undefined;
 
 	this.setPosition = pos => {
@@ -36,6 +36,12 @@ function InterfaceComponent(component) {
 	this.toggle = (state = !this.visible) => {
 		this.visible = state;
 	};
+
+	for (let section in this.slots) {
+		for (let slot of this.slots[section]) {
+			document.querySelector(".slots").append(slot.element);
+		}
+	}
 
 	return this;
 };
@@ -138,6 +144,25 @@ ContainerLayer.components
 			size: [352, 332],
 			texture: "gui/container/inventory.png",
 			uv: [0, 0],
+			slots: {
+				armor: Array.from({length: 4}, (_, i) => {
+					return new Slot({
+						type: "armor",
+						x: -144,
+						y: 135 - i * 36,
+					});
+				}),
+				shield: [
+					new Slot({
+						type: "shield",
+						x: -6,
+						y: 26,
+						// placeholder: "item/empty_armor_slot_shield.png",
+					}),
+				],
+				inventory: Player.inventory,
+				hotbar: Player.hotbar,
+			},
 		}),
 	)
 	.add(

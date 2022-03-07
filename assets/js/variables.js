@@ -41,16 +41,6 @@ const
 		ui_size: 4,
 		autojump: false,
 		borders: false,
-	},
-	// Player stats
-	Player = {
-		hearts: 10,
-		maxHealth: 20,
-		health: 20,
-		maxHunger: 20,
-		hunger: 20,
-		inventory: Array(27),
-		hotbar: Array(9),
 	};
 
 let
