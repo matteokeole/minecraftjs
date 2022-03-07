@@ -37,6 +37,7 @@ const update = () => {
 			// Hide container layer if visible
 			if (ContainerLayer.visible) {
 				ContainerLayer.toggle(0);
+				ContainerLayer.components.list[0].toggle();
 				setTimeout(() => {Controls.lock()}, 300);
 			}
 			else {
@@ -51,6 +52,7 @@ const update = () => {
 			// Remove key from keylist
 			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
 
+			ContainerLayer.components.list[0].toggle();
 			ContainerLayer.toggle();
 			ContainerLayer.visible ? Controls.unlock() : Controls.lock();
 

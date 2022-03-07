@@ -1,18 +1,19 @@
 /**
  * Construct a new layer component
- * @param {object} component - Component data, such as:
- * @param {string} type - Component type
- * @param {string} id - Component ID
- * @param {array} origin - Component position, [0] for X and [1] for Y
- * @param {array} size - Component size, [0] for width and [1] for height
- * @param {string} texture - Component texture source (starts at assets/textures/)
- * @param {array} uv - Component texture offset, [0] for X and [1] for Y
- * @param {boolean} visible - Component visibility attribute, which the canvas uses to draw it or not
- * @param {array} slots - Component slots to be displayed (only for container types)
+ * @param {object}	component			Component data, such as:
+ * @param {string}	component.type		Component type
+ * @param {string}	component.id		Component identifier
+ * @param {array}	component.origin	Component position, [0] for X and [1] for Y
+ * @param {array}	component.size		Component size, [0] for width and [1] for height
+ * @param {string}	component.texture	Component texture source (starts at assets/textures/)
+ * @param {array}	component.uv		Component texture offset, [0] for X and [1] for Y
+ * @param {boolean}	component.visible	Component visibility attribute, which the canvas uses to draw it or not
+ * @param {array}	component.slots		Component slots to be displayed (only for container types)
  */
 function InterfaceComponent(component) {
 	this.type = component.type;
 	this.id = component.id;
+	this.visible = component.visible !== undefined ? component.visible : true;
 	this.origin = {
 		x: component.origin[0],
 		y: component.origin[1],
@@ -26,7 +27,6 @@ function InterfaceComponent(component) {
 		x: component.uv[0],
 		y: component.uv[1],
 	};
-	this.visible = component.visible !== undefined ? component.visible : true;
 	this.slots = this.type === "container" ? component.slots : undefined;
 
 	this.setPosition = pos => {
@@ -35,6 +35,13 @@ function InterfaceComponent(component) {
 	};
 	this.toggle = (state = !this.visible) => {
 		this.visible = state;
+		if (this.type === "container" && this.slots) {
+			for (let section of Object.values(this.slots)) {
+				for (let slot of section) {
+					slot.element.style.visibility = this.visible ? "visible" : "hidden";
+				}
+			}
+		}
 	};
 
 	for (let section in this.slots) {
@@ -44,7 +51,7 @@ function InterfaceComponent(component) {
 	}
 
 	return this;
-};
+}
 
 UILayer.components
 	.add(

@@ -34,8 +34,8 @@ function Item(name, tsrc, uv) {
 }
 
 let flowing_item = undefined;
-/*addEventListener("mousedown", e => {
-	const slot = Slot.getSlotAt(e.clientX, e.clientY);
+addEventListener("mousedown", e => {
+	const slot = Slot.getSlotAt(e);
 	if (!flowing_item) {
 		if (slot && slot.item) {
 			// Take item, drag & drop start
@@ -81,7 +81,7 @@ let flowing_item = undefined;
 			}
 		}
 	}
-});*/
+});
 
 function moveItemOnCursor(e) {
 	flowing_item.move(

@@ -37,8 +37,13 @@ function Slot(slot) {
 Slot.getSlotAt = e => {
 	if (e.target.className.includes("slot")) {
 		// Assuming slots have unique ID
-		return ContainerLayer.components.list[0].slots.filter(s => s.id === e.target.dataset.id)[0];
+		for (let section of Object.values(ContainerLayer.components.list[0].slots)) {
+			for (let slot of section) {
+				if (slot.id == e.target.dataset.id) return slot;
+			}
+		}
 	}
+	return false;
 	/*for (let section of Object.values(SLOTS)) {
 		for (let slot of section) {
 			if (
