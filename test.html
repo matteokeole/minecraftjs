@@ -1,0 +1,17 @@
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = 'http://fonts.googleapis.com/css?family=Montserrat';
+document.getElementsByTagName('head')[0].appendChild(link);
+
+// Trick from http://stackoverflow.com/questions/2635814/
+var image = new Image;
+image.src = link.href;
+image.onerror = function() {
+    ctx.font = '50px "Montserrat"';
+    ctx.textBaseline = 'top';
+    ctx.fillText('Hello!', 20, 10);
+};
