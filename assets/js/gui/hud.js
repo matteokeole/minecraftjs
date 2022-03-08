@@ -19,8 +19,6 @@ const
 // Set hold block position
 holdBlock.position.set(1.46, -1.28, -1.88);
 
-holdBlock.material.depthTest = true;
-
 // Set hold block rotation
 holdBlock.rotation.set(
 	0,

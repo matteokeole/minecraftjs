@@ -19,8 +19,9 @@ const update = () => {
 						keys.splice(i, 1);
 
 						// Update selector position on the hotbar
+						selected_slot = i;
 						SelectorLayer.components.selector.setPosition([
-							-160 + i * 40,
+							-160 + selected_slot * 40,
 							SelectorLayer.components.selector.origin.y,
 						]);
 						SelectorLayer.update();
