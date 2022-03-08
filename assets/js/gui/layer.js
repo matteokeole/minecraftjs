@@ -1,14 +1,14 @@
 /**
- * Constructs a new layer
- * @param {string} id - Layer ID (will also be the canvas ID)
+ * Constructs a new interface layer
+ * @param {object} layer - Layer data
  */
-function Layer(id, size = [], visible = true) {
-	this.id = id;
+function Layer(layer) {
+	this.id = layer.id;
 	this.size = [
-		size[0] ? size[0] : WINDOW_WIDTH,
-		size[1] ? size[1] : WINDOW_HEIGHT,
+		WINDOW_WIDTH,
+		WINDOW_HEIGHT,
 	];
-	this.visible = visible;
+	this.visible = layer.visible;
 	/**
 	 * Toggle layer visibility
 	 * @param {boolean} state - The visibility status, will be !this.visible if omitted
@@ -42,21 +42,33 @@ function Layer(id, size = [], visible = true) {
 		for (let component of Object.values(this.components)) {
 			if (component.visible) {
 				// Draw component
-				const texture = new Image();
-				texture.addEventListener("load", () => {
-					this.ctx.drawImage(
-						texture,
-						component.uv.x,
-						component.uv.y,
-						component.size.x / 2,
-						component.size.y / 2,
-						(WINDOW_WIDTH  / 2) - (component.size.x / 2) + component.origin.x,
-						(WINDOW_HEIGHT / 2) - (component.size.y / 2) - component.origin.y,
-						component.size.x,
-						component.size.y,
+				if (component.type === "text") {
+					console.log(component.origin.x)
+					this.ctx.fillStyle = "#FFF";
+					this.ctx.font = "minecraft_regular 48px";
+					this.ctx.fontSize = "48px";
+					this.ctx.fillText(
+						component.text,
+						component.origin.x,
+						component.origin.y,
 					);
-				});
-				texture.src = `assets/textures/${component.texture}`;
+				} else {
+					const texture = new Image();
+					texture.addEventListener("load", () => {
+						this.ctx.drawImage(
+							texture,
+							component.uv.x,
+							component.uv.y,
+							component.size.x / 2,
+							component.size.y / 2,
+							(WINDOW_WIDTH  / 2) - (component.size.x / 2) + component.origin.x,
+							(WINDOW_HEIGHT / 2) - (component.size.y / 2) - component.origin.y,
+							component.size.x,
+							component.size.y,
+						);
+					});
+					texture.src = `assets/textures/${component.texture}`;
+				}
 			}
 		}
 	};
@@ -67,11 +79,35 @@ function Layer(id, size = [], visible = true) {
 }
 
 const
-	// DebugLayer			= new Layer("debug-layer", [], 0),
-	UILayer				= new Layer("ui-layer", [], 1),
-	SelectorLayer		= new Layer("selector-layer", [], 1),
-	ExperienceLayer		= new Layer("experience-layer", [], 1),
-	HealthLayer			= new Layer("health-layer", [], 1),
-	HungerLayer			= new Layer("hunger-layer", [], 1),
-	ContainerLayer		= new Layer("container-layer", [], 0),
-	MenuLayer			= new Layer("menu-layer", [], 0);
+	DebugLayer			= new Layer({
+		id: "debug-layer",
+		visible: 1,
+	}),
+	UILayer				= new Layer({
+		id: "ui-layer",
+		visible: 1,
+	}),
+	SelectorLayer		= new Layer({
+		id: "selector-layer",
+		visible: 1,
+	}),
+	ExperienceLayer		= new Layer({
+		id: "experience-layer",
+		visible: 1,
+	}),
+	HealthLayer			= new Layer({
+		id: "health-layer",
+		visible: 1,
+	}),
+	HungerLayer			= new Layer({
+		id: "hunger-layer",
+		visible: 1,
+	}),
+	ContainerLayer		= new Layer({
+		id: "container-layer",
+		visible: 0,
+	}),
+	MenuLayer			= new Layer({
+		id: "menu-layer",
+		visible: 0,
+	});

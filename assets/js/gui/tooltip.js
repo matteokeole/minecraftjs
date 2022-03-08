@@ -23,6 +23,7 @@ const Tooltip = {
 // Tooltip DOM
 Tooltip.element.className = "tooltip";
 document.body.appendChild(Tooltip.element);
+Tooltip.toggle(0);
 
 addEventListener("mousemove", e => {
 	// The tooltip is visible only on container layer slots

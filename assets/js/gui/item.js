@@ -1,9 +1,15 @@
-function Item(name, tsrc, uv) {
+/**
+ * Construct a new item
+ * @param {object}	item			Item data, such as:
+ * @param {string}	item.name		Item name
+ * @param {string}	item.texture	Item texture source (starts at /assets/textures/)
+ */
+function Item(item) {
 	this.w = 8 * SETTINGS.ui_size;
 	this.h = 8 * SETTINGS.ui_size;
 	this.x = 0;
 	this.y = 0;
-	this.name = name;
+	this.name = item.name;
 	this.stack = 1;
 	this.element = document.createElement("div");
 	this.element.className = "item";
@@ -14,7 +20,7 @@ function Item(name, tsrc, uv) {
 		width: ${this.w}px;
 		height: ${this.h}px;
 		margin: 2px;
-		background-image: url(assets/textures/${tsrc});
+		background-image: url(assets/textures/${item.texture});
 		background-size: 100%;
 		image-rendering: pixelated;
 	`;
@@ -93,16 +99,46 @@ function moveItemOnCursor(e) {
 
 // Test itemss
 const
-	netherite_helmet = new Item("Netherite Helmet", "item/netherite_helmet.png"),
-	elytra = new Item("Elytra", "item/elytra.png"),
-	netherite_leggings = new Item("Netherite Leggings", "item/netherite_leggings.png"),
-	netherite_boots = new Item("Netherite Boots", "item/netherite_boots.png"),
-	netherite_sword = new Item("Netherite Sword", "item/netherite_sword.png"),
-	bow = new Item("Bow", "item/bow.png"),
-	netherite_pickaxe = new Item("Netherite Pickaxe", "item/netherite_pickaxe.png"),
-	ender_pearl = new Item("Ender Pearl", "item/ender_pearl.png"),
-	water_bucket = new Item("Water Bucket", "item/water_bucket.png"),
-	baked_potato = new Item("Baked Potato", "item/baked_potato.png");
+	netherite_helmet = new Item({
+		name: "Netherite Helmet",
+		texture: "item/netherite_helmet.png",
+	}),
+	elytra = new Item({
+		name: "Elytra", 
+		texture: "item/elytra.png",
+	}),
+	netherite_leggings = new Item({
+		name: "Netherite Leggings",
+		texture: "item/netherite_leggings.png",
+	}),
+	netherite_boots = new Item({
+		name: "Netherite Boots",
+		texture: "item/netherite_boots.png",
+	}),
+	netherite_sword = new Item({
+		name: "Netherite Sword",
+		texture: "item/netherite_sword.png",
+	}),
+	bow = new Item({
+		name: "Bow", 
+		texture: "item/bow.png",
+	}),
+	netherite_pickaxe = new Item({
+		name: "Netherite Pickaxe",
+		texture: "item/netherite_pickaxe.png",
+	}),
+	ender_pearl = new Item({
+		name: "Ender Pearl",
+		texture: "item/ender_pearl.png",
+	}),
+	water_bucket = new Item({
+		name: "Water Bucket",
+		texture: "item/water_bucket.png",
+	}),
+	baked_potato = new Item({
+		name: "Baked Potato",
+		texture: "item/baked_potato.png",
+	});
 
 ContainerLayer.components.inventory.slots.armor[0].assign(netherite_helmet);
 ContainerLayer.components.inventory.slots.armor[1].assign(elytra);

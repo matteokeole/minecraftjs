@@ -5,7 +5,7 @@
  * @param {string}	component.id		Component identifier
  * @param {array}	component.origin	Component position, [0] for X and [1] for Y
  * @param {array}	component.size		Component size, [0] for width and [1] for height
- * @param {string}	component.texture	Component texture source (starts at assets/textures/)
+ * @param {string}	component.texture	Component texture source (starts at /assets/textures/)
  * @param {array}	component.uv		Component texture offset, [0] for X and [1] for Y
  * @param {boolean}	component.visible	Component visibility attribute, which the canvas uses to draw it or not
  * @param {array}	component.slots		Component slots to be displayed (only for container types)
@@ -15,17 +15,17 @@ function InterfaceComponent(component) {
 	this.id = component.id;
 	this.visible = component.visible !== undefined ? component.visible : true;
 	this.origin = {
-		x: component.origin[0],
-		y: component.origin[1],
+		x: component.origin ? component.origin[0] : 0,
+		y: component.origin ? component.origin[1] : 0,
 	};
 	this.size = {
-		x: component.size[0],
-		y: component.size[1],
+		x: component.size ? component.size[0] : 0,
+		y: component.size ? component.size[1] : 0,
 	};
 	this.texture = component.texture;
 	this.uv = {
-		x: component.uv[0],
-		y: component.uv[1],
+		x: component.uv ? component.uv[0] : 0,
+		y: component.uv ? component.uv[1] : 0,
 	};
 	this.slots = this.type === "container" ? component.slots : undefined;
 
@@ -44,6 +44,15 @@ function InterfaceComponent(component) {
 		}
 		this.layer.update();
 	};
+
+	switch (this.type) {
+		case "container":
+			break;
+		case "text":
+			this.text = component.text;
+			console.log(this.text)
+			break;
+	}
 
 	for (let section in this.slots) {
 		for (let slot of this.slots[section]) {
@@ -229,3 +238,13 @@ ContainerLayer
 			uv: [0, 0],
 		}),
 	);
+
+DebugLayer
+	.add(
+		new InterfaceComponent({
+			type: "text",
+			text: "test",
+			origin: [WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2],
+		}),
+	);
+DebugLayer.update();

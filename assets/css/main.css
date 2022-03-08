@@ -45,17 +45,8 @@ body {
 	z-index: 1;
 }
 
-#debug {
-	top: 0;
-	left: 0;
-	position: absolute;
-}
-
-#debug span {
-	display: inline-block;
-	padding: 0 4px;
-	background-color: rgba(0, 0, 0, .5);
-	color: #FFF;
+#debug-layer {
+	background-color: #333;
 }
 
 .slots {
