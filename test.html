@@ -1,304 +1,311 @@
-<body></body>
+<!DOCTYPE html>
 
-<style>
-	body {margin: 0}
-	.layer {background-color: #333}
-</style>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="assets/css/main.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<link rel="apple-touch-icon" type="image/x-icon" href="favicon.ico">
+		<style>
+			.layer {background-color: #333}
+		</style>
+	</head>
 
-<script>
-	/*var canvas = document.getElementById('canvas');
-	var ctx = canvas.getContext('2d');
+	<body>
+		<script>
+			/**
+			 * Construct a new interface layer.
+			 * @param {object}	layer			Layer data, such as:
+			 * @param {string}	layer.name		Layer name
+			 * @param {boolean}	layer.visible	Layer visibility attribute
+			 */
+			function Layer(l = {}) {
+				// Debug attributes
+				this.debug = `<${l.name ? l.name.toUpperCase() : "UNKNOWN_LAYER"}>`;
 
-	var link = document.createElement('link');
-	link.rel = 'stylesheet';
-	link.type = 'text/css';
-	link.href = 'http://fonts.googleapis.com/css?family=Montserrat';
-	document.getElementsByTagName('head')[0].appendChild(link);
+				console.log(this.debug, "Layer created!", l);
 
-	// Trick from http://stackoverflow.com/questions/2635814/
-	var image = new Image;
-	image.src = link.href;
-	image.onerror = function() {
-		ctx.font = '50px "Montserrat"';
-		ctx.textBaseline = 'top';
-		ctx.fillText('Hello!', 20, 10);
-	};*/
+				// Base attributes
+				this.name = l.name;
+				this.size = [
+					window.innerWidth,
+					window.innerHeight,
+				];
+				this.visible = l.visible ? l.visible : false;
+				this.components = l.components ? l.components : {};
 
-	/**
-	 * Construct a new interface layer.
-	 * @param {object}	layer			Layer data, such as:
-	 * @param {string}	layer.name		Layer name
-	 * @param {boolean}	layer.visible	Layer visibility attribute
-	 */
-	function Layer(l = {}) {
-		// Debug attributes
-		this.debug = `<${l.name ? l.name : "unknown_layer"}>`;
+				/**
+				 * Toggle layer visibility.
+				 * @param {boolean} state - The visibility status, will be the opposite of the current visibility if omitted
+				 */
+				this.toggle = (state = !this.visible) => {
+					this.visible = state;
+					this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 
-		console.log(this.debug, "Layer created!", l);
+					console.log(this.debug, "Layer visibility updated to", this.visible);
+				};
 
-		// Base attributes
-		this.name = l.name;
-		this.size = [
-			window.innerWidth,
-			window.innerHeight,
-		];
-		this.visible = l.visible ? l.visible : false;
-		this.components = l.components ? l.components : {};
+				/**
+				 * Adapt the layer canvas to the screen size.
+				 */
+				this.resize = () => {
+					this.canvas.width = window.innerWidth;
+					this.canvas.height = window.innerHeight;
 
-		/**
-		 * Toggle layer visibility.
-		 * @param {boolean} state - The visibility status, will be the opposite of the current visibility if omitted
-		 */
-		this.toggle = (state = !this.visible) => {
-			this.visible = state;
-			this.canvas.style.visibility = this.visible ? "visible" : "hidden";
+					console.log(this.debug, "Layer resized to", window.innerWidth, "x", window.innerHeight);
+				};
 
-			console.log(this.debug, "Layer visibility updated to", this.visible);
-		};
+				/**
+				 * Add the specified component to the layer component list.
+				 * @param {object} component - The component to be added
+				 */
+				this.add = component => {
+					// Set the parent layer attribute to the new component before creating it
+					component.layer = this;
+					this.components[component.id] = component;
 
-		/**
-		 * Adapt the layer canvas to the screen size.
-		 */
-		this.resize = () => {
-			this.canvas.width = window.innerWidth;
-			this.canvas.height = window.innerHeight;
+					console.log(this.debug, "Added component", `"${component.id}"`, component);
 
-			console.log(this.debug, "Layer resized to", window.innerWidth, "x", window.innerHeight);
-		};
+					return this;
+				};
 
-		/**
-		 * Add the specified component to the layer component list.
-		 * @param {object} component - The component to be added
-		 */
-		this.add = component => {
-			// Set the parent layer attribute to the new component before creating it
-			component.layer = this;
-			this.components[component.id] = component;
+				/**
+				 * Remove the specified component from the layer component list.
+				 * @param {object} component - The name of the component which needs to be removed
+				 */
+				this.remove = component => {
+					this.components[component.id] = undefined;
 
-			console.log(this.debug, "Added component", `"${component.id}"`, component);
+					console.log(this.debug, "Removed component", `"${component}"`);
 
-			return this;
-		};
+					return this;
+				};
 
-		/**
-		 * Remove the specified component from the layer component list.
-		 * @param {object} component - The name of the component which needs to be removed
-		 */
-		this.remove = component => {
-			this.components[component.id] = undefined;
+				// Layer canvas
+				this.canvas = document.createElement("canvas");
+				this.canvas.id = this.name;
+				this.canvas.className = "layer";
+				this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 
-			console.log(this.debug, "Removed component", `"${component}"`);
+				this.ctx = this.canvas.getContext("2d");
+				this.ctx.imageSmoothingEnabled = false;
 
-			return this;
-		};
+				/**
+				 * Update the layer by re-drawing its components
+				 */
+				this.update = () => {
+					// Clear canvas previous content
+					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		// Layer canvas
-		this.canvas = document.createElement("canvas");
-		this.canvas.id = this.name;
-		this.canvas.className = "layer";
-		this.canvas.style.visibility = this.visible ? "visible" : "hidden";
+					// Loop through layer components
+					for (let component of Object.values(this.components)) {
+						if (component.visible) {
+							// Draw component
+							if (component.type === "text") {
+								this.ctx.textAlign = component.text_align;
+								this.ctx.fillStyle = component.font_color;
+								this.ctx.font = `${component.font_size}px regular`;
+								this.ctx.fillText(
+									component.text,
+									window.innerWidth / 2,
+									window.innerHeight / 2 - component.origin.y,
+								);
+							} else {
+								const texture = new Image();
+								texture.addEventListener("load", () => {
+									this.ctx.drawImage(
+										texture,
+										component.uv.x,
+										component.uv.y,
+										component.size.x / 2,
+										component.size.y / 2,
+										(window.innerWidth  / 2) - (component.size.x / 2) + component.origin.x,
+										(window.innerHeight / 2) - (component.size.y / 2) - component.origin.y,
+										component.size.x,
+										component.size.y,
+									);
+								});
+								texture.src = `assets/textures/${component.texture}`;
+							}
+						}
+					}
 
-		this.ctx = this.canvas.getContext("2d");
-		this.ctx.imageSmoothingEnabled = false;
+					console.log(this.debug, "Layer updated!");
+				};
 
-		/**
-		 * Update the layer by re-drawing its components
-		 */
-		this.update = () => {
-			// Clear canvas previous content
-			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				document.body.appendChild(this.canvas);
+				this.resize();
 
-			// Loop through layer components
-			for (let component of Object.values(this.components)) {
-				if (component.visible) {
-					// Draw component
-					if (component.type === "text") {
-						console.log(component.origin.x)
-						this.ctx.fillStyle = "#FFF";
-						this.ctx.font = "minecraft_regular 48px";
-						this.ctx.fontSize = "48px";
-						this.ctx.fillText(
-							component.text,
-							component.origin.x,
-							component.origin.y,
-						);
-					} else {
-						const texture = new Image();
-						texture.addEventListener("load", () => {
-							this.ctx.drawImage(
-								texture,
-								component.uv.x,
-								component.uv.y,
-								component.size.x / 2,
-								component.size.y / 2,
-								(window.innerWidth  / 2) - (component.size.x / 2) + component.origin.x,
-								(window.innerHeight / 2) - (component.size.y / 2) - component.origin.y,
-								component.size.x,
-								component.size.y,
-							);
-						});
-						texture.src = `assets/textures/${component.texture}`;
+				return this;
+			}
+
+			/**
+			 * Construct a new layer component
+			 * @param {object}	component			Component data, such as:
+			 * @param {string}	component.type		Component type
+			 * @param {string}	component.id		Component identifier
+			 * @param {array}	component.origin	Component position, [0] for X and [1] for Y
+			 * @param {array}	component.size		Component size, [0] for width and [1] for height
+			 * @param {string}	component.texture	Component texture source (starts at /assets/textures/)
+			 * @param {array}	component.uv		Component texture offset, [0] for X and [1] for Y
+			 * @param {boolean}	component.visible	Component visibility attribute, which the canvas uses to draw it or not
+			 * @param {array}	component.slots		Component slots to be displayed (only for container types)
+			 */
+			function Component(component) {
+				this.type = component.type;
+				this.id = component.id;
+				this.visible = component.visible !== undefined ? component.visible : true;
+				this.origin = {
+					x: component.origin ? component.origin[0] : 0,
+					y: component.origin ? component.origin[1] : 0,
+				};
+				this.size = {
+					x: component.size ? component.size[0] : 0,
+					y: component.size ? component.size[1] : 0,
+				};
+				this.texture = component.texture;
+				this.uv = {
+					x: component.uv ? component.uv[0] : 0,
+					y: component.uv ? component.uv[1] : 0,
+				};
+				this.slots = this.type === "container" ? component.slots : undefined;
+
+				this.setPosition = pos => {
+					this.origin.x = pos[0];
+					this.origin.y = pos[1];
+				};
+				this.toggle = (state = !this.visible) => {
+					this.visible = state;
+					if (this.type === "container" && this.slots) {
+						for (let section of Object.values(this.slots)) {
+							for (let slot of section) {
+								slot.element.style.visibility = this.visible ? "visible" : "hidden";
+							}
+						}
+					}
+					this.layer.update();
+				};
+
+				switch (this.type) {
+					case "container":
+						//
+
+						break;
+
+					case "text":
+						this.text = component.text;
+						this.text_align = component.text_align;
+						this.font_size = component.font_size;
+						this.font_color = component.font_color;
+
+						break;
+				}
+
+				for (let section in this.slots) {
+					for (let slot of this.slots[section]) {
+						document.querySelector(".slots").append(slot.element);
 					}
 				}
+
+				return this;
 			}
-
-			console.log(this.debug, "Layer updated!");
-		};
-
-		document.body.appendChild(this.canvas);
-		this.resize();
-
-		return this;
-	}
-
-	/**
-	 * Construct a new layer component
-	 * @param {object}	component			Component data, such as:
-	 * @param {string}	component.type		Component type
-	 * @param {string}	component.id		Component identifier
-	 * @param {array}	component.origin	Component position, [0] for X and [1] for Y
-	 * @param {array}	component.size		Component size, [0] for width and [1] for height
-	 * @param {string}	component.texture	Component texture source (starts at /assets/textures/)
-	 * @param {array}	component.uv		Component texture offset, [0] for X and [1] for Y
-	 * @param {boolean}	component.visible	Component visibility attribute, which the canvas uses to draw it or not
-	 * @param {array}	component.slots		Component slots to be displayed (only for container types)
-	 */
-	function Component(component) {
-		this.type = component.type;
-		this.id = component.id;
-		this.visible = component.visible !== undefined ? component.visible : true;
-		this.origin = {
-			x: component.origin ? component.origin[0] : 0,
-			y: component.origin ? component.origin[1] : 0,
-		};
-		this.size = {
-			x: component.size ? component.size[0] : 0,
-			y: component.size ? component.size[1] : 0,
-		};
-		this.texture = component.texture;
-		this.uv = {
-			x: component.uv ? component.uv[0] : 0,
-			y: component.uv ? component.uv[1] : 0,
-		};
-		this.slots = this.type === "container" ? component.slots : undefined;
-
-		this.setPosition = pos => {
-			this.origin.x = pos[0];
-			this.origin.y = pos[1];
-		};
-		this.toggle = (state = !this.visible) => {
-			this.visible = state;
-			if (this.type === "container" && this.slots) {
-				for (let section of Object.values(this.slots)) {
-					for (let slot of section) {
-						slot.element.style.visibility = this.visible ? "visible" : "hidden";
-					}
-				}
-			}
-			this.layer.update();
-		};
-
-		switch (this.type) {
-			case "container":
-				break;
-			case "text":
-				this.text = component.text;
-				console.log(this.text)
-				break;
-		}
-
-		for (let section in this.slots) {
-			for (let slot of this.slots[section]) {
-				document.querySelector(".slots").append(slot.element);
-			}
-		}
-
-		return this;
-	}
-</script>
-
-<script>
-	const hud = new Layer({
-		name: "hud",
-		visible: true,
-	})
-	.add(
-		new Component({
-			id: "crosshair",
-			origin: [0, 0],
-			size: [18, 18],
-			texture: "gui/icons.png",
-			uv: [3, 3],
-		}),
-	)
-	.add(
-		new Component({
-			type: "container",
-			id: "hotbar",
-			origin: [0, -(window.innerHeight / 2) + 21],
-			size: [364, 44],
-			texture: "gui/widgets.png",
-			uv: [0, 0],
-		}),
-	)
-	.add(
-		new Component({
-			id: "selector",
-			origin: [-160, -(window.innerHeight / 2) + 21],
-			size: [48, 48],
-			texture: "gui/widgets.png",
-			uv: [0, 22],
-		}),
-	)
-	.add(
-		new Component({
-			id: "experience_bar",
-			origin: [0, -(window.innerHeight / 2) + 52],
-			size: [364, 10],
-			texture: "gui/icons.png",
-			uv: [0, 64],
-		}),
-	);
-
-	for (let i = 0; i < 10; i++) {
-		hud
+		</script>
+		<script>
+			const hud = new Layer({
+				name: "hud",
+				visible: true,
+			})
 			.add(
 				new Component({
-					id: `heart_outline_${i}`,
-					origin: [-173 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+					id: "crosshair",
+					origin: [0, 0],
 					size: [18, 18],
 					texture: "gui/icons.png",
-					uv: [16, 0],
+					uv: [3, 3],
 				}),
 			)
 			.add(
 				new Component({
-					id: `heart_inner_${i}`,
-					origin: [-172 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
-					size: [16, 14],
+					type: "container",
+					id: "hotbar",
+					origin: [0, -(window.innerHeight / 2) + 21],
+					size: [364, 44],
+					texture: "gui/widgets.png",
+					uv: [0, 0],
+				}),
+			)
+			.add(
+				new Component({
+					id: "selector",
+					origin: [-160, -(window.innerHeight / 2) + 21],
+					size: [48, 48],
+					texture: "gui/widgets.png",
+					uv: [0, 22],
+				}),
+			)
+			.add(
+				new Component({
+					id: "experience_bar",
+					origin: [0, -(window.innerHeight / 2) + 52],
+					size: [364, 10],
 					texture: "gui/icons.png",
-					uv: [53, 1],
+					uv: [0, 64],
 				}),
 			)
 			.add(
 				new Component({
-					id: `hunger_outline_${i}`,
-					origin: [173 - (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+					type: "text",
+					id: "tooltip",
+					origin: [0, -(window.innerHeight / 2) + 101],
 					size: [18, 18],
-					texture: "gui/icons.png",
-					uv: [16, 27],
-				}),
-			)
-			.add(
-				new Component({
-					id: `hunger_inner_${i}`,
-					origin: [174 - (i % 10) * 16, -(window.innerHeight / 2) + 69 + Math.floor(i / 10) * 20],
-					size: [16, 16],
-					texture: "gui/icons.png",
-					uv: [53, 27],
+					text: "Tooltip",
+					text_align: "center",
+					font_size: 20,
+					font_color: "#FFF",
 				}),
 			);
-	}
 
-	hud.update();
-</script>
+			for (let i = 0; i < 10; i++) {
+				hud
+					.add(
+						new Component({
+							id: `heart_outline_${i}`,
+							origin: [-173 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							size: [18, 18],
+							texture: "gui/icons.png",
+							uv: [16, 0],
+						}),
+					)
+					.add(
+						new Component({
+							id: `heart_inner_${i}`,
+							origin: [-172 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							size: [16, 14],
+							texture: "gui/icons.png",
+							uv: [53, 1],
+						}),
+					)
+					.add(
+						new Component({
+							id: `hunger_outline_${i}`,
+							origin: [173 - (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							size: [18, 18],
+							texture: "gui/icons.png",
+							uv: [16, 27],
+						}),
+					)
+					.add(
+						new Component({
+							id: `hunger_inner_${i}`,
+							origin: [174 - (i % 10) * 16, -(window.innerHeight / 2) + 69 + Math.floor(i / 10) * 20],
+							size: [16, 16],
+							texture: "gui/icons.png",
+							uv: [53, 27],
+						}),
+					);
+			}
+
+			hud.update();
+		</script>
+	</body>
+</html>

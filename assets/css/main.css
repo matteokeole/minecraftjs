@@ -1,20 +1,20 @@
 @font-face {
-	font-family: minecraft_regular;
+	font-family: regular;
 	src: url(../textures/font/regular.otf) format("opentype");
 }
 
 @font-face {
-	font-family: minecraft_regular_italic;
+	font-family: regular_italic;
 	src: url(../textures/font/regular_italic.otf) format("opentype");
 }
 
 @font-face {
-	font-family: minecraft_bold;
+	font-family: bold;
 	src: url(../textures/font/bold.otf) format("opentype");
 }
 
 @font-face {
-	font-family: minecraft_bold_italic;
+	font-family: bold_italic;
 	src: url(../textures/font/bold_italic.otf) format("opentype");
 }
 
@@ -23,7 +23,7 @@ body {
 	overflow: hidden;
 	cursor: default;
 	text-rendering: optimizeLegibility;
-	font-family: minecraft_regular;
+	font-family: regular;
 	font-size: 20px;
 }
 
