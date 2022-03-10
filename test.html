@@ -85,10 +85,25 @@
 				this.canvas = document.createElement("canvas");
 				this.canvas.id = this.name;
 				this.canvas.className = "layer";
+				this.resize();
 				this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 
 				this.ctx = this.canvas.getContext("2d");
 				this.ctx.imageSmoothingEnabled = false;
+
+				function loadTextures(textures) {
+					if (!textures.length) return;
+
+					const
+						image = new Image(),
+						url = textures.shift();
+
+					image.addEventListener("load", () => {
+						console.log("loading")
+						loadTextures(textures);
+					});
+					image.src = url;
+				}
 
 				/**
 				 * Update the layer by re-drawing its components
@@ -97,8 +112,37 @@
 					// Clear canvas previous content
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+					function loadImages(sources, callback) {
+						let
+							images = {},
+							loadedImages = 0,
+							numImages = 0;
+
+						// get num of sources
+						for(let src in textures) {numImages++}
+						for(let src in textures) {
+							images[src] = new Image();
+							images[src].addEventListener("load", () => {
+								if (++loadedImages >= numImages) {
+									callback(images);
+								}
+							});
+							images[src].src = textures[src];
+						}
+					}
+
+					const textures = {widgets: "assets/textures/gui/widgets.png"};
+					/*for (let component of Object.values(this.components)) {
+						textures.push(component.texture);
+					}*/
+
+					loadImages(textures, t => {
+						this.ctx.drawImage(t.widgets, 350, 55, 93, 104);
+					});
+
+					// console.log([...new Set(["a", "b", "a", "b"])])
 					// Loop through layer components
-					for (let component of Object.values(this.components)) {
+					/*for (let component of Object.values(this.components)) {
 						if (component.visible) {
 							// Draw component
 							if (component.type === "text") {
@@ -128,13 +172,12 @@
 								texture.src = `assets/textures/${component.texture}`;
 							}
 						}
-					}
+					}*/
 
 					console.log(this.debug, "Layer updated!");
 				};
 
 				document.body.appendChild(this.canvas);
-				this.resize();
 
 				return this;
 			}
@@ -209,8 +252,9 @@
 
 				return this;
 			}
-		</script>
-		<script>
+
+
+
 			const hud = new Layer({
 				name: "hud",
 				visible: true,
@@ -243,7 +287,7 @@
 					uv: [0, 22],
 				}),
 			)
-			.add(
+			/*.add(
 				new Component({
 					id: "experience_bar",
 					origin: [0, -(window.innerHeight / 2) + 52],
@@ -263,9 +307,9 @@
 					font_size: 20,
 					font_color: "#FFF",
 				}),
-			);
+			)*/;
 
-			for (let i = 0; i < 10; i++) {
+			/*for (let i = 0; i < 10; i++) {
 				hud
 					.add(
 						new Component({
@@ -303,7 +347,7 @@
 							uv: [53, 27],
 						}),
 					);
-			}
+			}*/
 
 			hud.update();
 		</script>
