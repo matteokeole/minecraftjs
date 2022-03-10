@@ -4,8 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="assets/css/main.css">
-		<link rel="icon" type="image/x-icon" href="favicon.ico">
-		<link rel="apple-touch-icon" type="image/x-icon" href="favicon.ico">
+		<link rel="icon" href="data:;base64,=">
 		<style>
 			.layer {background-color: #333}
 		</style>
@@ -83,82 +82,69 @@
 
 				// Layer canvas
 				this.canvas = document.createElement("canvas");
+				this.resize();
 				this.canvas.id = this.name;
 				this.canvas.className = "layer";
-				this.resize();
 				this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 
 				this.ctx = this.canvas.getContext("2d");
+				// Don't call this.resize() after this line, as the pixelated image effect won't work
 				this.ctx.imageSmoothingEnabled = false;
 
-				function loadTextures(textures) {
-					if (!textures.length) return;
+				/**
+				 * Load all component textures in a texture array which can be used to render components.
+				 */
+				this.loadTextures = callback => {
+					// Get the source list
+					for (let component of Object.values(this.components)) {
+						if (component.texture) this.sources.push(`assets/textures/${component.texture}`);
+					}
 
-					const
-						image = new Image(),
-						url = textures.shift();
+					// Remove duplicate sources from the list
+					this.sources = [...new Set(this.sources)];
 
-					image.addEventListener("load", () => {
-						console.log("loading")
-						loadTextures(textures);
-					});
-					image.src = url;
-				}
+					let loadedTextures = 0,
+						count = Object.keys(this.sources).length;
+
+					for (let i in this.sources) {
+						this.textures[i] = new Image();
+						this.textures[i].addEventListener("load", () => {
+							// console.log(this.debug, "Loaded texture:", this.textures[i])
+							if (++loadedTextures >= count) {
+								callback(this.textures);
+							}
+						});
+						this.textures[i].src = this.sources[i];
+					}
+				};
+				this.sources = [];
+				this.textures = [];
 
 				/**
-				 * Update the layer by re-drawing its components
+				 * Update the layer by re-drawing its components.
 				 */
 				this.update = () => {
 					// Clear canvas previous content
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-					function loadImages(sources, callback) {
-						let
-							images = {},
-							loadedImages = 0,
-							numImages = 0;
-
-						// get num of sources
-						for(let src in textures) {numImages++}
-						for(let src in textures) {
-							images[src] = new Image();
-							images[src].addEventListener("load", () => {
-								if (++loadedImages >= numImages) {
-									callback(images);
-								}
-							});
-							images[src].src = textures[src];
-						}
-					}
-
-					const textures = {widgets: "assets/textures/gui/widgets.png"};
-					/*for (let component of Object.values(this.components)) {
-						textures.push(component.texture);
-					}*/
-
-					loadImages(textures, t => {
-						this.ctx.drawImage(t.widgets, 350, 55, 93, 104);
-					});
-
-					// console.log([...new Set(["a", "b", "a", "b"])])
-					// Loop through layer components
-					/*for (let component of Object.values(this.components)) {
-						if (component.visible) {
-							// Draw component
-							if (component.type === "text") {
-								this.ctx.textAlign = component.text_align;
-								this.ctx.fillStyle = component.font_color;
-								this.ctx.font = `${component.font_size}px regular`;
-								this.ctx.fillText(
-									component.text,
-									window.innerWidth / 2,
-									window.innerHeight / 2 - component.origin.y,
-								);
-							} else {
-								const texture = new Image();
-								texture.addEventListener("load", () => {
+					this.loadTextures(t => {
+						// Loop through layer components
+						for (let component of Object.values(this.components)) {
+							if (component.visible) {
+								// Draw component
+								if (component.type === "text") {
+									this.ctx.textAlign = component.text_align;
+									this.ctx.fillStyle = component.font_color;
+									this.ctx.font = `${component.font_size}px regular, monospace`;
+									this.ctx.fillText(
+										component.text,
+										window.innerWidth / 2 - component.origin.x,
+										window.innerHeight / 2 - component.origin.y,
+									);
+								} else {
+									let texture = Object.values(t).filter(img => img.src.includes(component.texture));
 									this.ctx.drawImage(
-										texture,
+										texture[0],
 										component.uv.x,
 										component.uv.y,
 										component.size.x / 2,
@@ -168,11 +154,10 @@
 										component.size.x,
 										component.size.y,
 									);
-								});
-								texture.src = `assets/textures/${component.texture}`;
+								}
 							}
 						}
-					}*/
+					});
 
 					console.log(this.debug, "Layer updated!");
 				};
@@ -287,7 +272,7 @@
 					uv: [0, 22],
 				}),
 			)
-			/*.add(
+			.add(
 				new Component({
 					id: "experience_bar",
 					origin: [0, -(window.innerHeight / 2) + 52],
@@ -300,21 +285,24 @@
 				new Component({
 					type: "text",
 					id: "tooltip",
-					origin: [0, -(window.innerHeight / 2) + 101],
+					origin: [0, -(window.innerHeight / 2) + 102],
 					size: [18, 18],
-					text: "Tooltip",
+					text: "Sand",
 					text_align: "center",
 					font_size: 20,
 					font_color: "#FFF",
 				}),
-			)*/;
+			);
 
 			/*for (let i = 0; i < 10; i++) {
 				hud
 					.add(
 						new Component({
 							id: `heart_outline_${i}`,
-							origin: [-173 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							origin: [
+								-173 + (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
+							],
 							size: [18, 18],
 							texture: "gui/icons.png",
 							uv: [16, 0],
@@ -323,7 +311,10 @@
 					.add(
 						new Component({
 							id: `heart_inner_${i}`,
-							origin: [-172 + (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							origin: [
+								-172 + (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
+							],
 							size: [16, 14],
 							texture: "gui/icons.png",
 							uv: [53, 1],
@@ -332,7 +323,10 @@
 					.add(
 						new Component({
 							id: `hunger_outline_${i}`,
-							origin: [173 - (i % 10) * 16, -(window.innerHeight / 2) + 68 + Math.floor(i / 10) * 20],
+							origin: [
+								173 - (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
+							],
 							size: [18, 18],
 							texture: "gui/icons.png",
 							uv: [16, 27],
@@ -341,15 +335,154 @@
 					.add(
 						new Component({
 							id: `hunger_inner_${i}`,
-							origin: [174 - (i % 10) * 16, -(window.innerHeight / 2) + 69 + Math.floor(i / 10) * 20],
+							origin: [
+								174 - (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 69,
+							],
 							size: [16, 16],
 							texture: "gui/icons.png",
 							uv: [53, 27],
+						}),
+					)
+					.add(
+						new Component({
+							id: `armor_outline_${i}`,
+							origin: [
+								-173 + (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 88,
+							],
+							size: [18, 18],
+							texture: "gui/icons.png",
+							uv: [16, 9],
+						}),
+					)
+					.add(
+						new Component({
+							id: `armor_inner_${i}`,
+							origin: [
+								-172 + (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 90,
+							],
+							size: [16, 14],
+							texture: "gui/icons.png",
+							uv: [44, 9],
+						}),
+					)
+					.add(
+						new Component({
+							id: `bubble_outline_${i}`,
+							origin: [
+								173 - (i % 10) * 16,
+								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 88,
+							],
+							size: [18, 18],
+							texture: "gui/icons.png",
+							uv: [16, 18],
 						}),
 					);
 			}*/
 
 			hud.update();
+
+			let selected_slot = 0,
+				hotbar_slots = [
+					"Digit1",
+					"Digit2",
+					"Digit3",
+					"Digit4",
+					"Digit5",
+					"Digit6",
+					"Digit7",
+					"Digit8",
+					"Digit9",
+				],
+				can = true,
+				c = hud.components;
+			addEventListener("keydown", e => {
+				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
+				if (can) {
+					can = false;
+					let prev_slot = selected_slot;
+					for (let i in hotbar_slots) {
+						if (e.code === hotbar_slots[i]) {
+							selected_slot = e.code.charAt(e.code.length - 1) - 1;
+						}
+					}
+					
+					// Clear the previous selected slot
+					hud.ctx.clearRect(
+						(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
+						(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+						c.selector.size.x + 2,
+						c.selector.size.y,
+					);
+
+					// Re-draw the hotbar part where the selector was
+					hud.ctx.drawImage(
+						hud.textures[1],
+						c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
+						c.hotbar.uv.y,
+						c.hotbar.size.x / 16 + 2,
+						c.hotbar.size.y / 2,
+						(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
+						(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
+						c.selector.size.x + 2,
+						c.selector.size.y - 4,
+					);
+
+					// Re-draw the selector on the new selected slot
+					hud.ctx.drawImage(
+						hud.textures[1],
+						c.selector.uv.x,
+						c.selector.uv.y,
+						c.selector.size.x / 2,
+						c.selector.size.y / 2,
+						(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
+						(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+						c.selector.size.x,
+						c.selector.size.y,
+					);
+				}
+			});
+			addEventListener("keyup", () => {can = true});
+			addEventListener("wheel", e => {
+				// Clear the previous selected slot
+				hud.ctx.clearRect(
+					(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (selected_slot * (c.selector.size.x - 8)),
+					(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+					c.selector.size.x + 2,
+					c.selector.size.y,
+				);
+
+				// Re-draw the hotbar part where the selector was
+				hud.ctx.drawImage(
+					hud.textures[1],
+					c.hotbar.uv.x - (selected_slot * c.selector.origin.x / 8) - 1,
+					c.hotbar.uv.y,
+					c.hotbar.size.x / 16 + 2,
+					c.hotbar.size.y / 2,
+					(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (selected_slot * c.selector.origin.x / 4) - 2,
+					(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
+					c.selector.size.x + 2,
+					c.selector.size.y - 4,
+				);
+
+				// Increment/decrement selector based on wheel direction
+				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
+
+				// Re-draw the selector on the new selected slot
+				hud.ctx.drawImage(
+					hud.textures[1],
+					c.selector.uv.x,
+					c.selector.uv.y,
+					c.selector.size.x / 2,
+					c.selector.size.y / 2,
+					(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
+					(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+					c.selector.size.x,
+					c.selector.size.y,
+				);
+			});
 		</script>
 	</body>
 </html>

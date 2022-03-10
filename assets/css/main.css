@@ -23,7 +23,7 @@ body {
 	overflow: hidden;
 	cursor: default;
 	text-rendering: optimizeLegibility;
-	font-family: regular;
+	font-family: regular, sans-serif;
 	font-size: 20px;
 }
 
@@ -34,19 +34,11 @@ body {
 
 .layer {
 	position: absolute;
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -webkit-crisp-edges;
-	image-rendering: pixelated;
-	image-rendering: crisp-edges;
 }
 
 #container-layer, #menu-layer {
 	background-color: rgba(0, 0, 0, .7);
 	z-index: 1;
-}
-
-#debug-layer {
-	background-color: #333;
 }
 
 .slots {

@@ -238,13 +238,3 @@ ContainerLayer
 			uv: [0, 0],
 		}),
 	);
-
-DebugLayer
-	.add(
-		new InterfaceComponent({
-			type: "text",
-			text: "test",
-			origin: [WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2],
-		}),
-	);
-DebugLayer.update();
