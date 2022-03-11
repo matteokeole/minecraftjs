@@ -4,14 +4,17 @@
 	<head>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="assets/css/main.css">
+		<!-- Avoid favicon requests/warnings in the console -->
 		<link rel="icon" href="data:;base64,=">
-		<style>
-			.layer {background-color: #333}
-		</style>
+		<style>body {background-color: #333}</style>
 	</head>
 
 	<body>
 		<script>
+			const debug = (sender, ...message) => {
+				console.log(sender, ...message);
+			};
+
 			/**
 			 * Construct a new interface layer.
 			 * @param {object}	layer			Layer data, such as:
@@ -22,7 +25,7 @@
 				// Debug attributes
 				this.debug = `<${l.name ? l.name.toUpperCase() : "UNKNOWN_LAYER"}>`;
 
-				console.log(this.debug, "Layer created!", l);
+				// debug(this.debug, "Layer created!", l);
 
 				// Base attributes
 				this.name = l.name;
@@ -41,7 +44,7 @@
 					this.visible = state;
 					this.canvas.style.visibility = this.visible ? "visible" : "hidden";
 
-					console.log(this.debug, "Layer visibility updated to", this.visible);
+					// debug(this.debug, "Layer visibility updated to", this.visible);
 				};
 
 				/**
@@ -51,7 +54,7 @@
 					this.canvas.width = window.innerWidth;
 					this.canvas.height = window.innerHeight;
 
-					console.log(this.debug, "Layer resized to", window.innerWidth, "x", window.innerHeight);
+					// debug(this.debug, "Layer resized to", window.innerWidth, "x", window.innerHeight);
 				};
 
 				/**
@@ -63,7 +66,7 @@
 					component.layer = this;
 					this.components[component.id] = component;
 
-					console.log(this.debug, "Added component", `"${component.id}"`, component);
+					// debug(this.debug, "Added component", `"${component.id}"`, component);
 
 					return this;
 				};
@@ -75,7 +78,7 @@
 				this.remove = component => {
 					this.components[component.id] = undefined;
 
-					console.log(this.debug, "Removed component", `"${component}"`);
+					// debug(this.debug, "Removed component", `"${component}"`);
 
 					return this;
 				};
@@ -109,7 +112,7 @@
 					for (let i in this.sources) {
 						this.textures[i] = new Image();
 						this.textures[i].addEventListener("load", () => {
-							// console.log(this.debug, "Loaded texture:", this.textures[i])
+							// debug(this.debug, "Loaded texture:", this.textures[i])
 							if (++loadedTextures >= count) {
 								callback(this.textures);
 							}
@@ -127,22 +130,37 @@
 					// Clear canvas previous content
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-					this.loadTextures(t => {
+					this.loadTextures(textures => {
 						// Loop through layer components
 						for (let component of Object.values(this.components)) {
 							if (component.visible) {
-								// Draw component
+								// This component is visible, the canvas can draw it
 								if (component.type === "text") {
+									// Vertically align text with canvas
 									this.ctx.textAlign = component.text_align;
-									this.ctx.fillStyle = component.font_color;
+
 									this.ctx.font = `${component.font_size}px regular, monospace`;
+
+									// Create text shadow
+									this.ctx.fillStyle = "#3e3e3e";
+									this.ctx.fillText(
+										component.text,
+										window.innerWidth / 2 - component.origin.x + 2,
+										window.innerHeight / 2 - component.origin.y + 2,
+									);
+
+									// Print text content with component text color
+									this.ctx.fillStyle = component.font_color;
 									this.ctx.fillText(
 										component.text,
 										window.innerWidth / 2 - component.origin.x,
 										window.innerHeight / 2 - component.origin.y,
 									);
 								} else {
-									let texture = Object.values(t).filter(img => img.src.includes(component.texture));
+									// Get component texture
+									const texture = Object.values(textures).filter(t => t.src.includes(component.texture));
+
+									// Draw component
 									this.ctx.drawImage(
 										texture[0],
 										component.uv.x,
@@ -159,7 +177,7 @@
 						}
 					});
 
-					console.log(this.debug, "Layer updated!");
+					// debug(this.debug, "Layer updated!");
 				};
 
 				document.body.appendChild(this.canvas);
@@ -240,7 +258,14 @@
 
 
 
-			const hud = new Layer({
+			const
+			Player = {
+				maxHealth: 20,
+				health: 17,
+				maxHunger: 20,
+				hunger: 19,
+			},
+			hud = new Layer({
 				name: "hud",
 				visible: true,
 			})
@@ -294,7 +319,8 @@
 				}),
 			);
 
-			/*for (let i = 0; i < 10; i++) {
+			// Heart outlines
+			for (let i = 0; i < Player.maxHealth / 2; i++) {
 				hud
 					.add(
 						new Component({
@@ -307,19 +333,51 @@
 							texture: "gui/icons.png",
 							uv: [16, 0],
 						}),
-					)
-					.add(
-						new Component({
-							id: `heart_inner_${i}`,
-							origin: [
-								-172 + (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
-							],
-							size: [16, 14],
-							texture: "gui/icons.png",
-							uv: [53, 1],
-						}),
-					)
+					);
+			}
+
+			// Heart inners
+			let j = 0;
+			for (let i = 0; i < Player.health; i++) {
+				// Add half-heart if health value is odd
+				if (Player.health % 2 !== 0 && i + 1 === Player.health) {
+					j = i / 2;
+					hud
+						.add(
+							new Component({
+								id: `heart_inner_${j}`,
+								origin: [
+									-172 + (j % 10) * 16,
+									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 68,
+								],
+								size: [16, 14],
+								texture: "gui/icons.png",
+								uv: [62, 1],
+							}),
+						);
+					break;
+				}
+				else if (i % 2 === 0) {
+					j = i / 2;
+					hud
+						.add(
+							new Component({
+								id: `heart_inner_${j}`,
+								origin: [
+									-172 + (j % 10) * 16,
+									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 68,
+								],
+								size: [16, 14],
+								texture: "gui/icons.png",
+								uv: [53, 1],
+							}),
+						);
+				}
+			}
+
+			// Hunger outlines
+			for (let i = 0; i < Player.maxHunger / 2; i++) {
+				hud
 					.add(
 						new Component({
 							id: `hunger_outline_${i}`,
@@ -331,19 +389,48 @@
 							texture: "gui/icons.png",
 							uv: [16, 27],
 						}),
-					)
-					.add(
-						new Component({
-							id: `hunger_inner_${i}`,
-							origin: [
-								174 - (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 69,
-							],
-							size: [16, 16],
-							texture: "gui/icons.png",
-							uv: [53, 27],
-						}),
-					)
+					);
+			}
+
+			// Hunger inners
+			j = 0;
+			for (let i = 0; i < Player.hunger; i++) {
+				// Add half-hunger if hunger value is odd
+				if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
+					j = i / 2;
+					hud
+						.add(
+							new Component({
+								id: `hunger_inner_${j}`,
+								origin: [
+									174 - (j % 10) * 16,
+									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 69,
+								],
+								size: [16, 16],
+								texture: "gui/icons.png",
+								uv: [62, 27],
+							}),
+						);
+				}
+				else if (i % 2 === 0) {
+					j = i / 2;
+					hud
+						.add(
+							new Component({
+								id: `hunger_inner_${j}`,
+								origin: [
+									174 - (j % 10) * 16,
+									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 69,
+								],
+								size: [16, 16],
+								texture: "gui/icons.png",
+								uv: [53, 27],
+							}),
+						);
+				}
+			}
+
+			/*for (let i = 0; i < 10; i++) {
 					.add(
 						new Component({
 							id: `armor_outline_${i}`,
@@ -396,55 +483,63 @@
 					"Digit8",
 					"Digit9",
 				],
-				can = true,
+				canSwitchSlot = true,
+				isSlotKey = false;
 				c = hud.components;
 			addEventListener("keydown", e => {
 				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
-				if (can) {
-					can = false;
+				if (canSwitchSlot) {
+					isSlotKey = false;
+					canSwitchSlot = false;
 					let prev_slot = selected_slot;
+
+					if (e.code === "F1") hud.toggle();
+
 					for (let i in hotbar_slots) {
 						if (e.code === hotbar_slots[i]) {
+							isSlotKey = true;
 							selected_slot = e.code.charAt(e.code.length - 1) - 1;
 						}
 					}
-					
-					// Clear the previous selected slot
-					hud.ctx.clearRect(
-						(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
-						(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-						c.selector.size.x + 2,
-						c.selector.size.y,
-					);
 
-					// Re-draw the hotbar part where the selector was
-					hud.ctx.drawImage(
-						hud.textures[1],
-						c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
-						c.hotbar.uv.y,
-						c.hotbar.size.x / 16 + 2,
-						c.hotbar.size.y / 2,
-						(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
-						(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
-						c.selector.size.x + 2,
-						c.selector.size.y - 4,
-					);
+					if (isSlotKey) {
+						// Clear the previous selected slot
+						hud.ctx.clearRect(
+							(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
+							(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+							c.selector.size.x + 2,
+							c.selector.size.y,
+						);
 
-					// Re-draw the selector on the new selected slot
-					hud.ctx.drawImage(
-						hud.textures[1],
-						c.selector.uv.x,
-						c.selector.uv.y,
-						c.selector.size.x / 2,
-						c.selector.size.y / 2,
-						(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
-						(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-						c.selector.size.x,
-						c.selector.size.y,
-					);
+						// Re-draw the hotbar part where the selector was
+						hud.ctx.drawImage(
+							hud.textures[1],
+							c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
+							c.hotbar.uv.y,
+							c.hotbar.size.x / 16 + 2,
+							c.hotbar.size.y / 2,
+							(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
+							(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
+							c.selector.size.x + 2,
+							c.selector.size.y - 4,
+						);
+
+						// Re-draw the selector on the new selected slot
+						hud.ctx.drawImage(
+							hud.textures[1],
+							c.selector.uv.x,
+							c.selector.uv.y,
+							c.selector.size.x / 2,
+							c.selector.size.y / 2,
+							(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
+							(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+							c.selector.size.x,
+							c.selector.size.y,
+						);
+					}
 				}
 			});
-			addEventListener("keyup", () => {can = true});
+			addEventListener("keyup", () => {canSwitchSlot = true});
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
 				hud.ctx.clearRect(
