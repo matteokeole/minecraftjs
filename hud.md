@@ -1,7 +1,1 @@
-- Crosshair
-- Hotbar
-- Hotbar selector
-- Experience bar
-- Health bar
-- Hunger bar
-- Tooltip
+# Minecraft with Vanilla JavaScript & THREE.js
