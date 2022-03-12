@@ -1,4 +1,4 @@
-# Minecraft
+# ![Logo](https://matteoo34.github.io/MC/favicon.ico) Minecraft
 ## with vanilla JavaScript & THREE.js
 
 Most of the code is made with vanilla JavaScript for a better performance.  
