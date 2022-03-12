@@ -1,4 +1,3 @@
-![Logo](https://matteoo34.github.io/MC/favicon.ico)
 # Minecraft
 ### with vanilla JavaScript & THREE.js
 
