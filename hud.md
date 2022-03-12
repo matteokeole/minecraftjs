@@ -2,4 +2,9 @@
 ## with vanilla JavaScript & THREE.js
 
 + HUD
-  + s
+  + Crosshair
+  + Hotbar and selector
+  + Experience bar
+  + Health bar
+  + Hunger bar
+  + (soon) Hold item tooltip
