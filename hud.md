@@ -16,6 +16,4 @@ The 'game' is available [here](https://matteoo34.github.io/MC) and the HUD indev
 
 Enjoy :)
 
-::: warning
-The game is in development and updates can be dropped at any time.
-:::
+==The game is in development and updates can be dropped at any time.==
