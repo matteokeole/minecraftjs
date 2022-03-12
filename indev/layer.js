@@ -155,7 +155,7 @@ function Layer(layer = {}) {
 	this.canvas.id = this.name;
 
 	// Stretch canvas size to the screen size
-	this.canvas.width = window.innerWidth
+	this.canvas.width = window.innerWidth;
 	this.canvas.height = window.innerHeight;
 
 	// Remove canvas blur effect
