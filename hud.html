@@ -6,185 +6,18 @@
 		<link rel="stylesheet" href="assets/css/main.css">
 		<!-- Avoid favicon requests/warnings in the console -->
 		<link rel="icon" href="data:;base64,=">
-		<style>body {background-color: #333}</style>
+		<style>
+			body {
+				display: flex;
+				justify-content: center;
+				background-color: #333;
+			}
+		</style>
 	</head>
 
 	<body>
+		<script src="indev/layer.js"></script>
 		<script>
-			const debug = (sender, ...message) => {
-				console.log(sender, ...message);
-			};
-
-			/**
-			 * Construct a new interface layer.
-			 * @param {object}	layer			Layer data, such as:
-			 * @param {string}	layer.name		Layer name
-			 * @param {boolean}	layer.visible	Layer visibility attribute
-			 */
-			function Layer(l = {}) {
-				// Debug attributes
-				this.debug = `<${l.name ? l.name.toUpperCase() : "UNKNOWN_LAYER"}>`;
-
-				// debug(this.debug, "Layer created!", l);
-
-				// Base attributes
-				this.name = l.name;
-				this.size = [
-					window.innerWidth,
-					window.innerHeight,
-				];
-				this.visible = l.visible ? l.visible : false;
-				this.components = l.components ? l.components : {};
-
-				/**
-				 * Toggle layer visibility.
-				 * @param {boolean} state - The visibility status, will be the opposite of the current visibility if omitted
-				 */
-				this.toggle = (state = !this.visible) => {
-					this.visible = state;
-					this.canvas.style.visibility = this.visible ? "visible" : "hidden";
-
-					// debug(this.debug, "Layer visibility updated to", this.visible);
-				};
-
-				/**
-				 * Adapt the layer canvas to the screen size.
-				 */
-				this.resize = () => {
-					this.canvas.width = window.innerWidth;
-					this.canvas.height = window.innerHeight;
-
-					// debug(this.debug, "Layer resized to", window.innerWidth, "x", window.innerHeight);
-				};
-
-				/**
-				 * Add the specified component to the layer component list.
-				 * @param {object} component - The component to be added
-				 */
-				this.add = component => {
-					// Set the parent layer attribute to the new component before creating it
-					component.layer = this;
-					this.components[component.id] = component;
-
-					// debug(this.debug, "Added component", `"${component.id}"`, component);
-
-					return this;
-				};
-
-				/**
-				 * Remove the specified component from the layer component list.
-				 * @param {object} component - The name of the component which needs to be removed
-				 */
-				this.remove = component => {
-					this.components[component.id] = undefined;
-
-					// debug(this.debug, "Removed component", `"${component}"`);
-
-					return this;
-				};
-
-				// Layer canvas
-				this.canvas = document.createElement("canvas");
-				this.resize();
-				this.canvas.id = this.name;
-				this.canvas.className = "layer";
-				this.canvas.style.visibility = this.visible ? "visible" : "hidden";
-
-				this.ctx = this.canvas.getContext("2d");
-				// Don't call this.resize() after this line, as the pixelated image effect won't work
-				this.ctx.imageSmoothingEnabled = false;
-
-				/**
-				 * Load all component textures in a texture array which can be used to render components.
-				 */
-				this.loadTextures = callback => {
-					// Get the source list
-					for (let component of Object.values(this.components)) {
-						if (component.texture) this.sources.push(`assets/textures/${component.texture}`);
-					}
-
-					// Remove duplicate sources from the list
-					this.sources = [...new Set(this.sources)];
-
-					let loadedTextures = 0,
-						count = Object.keys(this.sources).length;
-
-					for (let i in this.sources) {
-						this.textures[i] = new Image();
-						this.textures[i].addEventListener("load", () => {
-							// debug(this.debug, "Loaded texture:", this.textures[i])
-							if (++loadedTextures >= count) {
-								callback(this.textures);
-							}
-						});
-						this.textures[i].src = this.sources[i];
-					}
-				};
-				this.sources = [];
-				this.textures = [];
-
-				/**
-				 * Update the layer by re-drawing its components.
-				 */
-				this.update = () => {
-					// Clear canvas previous content
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-					this.loadTextures(textures => {
-						// Loop through layer components
-						for (let component of Object.values(this.components)) {
-							if (component.visible) {
-								// This component is visible, the canvas can draw it
-								if (component.type === "text") {
-									// Vertically align text with canvas
-									this.ctx.textAlign = component.text_align;
-
-									this.ctx.font = `${component.font_size}px regular, monospace`;
-
-									// Create text shadow
-									this.ctx.fillStyle = "#3e3e3e";
-									this.ctx.fillText(
-										component.text,
-										window.innerWidth / 2 - component.origin.x + 2,
-										window.innerHeight / 2 - component.origin.y + 2,
-									);
-
-									// Print text content with component text color
-									this.ctx.fillStyle = component.font_color;
-									this.ctx.fillText(
-										component.text,
-										window.innerWidth / 2 - component.origin.x,
-										window.innerHeight / 2 - component.origin.y,
-									);
-								} else {
-									// Get component texture
-									const texture = Object.values(textures).filter(t => t.src.includes(component.texture));
-
-									// Draw component
-									this.ctx.drawImage(
-										texture[0],
-										component.uv.x,
-										component.uv.y,
-										component.size.x / 2,
-										component.size.y / 2,
-										(window.innerWidth  / 2) - (component.size.x / 2) + component.origin.x,
-										(window.innerHeight / 2) - (component.size.y / 2) - component.origin.y,
-										component.size.x,
-										component.size.y,
-									);
-								}
-							}
-						}
-					});
-
-					// debug(this.debug, "Layer updated!");
-				};
-
-				document.body.appendChild(this.canvas);
-
-				return this;
-			}
-
 			/**
 			 * Construct a new layer component
 			 * @param {object}	component			Component data, such as:
@@ -259,65 +92,65 @@
 
 
 			const
-			Player = {
-				maxHealth: 20,
-				health: 17,
-				maxHunger: 20,
-				hunger: 19,
-			},
-			hud = new Layer({
-				name: "hud",
-				visible: true,
-			})
-			.add(
-				new Component({
-					id: "crosshair",
-					origin: [0, 0],
-					size: [18, 18],
-					texture: "gui/icons.png",
-					uv: [3, 3],
-				}),
-			)
-			.add(
-				new Component({
-					type: "container",
-					id: "hotbar",
-					origin: [0, -(window.innerHeight / 2) + 21],
-					size: [364, 44],
-					texture: "gui/widgets.png",
-					uv: [0, 0],
-				}),
-			)
-			.add(
-				new Component({
-					id: "selector",
-					origin: [-160, -(window.innerHeight / 2) + 21],
-					size: [48, 48],
-					texture: "gui/widgets.png",
-					uv: [0, 22],
-				}),
-			)
-			.add(
-				new Component({
-					id: "experience_bar",
-					origin: [0, -(window.innerHeight / 2) + 52],
-					size: [364, 10],
-					texture: "gui/icons.png",
-					uv: [0, 64],
-				}),
-			)
-			.add(
-				new Component({
-					type: "text",
-					id: "tooltip",
-					origin: [0, -(window.innerHeight / 2) + 102],
-					size: [18, 18],
-					text: "Sand",
-					text_align: "center",
-					font_size: 20,
-					font_color: "#FFF",
-				}),
-			);
+				Player = {
+					maxHealth: 20,
+					health: 17,
+					maxHunger: 20,
+					hunger: 19,
+				},
+				hud = new Layer({
+					name: "hud",
+					visible: 1,
+				})
+				.add(
+					new Component({
+						id: "crosshair",
+						origin: [0, 0],
+						size: [18, 18],
+						texture: "gui/icons.png",
+						uv: [3, 3],
+					}),
+				)
+				.add(
+					new Component({
+						type: "container",
+						id: "hotbar",
+						origin: [0, -(window.innerHeight / 2) + 21],
+						size: [364, 44],
+						texture: "gui/widgets.png",
+						uv: [0, 0],
+					}),
+				)
+				.add(
+					new Component({
+						id: "selector",
+						origin: [-160, -(window.innerHeight / 2) + 21],
+						size: [48, 48],
+						texture: "gui/widgets.png",
+						uv: [0, 22],
+					}),
+				)
+				.add(
+					new Component({
+						id: "experience_bar",
+						origin: [0, -(window.innerHeight / 2) + 52],
+						size: [364, 10],
+						texture: "gui/icons.png",
+						uv: [0, 64],
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						id: "tooltip",
+						origin: [0, -(window.innerHeight / 2) + 102],
+						size: [18, 18],
+						text: "Sand",
+						text_align: "center",
+						font_size: 20,
+						font_color: "#FFF",
+					}),
+				);
 
 			// Heart outlines
 			for (let i = 0; i < Player.maxHealth / 2; i++) {
@@ -469,9 +302,8 @@
 					);
 			}*/
 
-			hud.update();
-
-			let selected_slot = 0,
+			let
+				selected_slot = 0,
 				hotbar_slots = [
 					"Digit1",
 					"Digit2",
@@ -486,6 +318,9 @@
 				canSwitchSlot = true,
 				isSlotKey = false;
 				c = hud.components;
+
+			hud.update();
+
 			addEventListener("keydown", e => {
 				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
 				if (canSwitchSlot) {
@@ -513,7 +348,7 @@
 
 						// Re-draw the hotbar part where the selector was
 						hud.ctx.drawImage(
-							hud.textures[1],
+							hud.loadedTextures[hud.components.hotbar.texture],
 							c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
 							c.hotbar.uv.y,
 							c.hotbar.size.x / 16 + 2,
@@ -526,7 +361,7 @@
 
 						// Re-draw the selector on the new selected slot
 						hud.ctx.drawImage(
-							hud.textures[1],
+							hud.loadedTextures[hud.components.selector.texture],
 							c.selector.uv.x,
 							c.selector.uv.y,
 							c.selector.size.x / 2,
@@ -539,7 +374,7 @@
 					}
 				}
 			});
-			addEventListener("keyup", () => {canSwitchSlot = true});
+			addEventListener("keyup", () => canSwitchSlot = true);
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
 				hud.ctx.clearRect(
@@ -551,7 +386,7 @@
 
 				// Re-draw the hotbar part where the selector was
 				hud.ctx.drawImage(
-					hud.textures[1],
+					hud.loadedTextures[hud.components.hotbar.texture],
 					c.hotbar.uv.x - (selected_slot * c.selector.origin.x / 8) - 1,
 					c.hotbar.uv.y,
 					c.hotbar.size.x / 16 + 2,
@@ -567,7 +402,7 @@
 
 				// Re-draw the selector on the new selected slot
 				hud.ctx.drawImage(
-					hud.textures[1],
+					hud.loadedTextures[hud.components.selector.texture],
 					c.selector.uv.x,
 					c.selector.uv.y,
 					c.selector.size.x / 2,
