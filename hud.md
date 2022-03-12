@@ -1,6 +1,9 @@
 # Minecraft
 ## with vanilla JavaScript & THREE.js
 
+Most of the code is made with vanilla JavaScript for a better performance.  
+The 3D system uses the library THREE.js.  
+
 + HUD
   + Crosshair
   + Hotbar and selector
