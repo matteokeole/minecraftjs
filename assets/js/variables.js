@@ -70,12 +70,12 @@ const
 	Controls			= new THREE.PointerLockControls(Camera, document.body),
 	BlockGeometry		= new THREE.BoxGeometry(1, 1, 1),
 	BlockMaterial = ([
-		"sand",	// Right
-		"sand",	// Left
-		"sand",	// Top
-		"sand",	// Bottom
-		"sand",	// Front
-		"sand",	// Back
+		"deepslate",		// Right
+		"deepslate",		// Left
+		"deepslate_top",	// Top
+		"deepslate_top",	// Bottom
+		"deepslate",		// Front
+		"deepslate",		// Back
 	]).map(face => {
 		const map = Loader.load(`assets/textures/block/${face}.png`);
 		map.magFilter = THREE.NearestFilter;

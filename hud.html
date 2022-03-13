@@ -10,12 +10,13 @@
 			body {
 				display: flex;
 				justify-content: center;
-				background-color: #333;
+				background-color: #595645;
 			}
 		</style>
 	</head>
 
 	<body>
+		<script src="indev/font.js"></script>
 		<script src="indev/layer.js"></script>
 		<script>
 			/**
@@ -66,16 +67,11 @@
 				};
 
 				switch (this.type) {
-					case "container":
-						//
-
-						break;
-
 					case "text":
 						this.text = component.text;
 						this.text_align = component.text_align;
-						this.font_size = component.font_size;
-						this.font_color = component.font_color;
+						this.text_size = component.text_size;
+						this.text_color = component.text_color;
 
 						break;
 				}
@@ -98,7 +94,7 @@
 					maxHunger: 20,
 					hunger: 19,
 				},
-				hud = new Layer({
+				HUDLayer = new Layer({
 					name: "hud",
 					visible: 1,
 				})
@@ -143,18 +139,18 @@
 					new Component({
 						type: "text",
 						id: "tooltip",
-						origin: [0, -(window.innerHeight / 2) + 102],
-						size: [18, 18],
-						text: "Sand",
+						origin: [0, -(window.innerHeight / 2) + 108],
+						texture: "font/ascii.png",
+						text: "Orange Tulip",
 						text_align: "center",
-						font_size: 20,
-						font_color: "#FFF",
+						text_size: 20,
+						text_color: "#FFF",
 					}),
 				);
 
 			// Heart outlines
 			for (let i = 0; i < Player.maxHealth / 2; i++) {
-				hud
+				HUDLayer
 					.add(
 						new Component({
 							id: `heart_outline_${i}`,
@@ -175,7 +171,7 @@
 				// Add half-heart if health value is odd
 				if (Player.health % 2 !== 0 && i + 1 === Player.health) {
 					j = i / 2;
-					hud
+					HUDLayer
 						.add(
 							new Component({
 								id: `heart_inner_${j}`,
@@ -192,7 +188,7 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					hud
+					HUDLayer
 						.add(
 							new Component({
 								id: `heart_inner_${j}`,
@@ -210,7 +206,7 @@
 
 			// Hunger outlines
 			for (let i = 0; i < Player.maxHunger / 2; i++) {
-				hud
+				HUDLayer
 					.add(
 						new Component({
 							id: `hunger_outline_${i}`,
@@ -231,7 +227,7 @@
 				// Add half-hunger if hunger value is odd
 				if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
 					j = i / 2;
-					hud
+					HUDLayer
 						.add(
 							new Component({
 								id: `hunger_inner_${j}`,
@@ -247,7 +243,7 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					hud
+					HUDLayer
 						.add(
 							new Component({
 								id: `hunger_inner_${j}`,
@@ -264,6 +260,7 @@
 			}
 
 			/*for (let i = 0; i < 10; i++) {
+				HUDLayer
 					.add(
 						new Component({
 							id: `armor_outline_${i}`,
@@ -317,9 +314,9 @@
 				],
 				canSwitchSlot = true,
 				isSlotKey = false;
-				c = hud.components;
+				c = HUDLayer.components;
 
-			hud.update();
+			HUDLayer.update();
 
 			addEventListener("keydown", e => {
 				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
@@ -328,7 +325,7 @@
 					canSwitchSlot = false;
 					let prev_slot = selected_slot;
 
-					if (e.code === "F1") hud.toggle();
+					if (e.code === "F1") HUDLayer.toggle();
 
 					for (let i in hotbar_slots) {
 						if (e.code === hotbar_slots[i]) {
@@ -339,35 +336,35 @@
 
 					if (isSlotKey) {
 						// Clear the previous selected slot
-						hud.ctx.clearRect(
-							(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
-							(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+						HUDLayer.ctx.clearRect(
+							(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
+							(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
 							c.selector.size.x + 2,
 							c.selector.size.y,
 						);
 
 						// Re-draw the hotbar part where the selector was
-						hud.ctx.drawImage(
-							hud.loadedTextures[hud.components.hotbar.texture],
+						HUDLayer.ctx.drawImage(
+							HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
 							c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
 							c.hotbar.uv.y,
 							c.hotbar.size.x / 16 + 2,
 							c.hotbar.size.y / 2,
-							(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
-							(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
+							(HUDLayer.canvas.width / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
+							(HUDLayer.canvas.height / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
 							c.selector.size.x + 2,
 							c.selector.size.y - 4,
 						);
 
 						// Re-draw the selector on the new selected slot
-						hud.ctx.drawImage(
-							hud.loadedTextures[hud.components.selector.texture],
+						HUDLayer.ctx.drawImage(
+							HUDLayer.loadedTextures[HUDLayer.components.selector.texture],
 							c.selector.uv.x,
 							c.selector.uv.y,
 							c.selector.size.x / 2,
 							c.selector.size.y / 2,
-							(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
-							(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+							(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
+							(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
 							c.selector.size.x,
 							c.selector.size.y,
 						);
@@ -377,22 +374,22 @@
 			addEventListener("keyup", () => canSwitchSlot = true);
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
-				hud.ctx.clearRect(
-					(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (selected_slot * (c.selector.size.x - 8)),
-					(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+				HUDLayer.ctx.clearRect(
+					(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (selected_slot * (c.selector.size.x - 8)),
+					(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
 					c.selector.size.x + 2,
 					c.selector.size.y,
 				);
 
 				// Re-draw the hotbar part where the selector was
-				hud.ctx.drawImage(
-					hud.loadedTextures[hud.components.hotbar.texture],
+				HUDLayer.ctx.drawImage(
+					HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
 					c.hotbar.uv.x - (selected_slot * c.selector.origin.x / 8) - 1,
 					c.hotbar.uv.y,
 					c.hotbar.size.x / 16 + 2,
 					c.hotbar.size.y / 2,
-					(window.innerWidth  / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (selected_slot * c.selector.origin.x / 4) - 2,
-					(window.innerHeight / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
+					(HUDLayer.canvas.width / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (selected_slot * c.selector.origin.x / 4) - 2,
+					(HUDLayer.canvas.height / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
 					c.selector.size.x + 2,
 					c.selector.size.y - 4,
 				);
@@ -401,14 +398,14 @@
 				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
 				// Re-draw the selector on the new selected slot
-				hud.ctx.drawImage(
-					hud.loadedTextures[hud.components.selector.texture],
+				HUDLayer.ctx.drawImage(
+					HUDLayer.loadedTextures[HUDLayer.components.selector.texture],
 					c.selector.uv.x,
 					c.selector.uv.y,
 					c.selector.size.x / 2,
 					c.selector.size.y / 2,
-					(window.innerWidth  / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
-					(window.innerHeight / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
+					(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
+					(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
 					c.selector.size.x,
 					c.selector.size.y,
 				);

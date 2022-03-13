@@ -104,28 +104,95 @@ function Layer(layer = {}) {
 				if (c.visible) {
 					// Switch component type
 					if (c.type === "text") {
-						// TO-DO
+						// Calculate text final width
+						let textWidth = 0;
+						for (let char of c.text) {
+							textWidth += charSize[char][0] * 2;
+						}
 
-						/*// Vertically align text with canvas
-						this.ctx.textAlign = c.text_align;
-
-						this.ctx.font = `${c.font_size}px regular, monospace`;
-
-						// Create text shadow
-						this.ctx.fillStyle = "#3E3E3E";
-						this.ctx.fillText(
-							c.text,
-							this.canvas.width / 2 - c.origin.x + 2,
-							this.canvas.height / 2 - c.origin.y + 2,
-						);
-
-						// Print text content with component text color
-						this.ctx.fillStyle = c.font_color;
-						this.ctx.fillText(
-							c.text,
-							this.canvas.width / 2 - c.origin.x,
-							this.canvas.height / 2 - c.origin.y,
+						// Background test
+						// this.ctx.fillStyle = "orange";
+						/*this.ctx.fillRect(
+							(this.canvas.width / 2) - (textWidth / 2) + c.origin.x,
+							(this.canvas.height / 2) - (18 / 2) - c.origin.y,
+							textWidth,
+							16,
 						);*/
+
+						// Text shadow
+						// this.ctx.globalAlpha = .1;
+						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x - 1;
+						for (let char of c.text) {
+							let i = chars.indexOf(char);
+							if (i !== -1) {
+								// Character found, draw it
+								let
+									x = i % 16,
+									y = Math.floor(i / 16);
+
+								this.ctx.drawImage(
+									loadedTextures[c.texture],
+									x * 8,
+									16 + y * 8,
+									18 / 3,
+									18 / 2.25,
+									textX + 2,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
+									12,
+									16,
+								);
+
+								let
+									image = this.ctx.getImageData(
+										textX + 2,
+										(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
+										12,
+										16,
+									),
+									image_data = image.data;
+
+								for (let j = 0; j < image_data.length; j += 4) {
+									image_data[j] -= 193;
+									image_data[j + 1] -= 193;
+									image_data[j + 2] -= 193;
+								}
+
+								image.data = image_data;
+
+								this.ctx.putImageData(
+									image,
+									textX + 2,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
+								);
+							}
+							textX += charSize[char][0] * 2;
+						}
+
+						// Print text
+						this.ctx.globalAlpha = 1;
+						textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x - 1;
+						for (let char of c.text) {
+							let i = chars.indexOf(char);
+							if (i !== -1) {
+								// Character found, draw it
+								let
+									x = i % 16,
+									y = Math.floor(i / 16);
+
+								this.ctx.drawImage(
+									loadedTextures[c.texture],
+									x * 8,
+									16 + y * 8,
+									18 / 3,
+									18 / 2.25,
+									textX,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y,
+									12,
+									16,
+								);
+							}
+							textX += charSize[char][0] * 2;
+						}
 					} else {
 						// Get component texture
 						const texture = loadedTextures[c.texture];

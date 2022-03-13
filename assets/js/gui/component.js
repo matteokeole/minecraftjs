@@ -66,6 +66,7 @@ function InterfaceComponent(component) {
 UILayer
 	.add(
 		new InterfaceComponent({
+			type: "crosshair",
 			id: "crosshair",
 			origin: [0, 0],
 			size: [18, 18],
