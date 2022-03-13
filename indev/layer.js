@@ -4,12 +4,16 @@
  * Param	Type		Name				Description						Default value
  * @param	{object}	layer				Layer data object				{}
  * @param	{string}	layer.name			Layer name						"unknown_layer"
+ * @param	{integer}	layer.scale			Layer scale multiplier			2
  * @param	{boolean}	layer.visible		Layer visibility attribute		0
  * @param	{object}	layer.components	Layer default component list	{}
  */
 function Layer(layer = {}) {
 	// Name
 	this.name = layer.name ?? "unknown_layer";
+
+	// Scale multiplier
+	this.scale = layer.scale ?? 2;
 
 	// Visibility status
 	this.visible = layer.visible ?? 0;
@@ -25,6 +29,16 @@ function Layer(layer = {}) {
 
 	// Loaded texture list (accessible with the component texture value)
 	this.loadedTextures = {};
+
+	/**
+	 * Scale canvas components.
+ 	 * @param	{integer}	multiplier			The scale multiplier			2
+	 */
+	this.setScale = (multiplier = 2) => {
+		this.scale = multiplier;
+
+		return this;
+	};
 
 	/**
 	 * Toggle layer canvas visibility.
@@ -104,23 +118,14 @@ function Layer(layer = {}) {
 				if (c.visible) {
 					// Switch component type
 					if (c.type === "text") {
-						// Calculate text final width
 						let textWidth = 0;
+
+						// Calculate text final width
 						for (let char of c.text) {
 							textWidth += charSize[char][0] * 2;
 						}
 
-						// Background test
-						// this.ctx.fillStyle = "orange";
-						/*this.ctx.fillRect(
-							(this.canvas.width / 2) - (textWidth / 2) + c.origin.x,
-							(this.canvas.height / 2) - (18 / 2) - c.origin.y,
-							textWidth,
-							16,
-						);*/
-
 						// Text shadow
-						// this.ctx.globalAlpha = .1;
 						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x - 1;
 						for (let char of c.text) {
 							let i = chars.indexOf(char);
@@ -194,8 +199,10 @@ function Layer(layer = {}) {
 							textX += charSize[char][0] * 2;
 						}
 					} else {
-						// Get component texture
-						const texture = loadedTextures[c.texture];
+						// Get component texture and divide scale by 2 for less calculations
+						const
+							texture = loadedTextures[c.texture],
+							scale2 = this.scale / 2;
 
 						// Draw component
 						this.ctx.drawImage(
@@ -204,10 +211,10 @@ function Layer(layer = {}) {
 							c.uv.y,
 							c.size.x / 2,
 							c.size.y / 2,
-							(this.canvas.width / 2) - (c.size.x / 2) + c.origin.x,
-							(this.canvas.height / 2) - (c.size.y / 2) - c.origin.y,
-							c.size.x,
-							c.size.y,
+							(this.canvas.width / 2) - (c.size.x * scale2 / 2) + c.origin.x(),
+							(this.canvas.height / 2) - (c.size.y * scale2) - c.origin.y(),
+							c.size.x * scale2,
+							c.size.y * scale2,
 						);
 					}
 				}

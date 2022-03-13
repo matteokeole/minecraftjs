@@ -16,8 +16,8 @@
 	</head>
 
 	<body>
-		<script src="indev/font.js"></script>
 		<script src="indev/layer.js"></script>
+		<script src="indev/font.js"></script>
 		<script>
 			/**
 			 * Construct a new layer component
@@ -94,24 +94,40 @@
 					maxHunger: 20,
 					hunger: 19,
 				},
-				HUDLayer = new Layer({
+				CrosshairLayer = new Layer({
+					name: "crosshair",
+					visible: 1,
+				}),
+				HUD = new Layer({
 					name: "hud",
 					visible: 1,
-				})
+				});
+
+			CrosshairLayer.canvas.style.mixBlendMode = "difference";
+			CrosshairLayer
 				.add(
 					new Component({
 						id: "crosshair",
-						origin: [0, 0],
+						origin: [
+							() => 0,
+							() => 0,
+						],
 						size: [18, 18],
 						texture: "gui/icons.png",
 						uv: [3, 3],
 					}),
 				)
+				.update();
+
+			HUD
 				.add(
 					new Component({
 						type: "container",
 						id: "hotbar",
-						origin: [0, -(window.innerHeight / 2) + 21],
+						origin: [
+							() => 0,
+							() => -window.innerHeight / 2,
+						],
 						size: [364, 44],
 						texture: "gui/widgets.png",
 						uv: [0, 0],
@@ -120,7 +136,10 @@
 				.add(
 					new Component({
 						id: "selector",
-						origin: [-160, -(window.innerHeight / 2) + 21],
+						origin: [
+							() => -80 * HUD.scale,
+							() => -window.innerHeight / 2 - HUD.scale,
+						],
 						size: [48, 48],
 						texture: "gui/widgets.png",
 						uv: [0, 22],
@@ -129,34 +148,40 @@
 				.add(
 					new Component({
 						id: "experience_bar",
-						origin: [0, -(window.innerHeight / 2) + 52],
+						origin: [
+							() => 0,
+							() => -window.innerHeight / 2 + 24 * HUD.scale,
+						],
 						size: [364, 10],
 						texture: "gui/icons.png",
 						uv: [0, 64],
 					}),
 				)
-				.add(
+				/*.add(
 					new Component({
 						type: "text",
 						id: "tooltip",
-						origin: [0, -(window.innerHeight / 2) + 108],
+						origin: [
+							0,
+							-(window.innerHeight / 2) + 108,
+						],
 						texture: "font/ascii.png",
 						text: "Orange Tulip",
 						text_align: "center",
 						text_size: 20,
 						text_color: "#FFF",
 					}),
-				);
+				)*/;
 
 			// Heart outlines
 			for (let i = 0; i < Player.maxHealth / 2; i++) {
-				HUDLayer
+				HUD
 					.add(
 						new Component({
 							id: `heart_outline_${i}`,
 							origin: [
-								-173 + (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
+								() => -86.5 * HUD.scale + (i % 10) * 8 * HUD.scale,
+								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 30 * HUD.scale,
 							],
 							size: [18, 18],
 							texture: "gui/icons.png",
@@ -171,13 +196,13 @@
 				// Add half-heart if health value is odd
 				if (Player.health % 2 !== 0 && i + 1 === Player.health) {
 					j = i / 2;
-					HUDLayer
+					HUD
 						.add(
 							new Component({
 								id: `heart_inner_${j}`,
 								origin: [
-									-172 + (j % 10) * 16,
-									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 68,
+									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
+									() => -(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 31 * HUD.scale,
 								],
 								size: [16, 14],
 								texture: "gui/icons.png",
@@ -188,13 +213,13 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					HUDLayer
+					HUD
 						.add(
 							new Component({
 								id: `heart_inner_${j}`,
 								origin: [
-									-172 + (j % 10) * 16,
-									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 68,
+									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
+									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
 								],
 								size: [16, 14],
 								texture: "gui/icons.png",
@@ -206,13 +231,13 @@
 
 			// Hunger outlines
 			for (let i = 0; i < Player.maxHunger / 2; i++) {
-				HUDLayer
+				HUD
 					.add(
 						new Component({
 							id: `hunger_outline_${i}`,
 							origin: [
-								173 - (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 68,
+								() => 86.5 * HUD.scale - (i % 10) * 8 * HUD.scale,
+								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 30 * HUD.scale,
 							],
 							size: [18, 18],
 							texture: "gui/icons.png",
@@ -227,13 +252,13 @@
 				// Add half-hunger if hunger value is odd
 				if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
 					j = i / 2;
-					HUDLayer
+					HUD
 						.add(
 							new Component({
 								id: `hunger_inner_${j}`,
 								origin: [
-									174 - (j % 10) * 16,
-									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 69,
+									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
+									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
 								],
 								size: [16, 16],
 								texture: "gui/icons.png",
@@ -243,13 +268,13 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					HUDLayer
+					HUD
 						.add(
 							new Component({
 								id: `hunger_inner_${j}`,
 								origin: [
-									174 - (j % 10) * 16,
-									-(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 69,
+									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
+									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
 								],
 								size: [16, 16],
 								texture: "gui/icons.png",
@@ -259,45 +284,9 @@
 				}
 			}
 
-			/*for (let i = 0; i < 10; i++) {
-				HUDLayer
-					.add(
-						new Component({
-							id: `armor_outline_${i}`,
-							origin: [
-								-173 + (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 88,
-							],
-							size: [18, 18],
-							texture: "gui/icons.png",
-							uv: [16, 9],
-						}),
-					)
-					.add(
-						new Component({
-							id: `armor_inner_${i}`,
-							origin: [
-								-172 + (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 90,
-							],
-							size: [16, 14],
-							texture: "gui/icons.png",
-							uv: [44, 9],
-						}),
-					)
-					.add(
-						new Component({
-							id: `bubble_outline_${i}`,
-							origin: [
-								173 - (i % 10) * 16,
-								-(window.innerHeight / 2) + Math.floor(i / 10) * 20 + 88,
-							],
-							size: [18, 18],
-							texture: "gui/icons.png",
-							uv: [16, 18],
-						}),
-					);
-			}*/
+			HUD
+				.setScale(2)
+				.update();
 
 			let
 				selected_slot = 0,
@@ -314,9 +303,7 @@
 				],
 				canSwitchSlot = true,
 				isSlotKey = false;
-				c = HUDLayer.components;
-
-			HUDLayer.update();
+				c = HUD.components;
 
 			addEventListener("keydown", e => {
 				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
@@ -325,48 +312,52 @@
 					canSwitchSlot = false;
 					let prev_slot = selected_slot;
 
-					if (e.code === "F1") HUDLayer.toggle();
+					if (e.code === "F1") {
+						HUD.toggle();
+						CrosshairLayer.toggle();
+					}
 
 					for (let i in hotbar_slots) {
 						if (e.code === hotbar_slots[i]) {
 							isSlotKey = true;
-							selected_slot = e.code.charAt(e.code.length - 1) - 1;
+							// Get the key digit
+							selected_slot = e.code.charAt(5) - 1;
 						}
 					}
 
 					if (isSlotKey) {
 						// Clear the previous selected slot
-						HUDLayer.ctx.clearRect(
-							(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (prev_slot * (c.selector.size.x - 8)),
-							(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-							c.selector.size.x + 2,
-							c.selector.size.y,
+						HUD.ctx.clearRect(
+							HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + prev_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+							HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
+							c.selector.size.x * HUD.scale / 2,
+							c.selector.size.y * HUD.scale / 2,
 						);
 
 						// Re-draw the hotbar part where the selector was
-						HUDLayer.ctx.drawImage(
-							HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
-							c.hotbar.uv.x - (prev_slot * c.selector.origin.x / 8) - 1,
+						HUD.ctx.drawImage(
+							HUD.loadedTextures[HUD.components.hotbar.texture],
+							c.hotbar.uv.x - (prev_slot * c.selector.origin.x() / HUD.scale / 4) - 1,
 							c.hotbar.uv.y,
-							c.hotbar.size.x / 16 + 2,
+							c.hotbar.size.x / 16 + 1.25,
 							c.hotbar.size.y / 2,
-							(HUDLayer.canvas.width / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (prev_slot * c.selector.origin.x / 4) - 2,
-							(HUDLayer.canvas.height / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
-							c.selector.size.x + 2,
-							c.selector.size.y - 4,
+							HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + prev_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+							HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y() + HUD.scale,
+							c.selector.size.x * HUD.scale / 2,
+							c.hotbar.size.y * HUD.scale / 2,
 						);
 
 						// Re-draw the selector on the new selected slot
-						HUDLayer.ctx.drawImage(
-							HUDLayer.loadedTextures[HUDLayer.components.selector.texture],
+						HUD.ctx.drawImage(
+							HUD.loadedTextures[HUD.components.selector.texture],
 							c.selector.uv.x,
 							c.selector.uv.y,
 							c.selector.size.x / 2,
 							c.selector.size.y / 2,
-							(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
-							(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-							c.selector.size.x,
-							c.selector.size.y,
+							HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+							HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
+							c.selector.size.x * HUD.scale / 2,
+							c.selector.size.y * HUD.scale / 2,
 						);
 					}
 				}
@@ -374,40 +365,40 @@
 			addEventListener("keyup", () => canSwitchSlot = true);
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
-				HUDLayer.ctx.clearRect(
-					(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x + (selected_slot * (c.selector.size.x - 8)),
-					(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-					c.selector.size.x + 2,
-					c.selector.size.y,
+				HUD.ctx.clearRect(
+					HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+					HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
+					c.selector.size.x * HUD.scale / 2,
+					c.selector.size.y * HUD.scale / 2,
 				);
 
 				// Re-draw the hotbar part where the selector was
-				HUDLayer.ctx.drawImage(
-					HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
-					c.hotbar.uv.x - (selected_slot * c.selector.origin.x / 8) - 1,
+				HUD.ctx.drawImage(
+					HUD.loadedTextures[HUD.components.hotbar.texture],
+					c.hotbar.uv.x - (selected_slot * c.selector.origin.x() / HUD.scale / 4) - 1,
 					c.hotbar.uv.y,
-					c.hotbar.size.x / 16 + 2,
+					c.hotbar.size.x / 16 + 1.25,
 					c.hotbar.size.y / 2,
-					(HUDLayer.canvas.width / 2) - (c.hotbar.size.x / 2) + c.hotbar.origin.x - (selected_slot * c.selector.origin.x / 4) - 2,
-					(HUDLayer.canvas.height / 2) - (c.hotbar.size.y / 2) - c.hotbar.origin.y,
-					c.selector.size.x + 2,
-					c.selector.size.y - 4,
+					HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+					HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y() + HUD.scale,
+					c.selector.size.x * HUD.scale / 2,
+					c.hotbar.size.y * HUD.scale / 2,
 				);
 
 				// Increment/decrement selector based on wheel direction
 				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
 				// Re-draw the selector on the new selected slot
-				HUDLayer.ctx.drawImage(
-					HUDLayer.loadedTextures[HUDLayer.components.selector.texture],
+				HUD.ctx.drawImage(
+					HUD.loadedTextures[HUD.components.selector.texture],
 					c.selector.uv.x,
 					c.selector.uv.y,
 					c.selector.size.x / 2,
 					c.selector.size.y / 2,
-					(HUDLayer.canvas.width / 2) - (c.selector.size.x / 2) + c.selector.origin.x - (selected_slot * c.selector.origin.x / 4),
-					(HUDLayer.canvas.height / 2) - (c.selector.size.y / 2) - c.selector.origin.y,
-					c.selector.size.x,
-					c.selector.size.y,
+					HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
+					HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
+					c.selector.size.x * HUD.scale / 2,
+					c.selector.size.y * HUD.scale / 2,
 				);
 			});
 		</script>
