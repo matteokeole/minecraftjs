@@ -18,7 +18,7 @@ The 'game' is available [here](https://matteoo34.github.io/MC) and the HUD indev
 
 
 
-Next things to implement:
+__Next things to implement:__
 + Text color
 + Advanced experience bar
 + Health/hunger bar animations
