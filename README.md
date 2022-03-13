@@ -15,3 +15,11 @@ The 'game' is available [here](https://matteoo34.github.io/MC) and the HUD indev
   + (soon) Hold item tooltip
 
 *Huge thanks to HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig) :D*
+
+
+
+Next things to implement:
++ Text color
++ Advanced experience bar
++ Health/hunger bar animations
++ Other layers (ContainerLayer, etc)
