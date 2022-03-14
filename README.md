@@ -6,7 +6,7 @@ The 3D system uses the library THREE.js.
 
 The 'game' is available [here](https://matteoo34.github.io/MC) and the HUD indev test can be found [here](https://matteoo34.github.io/MC/hud.html).
 
-Features:
+**Features:**
 + 3D environment with noise terrain generation & basic movement mechanics
 + Canvas-based interface
 + Inventory container & selectable items
@@ -16,7 +16,7 @@ Features:
 
 *Huge thanks to HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig) :D*
 
-__Next things to implement:__
+**Next things to implement:**
 + Layer update() method revision
 + Text printer revision
 + Component constructor revision
