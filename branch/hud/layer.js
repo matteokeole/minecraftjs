@@ -218,23 +218,7 @@ function Layer(layer = {}) {
 							textX += Font.charSize[char][0] * 2;
 						}
 					} else {
-						// Get component texture and divide scale by 2 for less calculations
-						const
-							texture = loadedTextures[c.texture],
-							scale2 = this.scale / 2;
-
-						// Draw component
-						this.ctx.drawImage(
-							texture,
-							c.uv.x,
-							c.uv.y,
-							c.size.x / 2,
-							c.size.y / 2,
-							(this.canvas.width / 2) - (c.size.x * scale2 / 2) + c.origin.x(),
-							(this.canvas.height / 2) - (c.size.y * scale2) - c.origin.y(),
-							c.size.x * scale2,
-							c.size.y * scale2,
-						);
+						this.draw(c);
 
 						// Slot containers
 						if (c.slots) {
@@ -268,32 +252,50 @@ function Layer(layer = {}) {
 		});
 	};
 
-	/**
-	 * Re-draw the specified component on the canvas.
-	 * @param	{object}	component			The component to be re-drawed	undefined
-	 */
-	this.updateComponent = component => {
-		let scale2 = this.scale / 2;
-
-		// Clear the area where is the component
-		this.ctx.clearRect(
-			(this.canvas.width / 2) - (component.size.x * scale2 / 2) + component.origin.x(),
-			(this.canvas.height / 2) - (component.size.y * scale2) - component.origin.y(),
-			component.size.x * scale2,
-			component.size.y * scale2,
-		)
+	this.draw = c => {
+		// Pre-calculate component origin and size
+		const
+			origin = {
+				x: c.origin.x(),
+				y: c.origin.y(),
+			},
+			size = {
+				x: c.size.x(),
+				y: c.size.y(),
+			};
 
 		// Re-draw component
 		this.ctx.drawImage(
-			this.loadedTextures[component.texture],
-			component.uv.x,
-			component.uv.y,
-			component.size.x / 2,
-			component.size.y / 2,
-			(this.canvas.width / 2) - (component.size.x * scale2 / 2) + component.origin.x(),
-			(this.canvas.height / 2) - (component.size.y * scale2) - component.origin.y(),
-			component.size.x * scale2,
-			component.size.y * scale2,
+			this.loadedTextures[c.texture],
+			c.uv.x,
+			c.uv.y,
+			c.size.x() / HUD.scale,
+			c.size.y() / HUD.scale,
+			(this.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
+			(this.canvas.height / 2) - (c.size.y() / 2) - c.origin.y(),
+			c.size.x(),
+			c.size.y(),
+		);
+	};
+
+	this.clear = c => {
+		// Pre-calculate component origin and size
+		const
+			origin = {
+				x: c.origin.x(),
+				y: c.origin.y(),
+			},
+			size = {
+				x: c.size.x(),
+				y: c.size.y(),
+			};
+
+		// Clear the area where is the component
+		this.ctx.clearRect(
+			(this.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
+			(this.canvas.height / 2) - (c.size.y() / 2) - c.origin.y(),
+			c.size.x(),
+			c.size.y(),
 		);
 	};
 

@@ -37,7 +37,10 @@ CrosshairLayer
 				() => 0,
 				() => 0,
 			],
-			size: [18, 18],
+			size: [
+				() => 9 * HUD.scale,
+				() => 9 * HUD.scale,
+			],
 			texture: "gui/icons.png",
 			uv: [3, 3],
 		}),
@@ -53,14 +56,17 @@ HUD
 				() => 0,
 				() => -window.innerHeight / 2,
 			],
-			size: [364, 44],
+			size: [
+				() => 182 * HUD.scale,
+				() => 44 * HUD.scale,
+			],
 			texture: "gui/widgets.png",
 			uv: [0, 0],
 			slots: Array.from({length: 9}, (_, i) => {
 				return new Slot({
 					origin: [
 						() => -80 * HUD.scale + 20 * i * HUD.scale,
-						() => -window.innerHeight / 2 + 3 * HUD.scale,
+						() => (-window.innerHeight / 2) + 3 * HUD.scale,
 					],
 				});
 			}),
@@ -70,10 +76,13 @@ HUD
 		new Component({
 			name: "selector",
 			origin: [
-				() => -80 * HUD.scale,
-				() => -window.innerHeight / 2 - HUD.scale,
+				() => -80 * HUD.scale + 20 * HUD.scale * selected_slot,
+				() => (-window.innerHeight / 2) + 11 * HUD.scale,
 			],
-			size: [48, 48],
+			size: [
+				() => 24 * HUD.scale,
+				() => 24 * HUD.scale,
+			],
 			texture: "gui/widgets.png",
 			uv: [0, 22],
 		}),
@@ -83,28 +92,31 @@ HUD
 			name: "experience_bar",
 			origin: [
 				() => 0,
-				() => -window.innerHeight / 2 + 24 * HUD.scale,
+				() => (-window.innerHeight / 2) + 26.5 * HUD.scale,
 			],
-			size: [364, 10],
+			size: [
+				() => 182 * HUD.scale,
+				() => 5 * HUD.scale,
+			],
 			texture: "gui/icons.png",
 			uv: [0, 64],
 		}),
 	)
-	.add(
+	/*.add(
 		new Component({
 			type: "text",
 			name: "tooltip",
 			origin: [
 				() => 0,
-				() => -(window.innerHeight / 2) + 108,
+				() => (-window.innerHeight / 2) + 108,
 			],
 			texture: "font/ascii.png",
 			text: "Spruce Planks",
 			text_color: "#FFFFFF",
 		}),
-	);
+	)*/;
 
-// Heart outlines
+/*// Heart outlines
 for (let i = 0; i < Player.maxHealth / 2; i++) {
 	HUD.add(
 			new Component({
@@ -207,10 +219,11 @@ for (let i = 0; i < Player.hunger; i++) {
 				}),
 			);
 	}
-}
+}*/
 
-HUD.components.hotbar.slots[5].assign(new Item({id: 376}));
+// HUD.components.hotbar.slots[5].assign(new Item({id: 376}));
 
+HUD.setScale(3);
 HUD.update();
 
 let
@@ -220,11 +233,10 @@ let
 	c				= HUD.components;
 
 addEventListener("keydown", e => {
-	if (!/^(ControlLeft|ControlRight|F\d+)$/.test(e.code)) e.preventDefault();
+	if (!/^(Control(Left|Right)|F\d+)$/.test(e.code)) e.preventDefault();
 	if (canSwitchSlot) {
 		isSlotKey = false;
 		canSwitchSlot = false;
-		let prev_slot = selected_slot;
 
 		if (e.code === Keybinds.toggle_hud) {
 			HUD.toggle();
@@ -232,47 +244,15 @@ addEventListener("keydown", e => {
 		}
 
 		for (let i in Keybinds.hotbar_slots) {
-			if (e.code === Keybinds.hotbar_slots[i]) {
-				isSlotKey = true;
-				// Get the key digit
-				selected_slot = e.code.charAt(5) - 1;
-			}
+			if (e.code === Keybinds.hotbar_slots[i]) isSlotKey = true;
 		}
 
 		if (isSlotKey) {
 			// Clear the previous selected slot
-			HUD.ctx.clearRect(
-				HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + prev_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-				HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
-				c.selector.size.x * HUD.scale / 2,
-				c.selector.size.y * HUD.scale / 2,
-			);
+			// HUD.clear(c.selector);
 
-			// Re-draw the hotbar part where the selector was
-			HUD.ctx.drawImage(
-				HUD.loadedTextures[HUD.components.hotbar.texture],
-				c.hotbar.uv.x - (prev_slot * c.selector.origin.x() / HUD.scale / 4) - 1,
-				c.hotbar.uv.y,
-				c.hotbar.size.x / 16 + 1.25,
-				c.hotbar.size.y / 2,
-				HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + prev_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-				HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y() + HUD.scale,
-				c.selector.size.x * HUD.scale / 2,
-				c.hotbar.size.y * HUD.scale / 2,
-			);
-
-			// Re-draw the selector on the new selected slot
-			HUD.ctx.drawImage(
-				HUD.loadedTextures[HUD.components.selector.texture],
-				c.selector.uv.x,
-				c.selector.uv.y,
-				c.selector.size.x / 2,
-				c.selector.size.y / 2,
-				HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-				HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
-				c.selector.size.x * HUD.scale / 2,
-				c.selector.size.y * HUD.scale / 2,
-			);
+			// Update selected slot number
+			selected_slot = Keybinds.hotbar_slots.indexOf(e.code);
 		}
 	}
 });
@@ -281,39 +261,24 @@ addEventListener("keyup", () => canSwitchSlot = true);
 
 addEventListener("wheel", e => {
 	// Clear the previous selected slot
-	HUD.ctx.clearRect(
-		HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-		HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
-		c.selector.size.x * HUD.scale / 2,
-		c.selector.size.y * HUD.scale / 2,
-	);
+	HUD.clear(c.selector);
 
-	// Re-draw the hotbar part where the selector was
+	// Re-draw the part of the hotbar where the selector was
 	HUD.ctx.drawImage(
 		HUD.loadedTextures[HUD.components.hotbar.texture],
-		c.hotbar.uv.x - (selected_slot * c.selector.origin.x() / HUD.scale / 4) - 1,
+		c.hotbar.uv.x + (selected_slot * 20),
 		c.hotbar.uv.y,
-		c.hotbar.size.x / 16 + 1.25,
-		c.hotbar.size.y / 2,
-		HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-		HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y() + HUD.scale,
-		c.selector.size.x * HUD.scale / 2,
-		c.hotbar.size.y * HUD.scale / 2,
+		c.hotbar.size.x() / 22,
+		c.hotbar.size.y() / (2 * HUD.scale),
+		(HUD.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
+		(HUD.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUD.scale,
+		c.selector.size.x() + HUD.scale * 2,
+		c.selector.size.y() - HUD.scale * 2,
 	);
 
 	// Increment/decrement selector based on wheel direction
 	selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
-	// Re-draw the selector on the new selected slot
-	HUD.ctx.drawImage(
-		HUD.loadedTextures[HUD.components.selector.texture],
-		c.selector.uv.x,
-		c.selector.uv.y,
-		c.selector.size.x / 2,
-		c.selector.size.y / 2,
-		HUD.canvas.width / 2 - (c.selector.size.x * HUD.scale / 4) + c.selector.origin.x() + selected_slot * (c.selector.size.x * HUD.scale / 2 - HUD.scale * 4),
-		HUD.canvas.height / 2 - (c.selector.size.y * HUD.scale / 2) - c.selector.origin.y(),
-		c.selector.size.x * HUD.scale / 2,
-		c.selector.size.y * HUD.scale / 2,
-	);
+	// Re-draw the selector on the new hotbar slot
+	HUD.draw(c.selector);
 });
