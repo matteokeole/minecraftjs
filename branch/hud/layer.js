@@ -124,13 +124,13 @@ function Layer(layer = {}) {
 
 						// Calculate text final width
 						for (let char of c.text) {
-							textWidth += charSize[char][0] * 2;
+							textWidth += Font.charSize[char][0] * 2;
 						}
 
 						// Text shadow
 						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
 						for (let char of c.text) {
-							let i = chars.indexOf(char);
+							let i = Font.chars.indexOf(char);
 							if (i !== -1) {
 								// Character found, draw it
 								let
@@ -168,14 +168,14 @@ function Layer(layer = {}) {
 									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
 								);
 							}
-							textX += charSize[char][0] * 2;
+							textX += Font.charSize[char][0] * 2;
 						}
 
 						// Print text
 						this.ctx.globalAlpha = 1;
 						textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
 						for (let char of c.text) {
-							let i = chars.indexOf(char);
+							let i = Font.chars.indexOf(char);
 							if (i !== -1) {
 								// Character found, draw it
 								let
@@ -194,26 +194,28 @@ function Layer(layer = {}) {
 									16,
 								);
 
-								/*let image = this.ctx.getImageData(
+								let image = this.ctx.getImageData(
 									textX,
 									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
 									12,
 									16,
 								);
 
+								const rgb = hexToRGB(c.text_color);
+
 								for (let j = 0; j < image.data.length; j += 4) {
-									image.data[j] -= 193;
-									image.data[j + 1] -= 193;
-									image.data[j + 2] -= 193;
+									image.data[j] -= (255 - rgb.r);
+									image.data[j + 1] -= (255 - rgb.g);
+									image.data[j + 2] -= (255 - rgb.b);
 								}
 
 								this.ctx.putImageData(
 									image,
 									textX,
 									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
-								);*/
+								);
 							}
-							textX += charSize[char][0] * 2;
+							textX += Font.charSize[char][0] * 2;
 						}
 					} else {
 						// Get component texture and divide scale by 2 for less calculations
@@ -233,6 +235,33 @@ function Layer(layer = {}) {
 							c.size.x * scale2,
 							c.size.y * scale2,
 						);
+
+						// Slot containers
+						if (c.slots) {
+							this.ctx.fillStyle = "orange";
+							for (let slot of c.slots) {
+								if (slot.item) {
+									const
+										item = items.filter(item => slot.item.id == item.id)[0],
+										texture = new Image();
+
+									texture.addEventListener("load", () => {
+										this.ctx.drawImage(
+											texture,
+											0,
+											0,
+											slot.size.x,
+											slot.size.y,
+											(this.canvas.width / 2) - (slot.size.x * this.scale / 2) + slot.origin.x(),
+											(this.canvas.height / 2) - (slot.size.y * this.scale) - slot.origin.y(),
+											slot.size.x * this.scale,
+											slot.size.y * this.scale,
+										);
+									});
+									texture.src = `../../assets/textures/item/${item.name}.png`;
+								}
+							}
+						}
 					}
 				}
 			}

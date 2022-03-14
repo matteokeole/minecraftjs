@@ -1,7 +1,7 @@
 /**
  * Construct a new layer component.
  *
- * Param	Type		Name				Description						Default value
+ * Param	Type		Name					Description						Default value
  * @param	{object}	component				Component data object			{}
  * @param	{string}	component.type			Component element type			"default"
  * @param	{string}	component.name			Component name (used in layer)	"UNKNOWN_COMPONENT"
@@ -71,11 +71,18 @@ function Component(component = {}) {
 	switch (this.type) {
 		case "container":
 			this.slots = component.slots ?? [];
+
+			// Assign each slot to this component
+			for (let slot of this.slots) {
+				slot.component = this;
+			}
+
 			break;
 
 		case "text":
 			this.text = component.text ?? "";
 			this.text_color = component.text_color ?? "#FFF";
+
 			break;
 	}
 
