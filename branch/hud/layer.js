@@ -99,7 +99,7 @@ function Layer(layer = {}) {
 				++count === sources.length && callback(this.loadedTextures);
 			});
 			// The source path starts with "assets/textures/"
-			this.loadedTextures[sources[i]].src = "assets/textures/" + sources[i];
+			this.loadedTextures[sources[i]].src = "../../assets/textures/" + sources[i];
 		}
 	};
 

@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="assets/css/main.css">
+		<link rel="stylesheet" href="../../assets/css/main.css">
 		<!-- Avoid favicon requests/warnings in the console -->
 		<link rel="icon" href="data:;base64,=">
 		<style>
@@ -16,8 +16,8 @@
 	</head>
 
 	<body>
-		<script src="indev/layer.js"></script>
-		<script src="indev/font.js"></script>
+		<script src="layer.js"></script>
+		<script src="font.js"></script>
 		<script>
 			/**
 			 * Construct a new layer component
@@ -284,9 +284,7 @@
 				}
 			}
 
-			HUD
-				.setScale(2)
-				.update();
+			HUD.update();
 
 			let
 				selected_slot = 0,
