@@ -104,7 +104,7 @@ function Layer(layer = {}) {
 	};
 
 	/**
-	 * Re-draw the layer visible components on the canvas.
+	 * Re-draw all the layer visible components on the canvas.
 	 * NOTE: The component textures will be reloaded everytime you call this method.
 	 */
 	this.update = () => {
@@ -220,6 +220,35 @@ function Layer(layer = {}) {
 				}
 			}
 		});
+	};
+
+	/**
+	 * Re-draw the specified component on the canvas.
+	 * @param	{object}	component			The component to be re-drawed	undefined
+	 */
+	this.updateComponent = component => {
+		let scale2 = this.scale / 2;
+
+		// Clear the area where is the component
+		this.ctx.clearRect(
+			(this.canvas.width / 2) - (component.size.x * scale2 / 2) + component.origin.x(),
+			(this.canvas.height / 2) - (component.size.y * scale2) - component.origin.y(),
+			component.size.x * scale2,
+			component.size.y * scale2,
+		)
+
+		// Re-draw component
+		this.ctx.drawImage(
+			this.loadedTextures[component.texture],
+			component.uv.x,
+			component.uv.y,
+			component.size.x / 2,
+			component.size.y / 2,
+			(this.canvas.width / 2) - (component.size.x * scale2 / 2) + component.origin.x(),
+			(this.canvas.height / 2) - (component.size.y * scale2) - component.origin.y(),
+			component.size.x * scale2,
+			component.size.y * scale2,
+		);
 	};
 
 	/* Initialization */

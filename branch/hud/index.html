@@ -16,8 +16,9 @@
 	</head>
 
 	<body>
-		<script src="layer.js"></script>
+		<script src="variables.js"></script>
 		<script src="font.js"></script>
+		<script src="layer.js"></script>
 		<script>
 			/**
 			 * Construct a new layer component
@@ -287,36 +288,25 @@
 			HUD.update();
 
 			let
-				selected_slot = 0,
-				hotbar_slots = [
-					"Digit1",
-					"Digit2",
-					"Digit3",
-					"Digit4",
-					"Digit5",
-					"Digit6",
-					"Digit7",
-					"Digit8",
-					"Digit9",
-				],
-				canSwitchSlot = true,
-				isSlotKey = false;
-				c = HUD.components;
+				selected_slot	= 0,
+				canSwitchSlot	= true,
+				isSlotKey		= false;
+				c				= HUD.components;
 
 			addEventListener("keydown", e => {
-				if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
+				if (!/^(ControlLeft|ControlRight|F\d+)$/.test(e.code)) e.preventDefault();
 				if (canSwitchSlot) {
 					isSlotKey = false;
 					canSwitchSlot = false;
 					let prev_slot = selected_slot;
 
-					if (e.code === "F1") {
+					if (e.code === Keybinds.toggle_hud) {
 						HUD.toggle();
 						CrosshairLayer.toggle();
 					}
 
-					for (let i in hotbar_slots) {
-						if (e.code === hotbar_slots[i]) {
+					for (let i in Keybinds.hotbar_slots) {
+						if (e.code === Keybinds.hotbar_slots[i]) {
 							isSlotKey = true;
 							// Get the key digit
 							selected_slot = e.code.charAt(5) - 1;
@@ -360,7 +350,9 @@
 					}
 				}
 			});
+
 			addEventListener("keyup", () => canSwitchSlot = true);
+
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
 				HUD.ctx.clearRect(
