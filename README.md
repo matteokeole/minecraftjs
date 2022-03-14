@@ -4,7 +4,7 @@
 Most of the code is made with vanilla JavaScript for a better performance.  
 The 3D system uses the library THREE.js.  
 
-The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the HUD indev test can be found [here](https://matteoo34.github.io/MinecraftJS/hud.html).
+The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the HUD test branch can be found [here](https://matteoo34.github.io/MinecraftJS/hud.html).
 
 **Features:**
 + 3D environment with noise terrain generation & basic movement mechanics
@@ -19,8 +19,5 @@ The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the 
 **Next things to implement:**
 + Layer update() method revision
 + Text printer revision
-+ Slot constructor revision
-+ Item constructor revision
-+ Text color
 + Advanced experience bar
 + Health/hunger bar animations
