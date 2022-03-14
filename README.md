@@ -19,7 +19,6 @@ The 'game' is available [here](https://matteoo34.github.io/MC) and the HUD indev
 **Next things to implement:**
 + Layer update() method revision
 + Text printer revision
-+ Component constructor revision
 + Slot constructor revision
 + Item constructor revision
 + Text color
