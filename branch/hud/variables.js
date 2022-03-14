@@ -1,4 +1,5 @@
-const Keybinds = {
+const
+	Keybinds = {
 		hotbar_slots: [
 			"Digit1",
 			"Digit2",

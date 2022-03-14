@@ -3,20 +3,20 @@
  *
  * Param	Type		Name				Description						Default value
  * @param	{object}	layer				Layer data object				{}
- * @param	{string}	layer.name			Layer name						"unknown_layer"
+ * @param	{string}	layer.name			Layer name						"UNKNOWN_LAYER"
  * @param	{integer}	layer.scale			Layer scale multiplier			2
- * @param	{boolean}	layer.visible		Layer visibility attribute		0
+ * @param	{boolean}	layer.visible		Layer visibility attribute		1
  * @param	{object}	layer.components	Layer default component list	{}
  */
 function Layer(layer = {}) {
 	// Name
-	this.name = layer.name ?? "unknown_layer";
+	this.name = layer.name ?? "UNKNOWN_LAYER";
 
 	// Scale multiplier
 	this.scale = layer.scale ?? 2;
 
 	// Visibility status
-	this.visible = layer.visible ?? 0;
+	this.visible = layer.visible ?? 1;
 
 	// Create layer canvas element
 	this.canvas = document.createElement("canvas");
@@ -46,6 +46,8 @@ function Layer(layer = {}) {
 	 */
 	this.toggle = (state = !this.visible) => {
 		this.visible = Number(state);
+
+		// Update canvas element visibility
 		this.canvas.style.visibility = ["hidden", "visible"][this.visible];
 	};
 
@@ -58,7 +60,7 @@ function Layer(layer = {}) {
 		component.layer = this;
 
 		// Add component to the list
-		this.components[component.id] = component;
+		this.components[component.name] = component;
 
 		return this;
 	};
@@ -69,7 +71,7 @@ function Layer(layer = {}) {
 	 */
 	this.remove = component => {
 		// Remove component from the list
-		this.components[component.id] = undefined;
+		this.components[component.name] = undefined;
 
 		return this;
 	};
@@ -126,7 +128,7 @@ function Layer(layer = {}) {
 						}
 
 						// Text shadow
-						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x - 1;
+						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
 						for (let char of c.text) {
 							let i = chars.indexOf(char);
 							if (i !== -1) {
@@ -142,32 +144,28 @@ function Layer(layer = {}) {
 									18 / 3,
 									18 / 2.25,
 									textX + 2,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
 									12,
 									16,
 								);
 
-								let
-									image = this.ctx.getImageData(
-										textX + 2,
-										(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
-										12,
-										16,
-									),
-									image_data = image.data;
+								let image = this.ctx.getImageData(
+									textX + 2,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
+									12,
+									16,
+								);
 
-								for (let j = 0; j < image_data.length; j += 4) {
-									image_data[j] -= 193;
-									image_data[j + 1] -= 193;
-									image_data[j + 2] -= 193;
+								for (let j = 0; j < image.data.length; j += 4) {
+									image.data[j] -= 193;
+									image.data[j + 1] -= 193;
+									image.data[j + 2] -= 193;
 								}
-
-								image.data = image_data;
 
 								this.ctx.putImageData(
 									image,
 									textX + 2,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y + 2,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
 								);
 							}
 							textX += charSize[char][0] * 2;
@@ -175,7 +173,7 @@ function Layer(layer = {}) {
 
 						// Print text
 						this.ctx.globalAlpha = 1;
-						textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x - 1;
+						textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
 						for (let char of c.text) {
 							let i = chars.indexOf(char);
 							if (i !== -1) {
@@ -191,10 +189,29 @@ function Layer(layer = {}) {
 									18 / 3,
 									18 / 2.25,
 									textX,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
 									12,
 									16,
 								);
+
+								/*let image = this.ctx.getImageData(
+									textX,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
+									12,
+									16,
+								);
+
+								for (let j = 0; j < image.data.length; j += 4) {
+									image.data[j] -= 193;
+									image.data[j + 1] -= 193;
+									image.data[j + 2] -= 193;
+								}
+
+								this.ctx.putImageData(
+									image,
+									textX,
+									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
+								);*/
 							}
 							textX += charSize[char][0] * 2;
 						}

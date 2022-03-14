@@ -18,76 +18,9 @@
 	<body>
 		<script src="variables.js"></script>
 		<script src="font.js"></script>
+		<script src="component.js"></script>
 		<script src="layer.js"></script>
 		<script>
-			/**
-			 * Construct a new layer component
-			 * @param {object}	component			Component data, such as:
-			 * @param {string}	component.type		Component type
-			 * @param {string}	component.id		Component identifier
-			 * @param {array}	component.origin	Component position, [0] for X and [1] for Y
-			 * @param {array}	component.size		Component size, [0] for width and [1] for height
-			 * @param {string}	component.texture	Component texture source (starts at /assets/textures/)
-			 * @param {array}	component.uv		Component texture offset, [0] for X and [1] for Y
-			 * @param {boolean}	component.visible	Component visibility attribute, which the canvas uses to draw it or not
-			 * @param {array}	component.slots		Component slots to be displayed (only for container types)
-			 */
-			function Component(component) {
-				this.type = component.type;
-				this.id = component.id;
-				this.visible = component.visible !== undefined ? component.visible : true;
-				this.origin = {
-					x: component.origin ? component.origin[0] : 0,
-					y: component.origin ? component.origin[1] : 0,
-				};
-				this.size = {
-					x: component.size ? component.size[0] : 0,
-					y: component.size ? component.size[1] : 0,
-				};
-				this.texture = component.texture;
-				this.uv = {
-					x: component.uv ? component.uv[0] : 0,
-					y: component.uv ? component.uv[1] : 0,
-				};
-				this.slots = this.type === "container" ? component.slots : undefined;
-
-				this.setPosition = pos => {
-					this.origin.x = pos[0];
-					this.origin.y = pos[1];
-				};
-				this.toggle = (state = !this.visible) => {
-					this.visible = state;
-					if (this.type === "container" && this.slots) {
-						for (let section of Object.values(this.slots)) {
-							for (let slot of section) {
-								slot.element.style.visibility = this.visible ? "visible" : "hidden";
-							}
-						}
-					}
-					this.layer.update();
-				};
-
-				switch (this.type) {
-					case "text":
-						this.text = component.text;
-						this.text_align = component.text_align;
-						this.text_size = component.text_size;
-						this.text_color = component.text_color;
-
-						break;
-				}
-
-				for (let section in this.slots) {
-					for (let slot of this.slots[section]) {
-						document.querySelector(".slots").append(slot.element);
-					}
-				}
-
-				return this;
-			}
-
-
-
 			const
 				Player = {
 					maxHealth: 20,
@@ -95,20 +28,14 @@
 					maxHunger: 20,
 					hunger: 19,
 				},
-				CrosshairLayer = new Layer({
-					name: "crosshair",
-					visible: 1,
-				}),
-				HUD = new Layer({
-					name: "hud",
-					visible: 1,
-				});
+				CrosshairLayer = new Layer({name: "crosshair"}),
+				HUD = new Layer({name: "hud"});
 
 			CrosshairLayer.canvas.style.mixBlendMode = "difference";
 			CrosshairLayer
 				.add(
 					new Component({
-						id: "crosshair",
+						name: "crosshair",
 						origin: [
 							() => 0,
 							() => 0,
@@ -124,7 +51,7 @@
 				.add(
 					new Component({
 						type: "container",
-						id: "hotbar",
+						name: "hotbar",
 						origin: [
 							() => 0,
 							() => -window.innerHeight / 2,
@@ -136,7 +63,7 @@
 				)
 				.add(
 					new Component({
-						id: "selector",
+						name: "selector",
 						origin: [
 							() => -80 * HUD.scale,
 							() => -window.innerHeight / 2 - HUD.scale,
@@ -148,7 +75,7 @@
 				)
 				.add(
 					new Component({
-						id: "experience_bar",
+						name: "experience_bar",
 						origin: [
 							() => 0,
 							() => -window.innerHeight / 2 + 24 * HUD.scale,
@@ -158,28 +85,25 @@
 						uv: [0, 64],
 					}),
 				)
-				/*.add(
+				.add(
 					new Component({
 						type: "text",
-						id: "tooltip",
+						name: "tooltip",
 						origin: [
-							0,
-							-(window.innerHeight / 2) + 108,
+							() => 0,
+							() => -(window.innerHeight / 2) + 108,
 						],
 						texture: "font/ascii.png",
-						text: "Orange Tulip",
-						text_align: "center",
-						text_size: 20,
-						text_color: "#FFF",
+						text: "Spruce Planks",
+						text_color: "#000",
 					}),
-				)*/;
+				);
 
 			// Heart outlines
 			for (let i = 0; i < Player.maxHealth / 2; i++) {
-				HUD
-					.add(
+				HUD.add(
 						new Component({
-							id: `heart_outline_${i}`,
+							name: `heart_outline_${i}`,
 							origin: [
 								() => -86.5 * HUD.scale + (i % 10) * 8 * HUD.scale,
 								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 30 * HUD.scale,
@@ -197,10 +121,9 @@
 				// Add half-heart if health value is odd
 				if (Player.health % 2 !== 0 && i + 1 === Player.health) {
 					j = i / 2;
-					HUD
-						.add(
+					HUD.add(
 							new Component({
-								id: `heart_inner_${j}`,
+								name: `heart_inner_${j}`,
 								origin: [
 									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
 									() => -(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 31 * HUD.scale,
@@ -214,10 +137,9 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					HUD
-						.add(
+					HUD.add(
 							new Component({
-								id: `heart_inner_${j}`,
+								name: `heart_inner_${j}`,
 								origin: [
 									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
 									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
@@ -232,10 +154,9 @@
 
 			// Hunger outlines
 			for (let i = 0; i < Player.maxHunger / 2; i++) {
-				HUD
-					.add(
+				HUD.add(
 						new Component({
-							id: `hunger_outline_${i}`,
+							name: `hunger_outline_${i}`,
 							origin: [
 								() => 86.5 * HUD.scale - (i % 10) * 8 * HUD.scale,
 								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 30 * HUD.scale,
@@ -253,10 +174,9 @@
 				// Add half-hunger if hunger value is odd
 				if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
 					j = i / 2;
-					HUD
-						.add(
+					HUD.add(
 							new Component({
-								id: `hunger_inner_${j}`,
+								name: `hunger_inner_${j}`,
 								origin: [
 									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
 									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
@@ -269,10 +189,9 @@
 				}
 				else if (i % 2 === 0) {
 					j = i / 2;
-					HUD
-						.add(
+					HUD.add(
 							new Component({
-								id: `hunger_inner_${j}`,
+								name: `hunger_inner_${j}`,
 								origin: [
 									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
 									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 31 * HUD.scale,
