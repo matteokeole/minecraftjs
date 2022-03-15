@@ -3,7 +3,7 @@
 Most of the code is made with vanilla JavaScript for a better performance.  
 The 3D system uses the library THREE.js.  
 
-The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the HUD test branch can be found [here](https://matteoo34.github.io/MinecraftJS/branch/hud/).
+The 'game' is available [here](https://matteoo34.github.io/minecraftjs) and the HUD test branch can be found [here](https://matteoo34.github.io/minecraftjs/branch/hud).
 
 **Features:**
 + 3D environment with noise terrain generation & basic movement mechanics
