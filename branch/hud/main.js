@@ -228,13 +228,13 @@ fetch("../../assets/items.json")
 			}
 		}
 
-		HUD.components.hotbar
+		/*HUD.components.hotbar
 			.slots[0].assign(new Item(items.filter(i => i.id === 272)[0]))
 			.slots[1].assign(new Item(items.filter(i => i.id === 261)[0]))
 			.slots[2].assign(new Item(items.filter(i => i.id === 274)[0]))
 			.slots[6].assign(new Item(items.filter(i => i.id === 368)[0]))
 			.slots[7].assign(new Item(items.filter(i => i.id === 326)[0]))
-			.slots[8].assign(new Item(items.filter(i => i.id === 297)[0]));
+			.slots[8].assign(new Item(items.filter(i => i.id === 297)[0]));*/
 
 		HUD.setScale(2);
 		HUD.update();
