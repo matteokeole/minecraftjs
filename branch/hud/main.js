@@ -313,8 +313,9 @@ fetch("../../assets/items.json")
 			selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
 			c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
-			HUD.erase(c.tooltip);
-			HUD.draw(c.tooltip);
+			// Performance issue
+			// HUD.erase(c.tooltip);
+			// HUD.draw(c.tooltip);
 
 			// Re-draw the selector on the new hotbar slot
 			HUD.draw(c.selector);
