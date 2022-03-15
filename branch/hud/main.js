@@ -54,11 +54,11 @@ HUD
 			name: "hotbar",
 			origin: [
 				() => 0,
-				() => -window.innerHeight / 2,
+				() => -window.innerHeight / 2 + 11 * HUD.scale,
 			],
 			size: [
 				() => 182 * HUD.scale,
-				() => 44 * HUD.scale,
+				() => 22 * HUD.scale,
 			],
 			texture: "gui/widgets.png",
 			uv: [0, 0],
@@ -223,7 +223,7 @@ for (let i = 0; i < Player.hunger; i++) {
 
 // HUD.components.hotbar.slots[5].assign(new Item({id: 376}));
 
-HUD.setScale(3);
+HUD.setScale(2);
 HUD.update();
 
 let
@@ -249,10 +249,26 @@ addEventListener("keydown", e => {
 
 		if (isSlotKey) {
 			// Clear the previous selected slot
-			// HUD.clear(c.selector);
+			HUD.clear(c.selector);
+
+			// Re-draw the part of the hotbar where the selector was
+			HUD.ctx.drawImage(
+				HUD.loadedTextures[HUD.components.hotbar.texture],
+				c.hotbar.uv.x + (selected_slot * 20) - 1,
+				c.hotbar.uv.y,
+				c.hotbar.size.x() * 2 / HUD.scale / 16 + 1.25,
+				c.hotbar.size.y() * 2 / HUD.scale / 2,
+				(HUD.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
+				(HUD.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUD.scale,
+				c.selector.size.x(),
+				c.selector.size.y() - HUD.scale * 2,
+			);
 
 			// Update selected slot number
 			selected_slot = Keybinds.hotbar_slots.indexOf(e.code);
+
+			// Re-draw the selector on the new hotbar slot
+			HUD.draw(c.selector);
 		}
 	}
 });
@@ -266,13 +282,13 @@ addEventListener("wheel", e => {
 	// Re-draw the part of the hotbar where the selector was
 	HUD.ctx.drawImage(
 		HUD.loadedTextures[HUD.components.hotbar.texture],
-		c.hotbar.uv.x + (selected_slot * 20),
+		c.hotbar.uv.x + (selected_slot * 20) - 1,
 		c.hotbar.uv.y,
-		c.hotbar.size.x() / 22,
-		c.hotbar.size.y() / (2 * HUD.scale),
+		c.hotbar.size.x() * 2 / HUD.scale / 16 + 1.25,
+		c.hotbar.size.y() * 2 / HUD.scale / 2,
 		(HUD.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
 		(HUD.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUD.scale,
-		c.selector.size.x() + HUD.scale * 2,
+		c.selector.size.x(),
 		c.selector.size.y() - HUD.scale * 2,
 	);
 
