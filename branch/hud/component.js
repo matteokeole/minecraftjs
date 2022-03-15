@@ -15,7 +15,7 @@
  * @param	{array}		component.text_color	Component text color			"#FFF" if component type = "text", else undefined
  * @param	{array}		component.text_size		Component text size				20 if component type = "text", else undefined
  */
-function Component(component = {}) {
+export function Component(component = {}) {
 	// Type
 	this.type = component.type ?? "default";
 
@@ -74,6 +74,7 @@ function Component(component = {}) {
 
 			// Assign each slot to this component
 			for (let slot of this.slots) {
+				slot.init();
 				slot.component = this;
 			}
 

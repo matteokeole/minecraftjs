@@ -4,7 +4,7 @@
 Most of the code is made with vanilla JavaScript for a better performance.  
 The 3D system uses the library THREE.js.  
 
-The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the HUD test branch can be found [here](https://matteoo34.github.io/MinecraftJS/hud.html).
+The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the HUD test branch can be found [here](https://matteoo34.github.io/MinecraftJS/branch/hud/).
 
 **Features:**
 + 3D environment with noise terrain generation & basic movement mechanics
@@ -17,7 +17,9 @@ The 'game' is available [here](https://matteoo34.github.io/MinecraftJS) and the 
 *Huge thanks to HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig) :D*
 
 **Next things to implement:**
-+ Layer update() method revision
 + Text printer revision
-+ Advanced experience bar
++ Layer update() method revision
 + Health/hunger bar animations
++ Items on hotbar
++ Advanced experience bar
++ A more Promise-based code

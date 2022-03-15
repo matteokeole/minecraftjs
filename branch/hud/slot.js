@@ -6,7 +6,7 @@
  * @param	{string}	slot.type	Slot type			"default"
  * @param	{array}		slot.origin	Slot position		{x: 0, y: 0}
  */
-function Slot(slot = {}) {
+export function Slot(slot = {}) {
 	// Type
 	this.type = slot.type ?? "default";
 
@@ -19,12 +19,6 @@ function Slot(slot = {}) {
 		y: slot.origin ? slot.origin[1] : 0,
 	};
 
-	// Size
-	this.size = {
-		x: 16,
-		y: 16,
-	};
-
 	// Current item
 	this.item = null;
 
@@ -33,7 +27,10 @@ function Slot(slot = {}) {
 	 * @param {object} item - The item to be assigned
 	 */
 	this.assign = item => {
+		// item.displayName = items.filter(i => item.id === i.id)[0].displayName;
 		this.item = item;
+
+		return this.component;
 	};
 
 	/**
@@ -55,6 +52,14 @@ function Slot(slot = {}) {
 	 */
 	this.empty = () => {
 		this.item = null;
+	};
+
+	this.init = () => {
+		// Size
+		this.size = {
+			x: () => 16 * this.component.layer.scale,
+			y: () => 16 * this.component.layer.scale,
+		};
 	};
 
 	return this;

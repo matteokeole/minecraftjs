@@ -8,7 +8,7 @@
  * @param	{boolean}	layer.visible		Layer visibility attribute		1
  * @param	{object}	layer.components	Layer default component list	{}
  */
-function Layer(layer = {}) {
+export function Layer(layer = {}) {
 	// Name
 	this.name = layer.name ?? "UNKNOWN_LAYER";
 
@@ -118,132 +118,28 @@ function Layer(layer = {}) {
 			// Loop through layer components
 			for (let c of Object.values(this.components)) {
 				if (c.visible) {
-					// Switch component type
-					if (c.type === "text") {
-						let textWidth = 0;
+					this.draw(c);
 
-						// Calculate text final width
-						for (let char of c.text) {
-							textWidth += Font.charSize[char][0] * 2;
-						}
+					// Slot containers
+					if (c.slots) {
+						for (let slot of c.slots) {
+							if (slot.item) {
+								const texture = new Image();
 
-						// Text shadow
-						let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
-						for (let char of c.text) {
-							let i = Font.chars.indexOf(char);
-							if (i !== -1) {
-								// Character found, draw it
-								let
-									x = i % 16,
-									y = Math.floor(i / 16);
-
-								this.ctx.drawImage(
-									loadedTextures[c.texture],
-									x * 8,
-									16 + y * 8,
-									18 / 3,
-									18 / 2.25,
-									textX + 2,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
-									12,
-									16,
-								);
-
-								let image = this.ctx.getImageData(
-									textX + 2,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
-									12,
-									16,
-								);
-
-								for (let j = 0; j < image.data.length; j += 4) {
-									image.data[j] -= 193;
-									image.data[j + 1] -= 193;
-									image.data[j + 2] -= 193;
-								}
-
-								this.ctx.putImageData(
-									image,
-									textX + 2,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
-								);
-							}
-							textX += Font.charSize[char][0] * 2;
-						}
-
-						// Print text
-						this.ctx.globalAlpha = 1;
-						textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
-						for (let char of c.text) {
-							let i = Font.chars.indexOf(char);
-							if (i !== -1) {
-								// Character found, draw it
-								let
-									x = i % 16,
-									y = Math.floor(i / 16);
-
-								this.ctx.drawImage(
-									loadedTextures[c.texture],
-									x * 8,
-									16 + y * 8,
-									18 / 3,
-									18 / 2.25,
-									textX,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
-									12,
-									16,
-								);
-
-								let image = this.ctx.getImageData(
-									textX,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
-									12,
-									16,
-								);
-
-								const rgb = hexToRGB(c.text_color);
-
-								for (let j = 0; j < image.data.length; j += 4) {
-									image.data[j] -= (255 - rgb.r);
-									image.data[j + 1] -= (255 - rgb.g);
-									image.data[j + 2] -= (255 - rgb.b);
-								}
-
-								this.ctx.putImageData(
-									image,
-									textX,
-									(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
-								);
-							}
-							textX += Font.charSize[char][0] * 2;
-						}
-					} else {
-						this.draw(c);
-
-						// Slot containers
-						if (c.slots) {
-							this.ctx.fillStyle = "orange";
-							for (let slot of c.slots) {
-								if (slot.item) {
-									const
-										item = items.filter(item => slot.item.id == item.id)[0],
-										texture = new Image();
-
-									texture.addEventListener("load", () => {
-										this.ctx.drawImage(
-											texture,
-											0,
-											0,
-											slot.size.x,
-											slot.size.y,
-											(this.canvas.width / 2) - (slot.size.x * this.scale / 2) + slot.origin.x(),
-											(this.canvas.height / 2) - (slot.size.y * this.scale) - slot.origin.y(),
-											slot.size.x * this.scale,
-											slot.size.y * this.scale,
-										);
-									});
-									texture.src = `../../assets/textures/item/${item.name}.png`;
-								}
+								texture.addEventListener("load", () => {
+									this.ctx.drawImage(
+										texture,
+										0,
+										0,
+										slot.size.x() / this.scale,
+										slot.size.y() / this.scale,
+										(this.canvas.width / 2) - (slot.size.x() / 2) + slot.origin.x(),
+										(this.canvas.height / 2) - (slot.size.y()) - slot.origin.y(),
+										slot.size.x(),
+										slot.size.y(),
+									);
+								});
+								texture.src = `../../assets/textures/item/${slot.item.name}.png`;
 							}
 						}
 					}
@@ -253,49 +149,142 @@ function Layer(layer = {}) {
 	};
 
 	this.draw = c => {
-		// Pre-calculate component origin and size
-		const
-			origin = {
-				x: c.origin.x(),
-				y: c.origin.y(),
-			},
-			size = {
+		if (c.type === "text") {
+			let textWidth = 0;
+
+			// Calculate text final width
+			for (let char of c.text) {
+				textWidth += Font.charSize[char][0] * this.scale;
+			}
+
+			c.size.x = () => textWidth + 1;
+			c.size.y = () => 12 * this.scale;
+
+			// Text shadow
+			let textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
+			for (let char of c.text) {
+				let i = Font.chars.indexOf(char);
+				if (i !== -1) {
+					// Character found, draw it
+					let
+						x = i % 16,
+						y = Math.floor(i / 16);
+
+					this.ctx.drawImage(
+						this.loadedTextures[c.texture],
+						x * 8,
+						16 + y * 8,
+						18 / 3,
+						18 / 2.25,
+						textX + 2,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
+						12,
+						16,
+					);
+
+					let image = this.ctx.getImageData(
+						textX + 2,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
+						12,
+						16,
+					);
+
+					for (let j = 0; j < image.data.length; j += 4) {
+						image.data[j] -= 193;
+						image.data[j + 1] -= 193;
+						image.data[j + 2] -= 193;
+					}
+
+					this.ctx.putImageData(
+						image,
+						textX + 2,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y() + 2,
+					);
+				}
+				textX += Font.charSize[char][0] * 2;
+			}
+
+			// Print text
+			this.ctx.globalAlpha = 1;
+			textX = (this.canvas.width / 2) - (textWidth / 2) + c.origin.x() - 1;
+			for (let char of c.text) {
+				let i = Font.chars.indexOf(char);
+				if (i !== -1) {
+					// Character found, draw it
+					let
+						x = i % 16,
+						y = Math.floor(i / 16);
+
+					this.ctx.drawImage(
+						this.loadedTextures[c.texture],
+						x * 8,
+						16 + y * 8,
+						18 / 3,
+						18 / 2.25,
+						textX,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
+						12,
+						16,
+					);
+
+					let image = this.ctx.getImageData(
+						textX,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
+						12,
+						16,
+					);
+
+					const rgb = hexToRGB(c.text_color);
+
+					for (let j = 0; j < image.data.length; j += 4) {
+						image.data[j] -= (255 - rgb.r);
+						image.data[j + 1] -= (255 - rgb.g);
+						image.data[j + 2] -= (255 - rgb.b);
+					}
+
+					this.ctx.putImageData(
+						image,
+						textX,
+						(this.canvas.height / 2) - (18 / 2) - c.origin.y(),
+					);
+				}
+				textX += Font.charSize[char][0] * 2;
+			}
+		} else {
+			// Pre-calculate component size
+			const size = {
 				x: c.size.x(),
 				y: c.size.y(),
 			};
 
-		// Re-draw component
-		this.ctx.drawImage(
-			this.loadedTextures[c.texture],
-			c.uv.x,
-			c.uv.y,
-			c.size.x() / HUD.scale,
-			c.size.y() / HUD.scale,
-			(this.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
-			(this.canvas.height / 2) - (c.size.y() / 2) - c.origin.y(),
-			c.size.x(),
-			c.size.y(),
-		);
+			// Re-draw component
+			this.ctx.drawImage(
+				this.loadedTextures[c.texture],
+				c.uv.x,
+				c.uv.y,
+				size.x / this.scale,
+				size.y / this.scale,
+				(this.canvas.width / 2) - (size.x / 2) + c.origin.x(),
+				(this.canvas.height / 2) - (size.y / 2) - c.origin.y(),
+				size.x,
+				size.y,
+			);
+		}
 	};
 
-	this.clear = c => {
-		// Pre-calculate component origin and size
-		const
-			origin = {
-				x: c.origin.x(),
-				y: c.origin.y(),
-			},
-			size = {
-				x: c.size.x(),
-				y: c.size.y(),
-			};
+	this.erase = c => {
+		// Pre-calculate component size
+		const size = {
+			x: c.size.x(),
+			y: c.size.y(),
+		};
 
 		// Clear the area where is the component
 		this.ctx.clearRect(
-			(this.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
-			(this.canvas.height / 2) - (c.size.y() / 2) - c.origin.y(),
-			c.size.x(),
-			c.size.y(),
+			(this.canvas.width / 2) - (size.x / 2) + c.origin.x(),
+			(this.canvas.height / 2) - (size.y / 2) - c.origin.y(),
+			size.x,
+			size.y,
 		);
 	};
 
@@ -320,3 +309,16 @@ function Layer(layer = {}) {
 
 	return this;
 }
+
+/**
+ * Convert an hexadecimal color to its RGB variant.
+ * @param	{string}	hex	Hexadecimal code, hash optional.	"#000000"
+ */
+const hexToRGB = (hex = "#000000") => {
+	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result ? {
+		r: parseInt(result[1], 16),
+		g: parseInt(result[2], 16),
+		b: parseInt(result[3], 16),
+	} : null;
+};
