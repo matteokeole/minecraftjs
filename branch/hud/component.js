@@ -15,7 +15,7 @@
  * @param	{array}		component.text_color	Component text color			"#FFF" if component type = "text", else undefined
  * @param	{array}		component.text_size		Component text size				20 if component type = "text", else undefined
  */
-export function Component(component = {}) {
+export const Component = function(component = {}) {
 	// Type
 	this.type = component.type ?? "default";
 
@@ -88,4 +88,4 @@ export function Component(component = {}) {
 	}
 
 	return this;
-}
+};

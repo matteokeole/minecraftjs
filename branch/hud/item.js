@@ -1,30 +1,40 @@
+import {Fetch} from "./main.js";
+
 /**
  * Create a new game item.
  *
  * Param	Type		Name		Description			Default value
- * @param	{object}	item		Item data object	{}
- * @param	{string}	item.id		Item ID				1
- * @param	{string}	item.stack	Item stack count	1
+ * @param	{integer}	id			Item ID				1 (minecraft:air)
  */
-export function Item(item = {}) {
+export const Item = function(id = 1) {
 	// ID (from item ID list)
-	this.id = item.id ?? 1;
+	this.id = id;
+
+	// Get the item from the item list (filter by ID)
+	let tempItem = Fetch.items.filter(i => this.id === i.id)[0];
 
 	// Simplified name
-	this.name = item.name ?? "";
+	this.name = tempItem.name ?? "";
 
 	// Display name
-	this.displayName = item.displayName ?? "";
+	this.displayName = tempItem.displayName ?? "";
 
 	// Current slot
 	this.slot = null;
 
-	// Stack size
-	this.stackSize = item.stackSize ?? 1;
+	// Stack number
+	this.stackCount = 1;
 
-	this.setStack = (count = 1) => {
-		this.stackSize = count;
+	// Max stack number
+	this.stackSize = tempItem.stackSize ?? 64;
+
+	this.setStack = (count = this.stackCount) => {
+		if (count > this.stackSize) count = this.stackSize;
+		this.stackCount = count;
 	};
 
+	// Delete temp item
+	tempItem = null;
+
 	return this;
-}
+};

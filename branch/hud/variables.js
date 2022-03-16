@@ -16,6 +16,12 @@ export const
 			"Digit9",
 		],
 		toggle_hud: "F1",
+	},
+	Player = {
+		maxHealth: 20,
+		health: 20,
+		maxHunger: 20,
+		hunger: 20,
 	};
 
 // Set base size on all character

@@ -1,8 +1,9 @@
-import {Font, Keybinds} from "./variables.js";
+import {Font, Keybinds, Player} from "./variables.js";
 import {Layer} from "./layer.js";
 import {Component} from "./component.js";
 import {Slot} from "./slot.js";
 import {Item} from "./item.js";
+import {renderHealth, renderHunger} from "./functions.js";
 
 export const Fetch = {
 	items: undefined,
@@ -23,15 +24,13 @@ export const Fetch = {
 			Fetch.items = response[0];
 
 			const
-				Player = {
-					maxHealth: 20,
-					health: 20,
-					maxHunger: 20,
-					hunger: 20,
-				},
 				InfoLayer		= new Layer({name: "info"}),
 				CrosshairLayer	= new Layer({name: "crosshair"}),
-				HUD				= new Layer({name: "hud"});
+				HUD				= new Layer({name: "hud"}),
+				ContainerLayer	= new Layer({
+					name: "container",
+					visible: 0,
+				});
 
 			InfoLayer
 				.add(
@@ -137,136 +136,16 @@ export const Fetch = {
 					}),
 				);
 
-			// Heart outlines
-			for (let i = 0; i < Player.maxHealth / 2; i++) {
-				HUD.add(
-						new Component({
-							name: `heart_outline_${i}`,
-							origin: [
-								() => -86.5 * HUD.scale + (i % 10) * 8 * HUD.scale,
-								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 35 * HUD.scale,
-							],
-							size: [
-								() => 9 * HUD.scale,
-								() => 9 * HUD.scale,
-							],
-							texture: "gui/icons.png",
-							uv: [16, 0],
-						}),
-					);
-			}
-
-			// Heart inners
-			let j = 0;
-			for (let i = 0; i < Player.health; i++) {
-				// Add half-heart if health value is odd
-				if (Player.health % 2 !== 0 && i + 1 === Player.health) {
-					j = i / 2;
-					HUD.add(
-							new Component({
-								name: `heart_inner_${j}`,
-								origin: [
-									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
-									() => -(window.innerHeight / 2) + Math.floor(j / 10) * 20 + 35 * HUD.scale,
-								],
-								size: [
-									() => 8 * HUD.scale,
-									() => 7 * HUD.scale,
-								],
-								texture: "gui/icons.png",
-								uv: [62, 1],
-							}),
-						);
-					break;
-				}
-				else if (i % 2 === 0) {
-					j = i / 2;
-					HUD.add(
-							new Component({
-								name: `heart_inner_${j}`,
-								origin: [
-									() => -86 * HUD.scale + (i / 2 % 10) * 8 * HUD.scale,
-									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 35 * HUD.scale,
-								],
-								size: [
-									() => 8 * HUD.scale,
-									() => 7 * HUD.scale,
-								],
-								texture: "gui/icons.png",
-								uv: [53, 1],
-							}),
-						);
-				}
-			}
-
-			// Hunger outlines
-			for (let i = 0; i < Player.maxHunger / 2; i++) {
-				HUD.add(
-						new Component({
-							name: `hunger_outline_${i}`,
-							origin: [
-								() => 86.5 * HUD.scale - (i % 10) * 8 * HUD.scale,
-								() => -window.innerHeight / 2 + Math.floor(i / 10) * 20 + 35 * HUD.scale,
-							],
-							size: [
-								() => 9 * HUD.scale,
-								() => 9 * HUD.scale,
-							],
-							texture: "gui/icons.png",
-							uv: [16, 27],
-						}),
-					);
-			}
-
-			// Hunger inners
-			j = 0;
-			for (let i = 0; i < Player.hunger; i++) {
-				// Add half-hunger if hunger value is odd
-				if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
-					j = i / 2;
-					HUD.add(
-							new Component({
-								name: `hunger_inner_${j}`,
-								origin: [
-									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
-									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 35 * HUD.scale,
-								],
-								size: [
-									() => 8 * HUD.scale,
-									() => 9 * HUD.scale,
-								],
-								texture: "gui/icons.png",
-								uv: [62, 27],
-							}),
-						);
-				}
-				else if (i % 2 === 0) {
-					j = i / 2;
-					HUD.add(
-							new Component({
-								name: `hunger_inner_${j}`,
-								origin: [
-									() => 87 * HUD.scale - (i / 2 % 10) * 8 * HUD.scale,
-									() => -window.innerHeight / 2 + Math.floor(j / 10) * 20 + 35 * HUD.scale,
-								],
-								size: [
-									() => 8 * HUD.scale,
-									() => 9 * HUD.scale,
-								],
-								texture: "gui/icons.png",
-								uv: [53, 27],
-							}),
-						);
-				}
-			}
+			renderHealth(HUD);
+			renderHunger(HUD);
 
 			HUD.components.hotbar
-				.slots[0].assign(new Item(Fetch.items.filter(i => i.id === 272)[0]))
-				.slots[1].assign(new Item(Fetch.items.filter(i => i.id === 261)[0]))
-				.slots[2].assign(new Item(Fetch.items.filter(i => i.id === 274)[0]))
-				.slots[6].assign(new Item(Fetch.items.filter(i => i.id === 368)[0]))
-				.slots[7].assign(new Item(Fetch.items.filter(i => i.id === 326)[0]))
-				.slots[8].assign(new Item(Fetch.items.filter(i => i.id === 297)[0]));
+				.slots[0].assign(new Item(272))
+				.slots[1].assign(new Item(261))
+				.slots[2].assign(new Item(274))
+				.slots[6].assign(new Item(368))
+				.slots[7].assign(new Item(326))
+				.slots[8].assign(new Item(297));
 
 			HUD.update();
 

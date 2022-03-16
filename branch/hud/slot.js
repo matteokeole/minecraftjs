@@ -6,7 +6,7 @@
  * @param	{string}	slot.type	Slot type			"default"
  * @param	{array}		slot.origin	Slot position		{x: 0, y: 0}
  */
-export function Slot(slot = {}) {
+export const Slot = function(slot = {}) {
 	// Type
 	this.type = slot.type ?? "default";
 
@@ -63,4 +63,4 @@ export function Slot(slot = {}) {
 	};
 
 	return this;
-}
+};

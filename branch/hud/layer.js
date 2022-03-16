@@ -10,7 +10,7 @@ import {Font} from "./variables.js";
  * @param	{boolean}	layer.visible		Layer visibility attribute		1
  * @param	{object}	layer.components	Layer default component list	{}
  */
-export function Layer(layer = {}) {
+export const Layer = function(layer = {}) {
 	// Name
 	this.name = layer.name ?? "UNKNOWN_LAYER";
 
@@ -310,7 +310,7 @@ export function Layer(layer = {}) {
 	this.toggle(this.visible);
 
 	return this;
-}
+};
 
 /**
  * Convert an hexadecimal color to its RGB variant.
