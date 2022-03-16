@@ -1,3 +1,5 @@
+import {Font} from "./variables.js";
+
 /**
  * Construct a new interface layer and append the canvas element to the page.
  *

@@ -20,11 +20,11 @@ const update = () => {
 
 						// Update selector position on the hotbar
 						selected_slot = i;
-						SelectorLayer.components.selector.setPosition([
+						HUDLayer.components.selector.setPosition([
 							-160 + selected_slot * 40,
-							SelectorLayer.components.selector.origin.y,
+							HUDLayer.components.selector.origin.y,
 						]);
-						SelectorLayer.update();
+						HUDLayer.update();
 					}
 				}
 			}
@@ -40,7 +40,7 @@ const update = () => {
 				// Hide container layer if visible
 				ContainerLayer.components.inventory.toggle(0);
 				ContainerLayer.toggle(0);
-				Tooltip.toggle(0);
+				// Tooltip.toggle(0);
 
 				setTimeout(() => {Controls.lock()}, 300);
 			} else {
@@ -51,7 +51,18 @@ const update = () => {
 
 			break;
 
-		// Inventory key
+		// Toggle HUD key
+		case keys.includes(Keybinds.toggle_hud):
+			// Remove key from keylist
+			keys.splice(keys.indexOf(Keybinds.toggle_hud), 1);
+
+			// Toggle HUD display
+			HUDLayer.toggle();
+			CrosshairLayer.toggle();
+
+			break;
+
+		// Toggle inventory key
 		case keys.includes(Keybinds.open_inventory):
 			// Remove key from keylist
 			keys.splice(keys.indexOf(Keybinds.open_inventory), 1);
@@ -59,7 +70,7 @@ const update = () => {
 			if (!MenuLayer.visible) {
 				ContainerLayer.components.inventory.toggle();
 				ContainerLayer.toggle();
-				Tooltip.toggle(ContainerLayer.visible);
+				// Tooltip.toggle(ContainerLayer.visible);
 
 				ContainerLayer.visible ? Controls.unlock() : Controls.lock();
 			}

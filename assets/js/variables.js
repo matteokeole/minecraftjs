@@ -1,3 +1,8 @@
+let
+	WINDOW_WIDTH = window.innerWidth,
+	WINDOW_HEIGHT = window.innerHeight,
+	FIELD_OF_VIEW = 90;
+
 const
 	Scene				= new THREE.Scene(),
 	Renderer			= new THREE.WebGLRenderer(),
@@ -78,8 +83,3 @@ const
 		autojump: false,
 		borders: false,
 	};
-
-let
-	WINDOW_WIDTH = window.innerWidth,
-	WINDOW_HEIGHT = window.innerHeight,
-	FIELD_OF_VIEW = 90;

@@ -2,27 +2,18 @@
 noise.seed(Math.random());
 
 // Init Three.js objects
-const
-	getBlock = (pos, axis) => {
-		const map = [];
-		chunks.forEach(chunk => {
-			chunk.forEach(block => {
-				map.push(block[axis])
-			})
-		});
-		return pos === "lowest" ? Math.min.apply(null, map) : Math.max.apply(null, map)
-	},
-	loop = () => {
-		// debug("pos", `XYZ: ${Camera.position.x.toFixed(3)} / ${Camera.position.y.toFixed(5)} / ${Camera.position.z.toFixed(3)}`);
-		// debug("block", `Block: ${Camera.position.x.toFixed(0)} ${Camera.position.y.toFixed(0)} ${Camera.position.z.toFixed(0)}`);
-		// debug("facing", `Facing: (${Camera.rotation.x.toFixed(1)} / ${Camera.rotation.y.toFixed(1)} / ${Camera.rotation.z.toFixed(1)})`);
-		update();
-		render();
-		setTimeout(() => {requestAnimationFrame(loop)}, (1000 / fps))
-	};
-let chunks = [],
-	keys = [],
-	ySpeed = 0;
+const loop = () => {
+	// debug("pos", `XYZ: ${Camera.position.x.toFixed(3)} / ${Camera.position.y.toFixed(5)} / ${Camera.position.z.toFixed(3)}`);
+	// debug("block", `Block: ${Camera.position.x.toFixed(0)} ${Camera.position.y.toFixed(0)} ${Camera.position.z.toFixed(0)}`);
+	// debug("facing", `Facing: (${Camera.rotation.x.toFixed(1)} / ${Camera.rotation.y.toFixed(1)} / ${Camera.rotation.z.toFixed(1)})`);
+	update();
+	render();
+	setTimeout(() => {requestAnimationFrame(loop)}, (1000 / fps))
+};
+
+let chunks	= [],
+	keys	= [],
+	ySpeed	= 0;
 
 // Set sky color and fog
 Scene.background = new THREE.Color(0x000000);

@@ -46,7 +46,7 @@ addEventListener("mousedown", e => {
 		// No pre-selected item
 		if (slot && slot.item) {
 			// Take item, drag & drop start
-			Tooltip.toggle();
+			// Tooltip.toggle();
 			selectedItem = slot.item;
 			slot.empty();
 			selectedItem.element.style.position = "absolute";
@@ -80,9 +80,9 @@ addEventListener("mousedown", e => {
 				removeEventListener("mousemove", moveItemOnCursor);
 
 				// Show tooltip after drag & drop end
-				Tooltip.print(slot.item.name);
-				Tooltip.move(e.clientX, e.clientY);
-				Tooltip.toggle();
+				// Tooltip.print(slot.item.name);
+				// Tooltip.move(e.clientX, e.clientY);
+				// Tooltip.toggle();
 			}
 		}
 	}

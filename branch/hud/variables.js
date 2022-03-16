@@ -1,4 +1,4 @@
-const
+export const
 	Font = {
 		chars: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_’abcdefghijklmnopqrstuvwxyz{|}~",
 		charSize: {},

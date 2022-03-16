@@ -5,7 +5,8 @@ addEventListener("click", () => {
 
 // Press key event
 addEventListener("keydown", e => {
-	if (!/^(ControlLeft|F\d+)$/.test(e.code)) e.preventDefault();
+	// Allow page refreshing and cache clearing
+	if (!/^(Control(Left|Right)|F\d+)$/.test(e.code)) e.preventDefault();
 	keys.push(e.code);
 });
 
@@ -31,17 +32,19 @@ addEventListener("resize", () => {
 // Switch selected item (wheel event)
 let selected_slot = 0;
 addEventListener("wheel", e => {
-	if (e.deltaY > 0) {
-		// Move selector to right
-		selected_slot = selected_slot < 8 ? ++selected_slot : 0;
-	} else {
-		// Move selector to left
-		selected_slot = selected_slot > 0 ? --selected_slot : 8;
-	}
+	if (!ContainerLayer.visible && !MenuLayer.visible) {
+		if (e.deltaY > 0) {
+			// Move selector to right
+			selected_slot = selected_slot < 8 ? ++selected_slot : 0;
+		} else {
+			// Move selector to left
+			selected_slot = selected_slot > 0 ? --selected_slot : 8;
+		}
 
-	SelectorLayer.components.selector.setPosition([
-		-160 + selected_slot * 40,
-		SelectorLayer.components.selector.origin.y,
-	]);
-	SelectorLayer.update();
+		HUDLayer.components.selector.setPosition([
+			-160 + selected_slot * 40,
+			HUDLayer.components.selector.origin.y,
+		]);
+		HUDLayer.update();
+	}
 });

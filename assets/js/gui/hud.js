@@ -26,10 +26,13 @@ holdBlock.rotation.set(
 	0,
 );
 
-// Customize the renderer
-HUDRenderer.setClearColor(0x000000, 0);
+// Customize renderer
 HUDRenderer.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+HUDRenderer.setClearColor(0x000000, 0);
+
+// Customize renderer DOm
 HUDRenderer.domElement.className = "scene";
-document.body.appendChild(HUDRenderer.domElement);
+HUDRenderer.domElement.id = "hud";
+document.body.append(HUDRenderer.domElement);
 
 HUDScene.add(holdBlock);

@@ -1,6 +1,7 @@
 /* Background and outer border color = #100010F0 */
 /* Inner border (top) color = #26005FF5 */
 /* Inner border (bottom) color = #180035F5 */
+
 .tooltip {
 	width: fit-content;
 	height: fit-content;
