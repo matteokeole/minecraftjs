@@ -10,10 +10,11 @@
  * @param	{array}		component.size			Component size					{x: 0, y: 0}
  * @param	{string}	component.texture		Component texture file path		""
  * @param	{array}		component.uv			Component texture offset		{x: 0, y: 0}
- * @param	{array}		component.slots			Component slots					[] if component type = "container", else undefined
- * @param	{array}		component.text			Component text value			"" if component type = "text", else undefined
- * @param	{array}		component.text_color	Component text color			"#FFF" if component type = "text", else undefined
- * @param	{array}		component.text_size		Component text size				20 if component type = "text", else undefined
+ * @param	{array}		component.slots			Component slots					[] if component type = "container"
+ * @param	{array}		component.text			Component text value			"" if component type = "text"
+ * @param	{array}		component.text_color	Component text color			"#FFF" if component type = "text"
+ * @param	{array}		component.text_size		Component text size				20 if component type = "text"
+ * @param	{array}		component.text_shadow	Component text shadow			false if component type = "text"
  */
 export const Component = function(component = {}) {
 	// Type
@@ -83,6 +84,7 @@ export const Component = function(component = {}) {
 		case "text":
 			this.text = component.text ?? "";
 			this.text_color = component.text_color ?? "#FFFFFF";
+			this.text_shadow = component.text_shadow ?? false;
 
 			break;
 	}

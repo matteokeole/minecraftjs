@@ -45,11 +45,12 @@ export const Fetch = {
 						name: "tip-console",
 						origin: [
 							() => 0,
-							() => window.innerHeight / 2 - 10 * HUDLayer.scale,
+							() => window.innerHeight / 2 - 2 * HUDLayer.scale,
 						],
 						texture: "font/ascii.png",
 						text: "HUDLayer Demo",
-						text_color: "#FF5555",
+						text_color: Fetch.font.colors.yellow,
+						text_shadow: true,
 					}),
 				)
 				.update();
