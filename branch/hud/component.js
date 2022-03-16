@@ -82,7 +82,7 @@ export function Component(component = {}) {
 
 		case "text":
 			this.text = component.text ?? "";
-			this.text_color = component.text_color ?? "#FFF";
+			this.text_color = component.text_color ?? "#FFFFFF";
 
 			break;
 	}

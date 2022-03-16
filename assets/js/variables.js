@@ -1,66 +1,4 @@
 const
-	u = 1, // Block size
-	fps = 60,
-	// Generation
-	amplitude = 8,
-	inc = .05,
-	// Chunks
-	chunkSize = 10,
-	// Distances
-	renderDistance = 3,
-	selectionDistance = 4.5,
-	// Fog
-	fogBlend = 1,
-	fogDistance = 10,
-	// Movement
-	movingSpeed = .1125,
-	acc = .115,
-	// Player keybinds
-	Keybinds = {
-		escape: "Escape",
-		jump: "Space",
-		strafe_left: "KeyA",
-		strafe_right: "KeyD",
-		walk_forwards: "KeyW",
-		walk_backwards: "KeyS",
-		hotbar_slots: [
-			"Digit1",
-			"Digit2",
-			"Digit3",
-			"Digit4",
-			"Digit5",
-			"Digit6",
-			"Digit7",
-			"Digit8",
-			"Digit9",
-		],
-		open_inventory: "Tab",
-	},
-	// Player settings
-	SETTINGS = {
-		ui_size: 4,
-		autojump: false,
-		borders: false,
-	};
-
-let
-	WINDOW_WIDTH = window.innerWidth,
-	WINDOW_HEIGHT = window.innerHeight,
-	FIELD_OF_VIEW = 90;
-
-
-
-
-
-
-
-
-
-
-
-
-
-const
 	Scene				= new THREE.Scene(),
 	Renderer			= new THREE.WebGLRenderer(),
 	Camera				= new THREE.PerspectiveCamera(FIELD_OF_VIEW, WINDOW_WIDTH / WINDOW_HEIGHT, .1, 1000),
@@ -95,4 +33,53 @@ const
 		new THREE.EdgesGeometry(BlockGeometry),
 		new THREE.LineBasicMaterial({color: 0x000000, linewidth: 4})
 	),
-	Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial);
+	Selector = new THREE.Mesh(BlockGeometry, SelectorMaterial),
+	u = 1, // Block size
+	fps = 60,
+	// Generation
+	amplitude = 8,
+	inc = .05,
+	// Chunks
+	chunkSize = 10,
+	// Distances
+	renderDistance = 3,
+	selectionDistance = 4.5,
+	// Fog
+	fogBlend = 1,
+	fogDistance = 10,
+	// Movement
+	movingSpeed = .1125,
+	acc = .115,
+	// Player keybinds
+	Keybinds = {
+		escape: "Escape",
+		jump: "Space",
+		strafe_left: "KeyA",
+		strafe_right: "KeyD",
+		walk_forwards: "KeyW",
+		walk_backwards: "KeyS",
+		toggle_hud: "F1",
+		hotbar_slots: [
+			"Digit1",
+			"Digit2",
+			"Digit3",
+			"Digit4",
+			"Digit5",
+			"Digit6",
+			"Digit7",
+			"Digit8",
+			"Digit9",
+		],
+		open_inventory: "Tab",
+	},
+	// Player settings
+	SETTINGS = {
+		ui_size: 4,
+		autojump: false,
+		borders: false,
+	};
+
+let
+	WINDOW_WIDTH = window.innerWidth,
+	WINDOW_HEIGHT = window.innerHeight,
+	FIELD_OF_VIEW = 90;

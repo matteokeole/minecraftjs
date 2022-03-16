@@ -79,35 +79,23 @@ function Layer(layer) {
 }
 
 const
-	DebugLayer			= new Layer({
-		id: "debug-layer",
+	DebugLayer		= new Layer({
+		id: "debug",
 		visible: 1,
 	}),
-	UILayer				= new Layer({
-		id: "ui-layer",
+	CrosshairLayer	= new Layer({
+		id: "crosshair",
 		visible: 1,
 	}),
-	SelectorLayer		= new Layer({
-		id: "selector-layer",
+	HUDLayer		= new Layer({
+		id: "hud",
 		visible: 1,
 	}),
-	ExperienceLayer		= new Layer({
-		id: "experience-layer",
-		visible: 1,
-	}),
-	HealthLayer			= new Layer({
-		id: "health-layer",
-		visible: 1,
-	}),
-	HungerLayer			= new Layer({
-		id: "hunger-layer",
-		visible: 1,
-	}),
-	ContainerLayer		= new Layer({
-		id: "container-layer",
+	ContainerLayer	= new Layer({
+		id: "container",
 		visible: 0,
 	}),
-	MenuLayer			= new Layer({
-		id: "menu-layer",
+	MenuLayer		= new Layer({
+		id: "menu",
 		visible: 0,
 	});

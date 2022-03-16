@@ -1,4 +1,4 @@
-import {Item} from "./functions.js";
+import {Layer} from "./layer.js";
 
 export const Fetch = {
 	items: undefined,
@@ -11,13 +11,14 @@ export const Fetch = {
 		return;
 	}
 
-	Promise.all([
-		fetch("../../assets/items.json").then(response => response.json()),
-	])
+	Promise
+		.all([
+			fetch("../../assets/items.json").then(response => response.json()),
+		])
 		.then(response => {
 			Fetch.items = response[0];
 
-			const item = new Item({id: 376});
+			const HUD = new Layer({name: "hud"});
 		})
 		.catch(error => console.error(error));
 })();

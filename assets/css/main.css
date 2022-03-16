@@ -1,52 +1,15 @@
-@font-face {
-	font-family: regular;
-	src: url(../textures/font/regular.otf) format("opentype");
-}
-
-@font-face {
-	font-family: regular_italic;
-	src: url(../textures/font/regular_italic.otf) format("opentype");
-}
-
-@font-face {
-	font-family: bold;
-	src: url(../textures/font/bold.otf) format("opentype");
-}
-
-@font-face {
-	font-family: bold_italic;
-	src: url(../textures/font/bold_italic.otf) format("opentype");
-}
+@import url(layer.css);
+@import url(tooltip.css);
 
 body {
 	margin: 0;
 	overflow: hidden;
 	cursor: default;
-	text-rendering: optimizeLegibility;
-	font-family: regular, sans-serif;
-	font-size: 20px;
 }
 
 .scene {
 	position: absolute;
 	z-index: -1;
-}
-
-.layer {
-	position: absolute;
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -webkit-crisp-edges;
-	image-rendering: pixelated;
-	image-rendering: crisp-edges;
-}
-
-#container-layer, #menu-layer {
-	background-color: rgba(0, 0, 0, .7);
-	z-index: 1;
-}
-
-#ui-layer {
-	/*mix-blend-mode: difference;*/
 }
 
 .slots {
