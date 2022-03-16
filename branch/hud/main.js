@@ -45,11 +45,11 @@ export const Fetch = {
 						name: "tip-console",
 						origin: [
 							() => 0,
-							() => window.innerHeight / 2 - 2 * HUDLayer.scale,
+							() => (window.innerHeight / 2) - 6 * HUDLayer.scale,
 						],
 						texture: "font/ascii.png",
 						text: "HUDLayer Demo",
-						text_color: Fetch.font.colors.yellow,
+						text_color: Fetch.font.colors.gold,
 						text_shadow: true,
 					}),
 				)
@@ -129,7 +129,7 @@ export const Fetch = {
 						uv: [0, 64],
 					}),
 				)
-				.add(
+				/*.add(
 					new Component({
 						type: "text",
 						name: "tooltip",
@@ -140,8 +140,9 @@ export const Fetch = {
 						texture: "font/ascii.png",
 						text: "",
 						text_color: "#FFFFFF",
+						text_shadow: true,
 					}),
-				);
+				)*/;
 
 			renderHealth(HUDLayer);
 			renderHunger(HUDLayer);
@@ -197,9 +198,9 @@ export const Fetch = {
 						// Update selected slot number
 						selected_slot = Keybinds.hotbar_slots.indexOf(e.code);
 
-						c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
-						HUDLayer.erase(c.tooltip);
 						// Performance issue
+						// c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+						// HUDLayer.erase(c.tooltip);
 						// HUDLayer.draw(c.tooltip);
 
 						// Re-draw the selector on the new hotbar slot
@@ -230,9 +231,9 @@ export const Fetch = {
 				// Increment/decrement selector based on wheel direction
 				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
-				c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
-				HUDLayer.erase(c.tooltip);
 				// Performance issue
+				// c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+				// HUDLayer.erase(c.tooltip);
 				// HUDLayer.draw(c.tooltip);
 
 				// Re-draw the selector on the new hotbar slot

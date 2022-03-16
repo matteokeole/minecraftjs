@@ -16,21 +16,20 @@ export const
 			// Calculate each line width
 			for (let line of lines) {
 				for (let char of line.text) {
-					line.width += Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * l.scale : 6 * l.scale;
+					line.width += (Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * l.scale : 6 * l.scale) + 2;
 
 					// Get the max possible line width for this text
 					if (line.width > maxWidth) maxWidth = line.width;
 				}
 			}
 
+			maxWidth -= 2;
+
 			// Update component size
-			c.size.x = () => maxWidth + 1;
-			c.size.y = () => 12 * lines.length * l.scale;
+			c.size.x = () => maxWidth;
+			c.size.y = () => (12 * lines.length - 4) * l.scale;
 
-			// Why do I need this?
-			l.ctx.fillRect(0, 0, 0, 0);
-
-			let textY = (l.canvas.height / 2) + 12 - c.origin.y();
+			let textY = (l.canvas.height / 2) - c.origin.y();
 			for (let line of lines) {
 				let textX = (l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x();
 				for (let char of line.text) {
@@ -41,7 +40,7 @@ export const
 						x = i % 16,
 						y = Math.floor(i / 16);
 
-					if (c.text_shadow) {
+					/*if (c.text_shadow) {
 						// Draw text shadow
 						l.ctx.drawImage(
 							l.loadedTextures[c.texture],
@@ -50,14 +49,14 @@ export const
 							18 / 3,
 							18 / 2.25,
 							textX + 2,
-							(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY + 2,
+							textY + 2,
 							12,
 							16,
 						);
 
 						let image = l.ctx.getImageData(
 							textX + 2,
-							(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY + 2,
+							textY + 2,
 							12,
 							18,
 						);
@@ -71,9 +70,9 @@ export const
 						l.ctx.putImageData(
 							image,
 							textX + 2,
-							(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY + 2,
+							textY + 2,
 						);
-					}
+					}*/
 
 					// Draw text value
 					l.ctx.drawImage(
@@ -83,36 +82,24 @@ export const
 						18 / 3,
 						18 / 2.25,
 						textX,
-						(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY,
+						textY,
 						12,
 						16,
 					);
 
-					let image = l.ctx.getImageData(
-						textX,
-						(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY,
-						12,
-						18,
-					);
-
-					const rgb = hexToRGB(c.text_color);
-
-					for (let j = 0; j < image.data.length; j += 4) {
-						image.data[j] -= (255 - rgb.r);
-						image.data[j + 1] -= (255 - rgb.g);
-						image.data[j + 2] -= (255 - rgb.b);
-					}
-
-					l.ctx.putImageData(
-						image,
-						textX,
-						(l.canvas.height / 2) - (18 / 2) - c.origin.y() + textY,
-					);
-
-					textX += Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * 2 : 6 * 2;
+					textX += (Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * 2 : 6 * 2) + 2;
 				}
 				textY += 12 * 2;
 			}
+
+			l.ctx.globalCompositeOperation = "source-in";
+			l.ctx.fillStyle = c.text_color;
+			l.ctx.fillRect(
+				(l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
+				(l.canvas.height / 2) - c.origin.y(),
+				c.size.x(),
+				c.size.y(),
+			);
 		} else {
 			// Pre-calculate component size
 			const size = {
