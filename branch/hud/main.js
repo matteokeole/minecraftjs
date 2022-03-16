@@ -29,7 +29,7 @@ export const Fetch = {
 			const
 				InfoLayer		= new Layer({name: "info"}),
 				CrosshairLayer	= new Layer({name: "crosshair"}),
-				HUDLayer				= new Layer({name: "hud"}),
+				HUDLayer		= new Layer({name: "hud"}),
 				ContainerLayer	= new Layer({
 					name: "container",
 					visible: 0,
