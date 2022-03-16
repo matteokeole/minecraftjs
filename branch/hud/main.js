@@ -1,4 +1,4 @@
-import {Font, Keybinds, Player} from "./variables.js";
+import {Keybinds, Player} from "./variables.js";
 import {Layer} from "./layer.js";
 import {Component} from "./component.js";
 import {Slot} from "./slot.js";
@@ -6,6 +6,7 @@ import {Item} from "./item.js";
 import {renderHealth, renderHunger} from "./functions.js";
 
 export const Fetch = {
+	font: undefined,
 	items: undefined,
 };
 
@@ -18,19 +19,24 @@ export const Fetch = {
 
 	Promise
 		.all([
+			fetch("../../assets/font.json").then(response => response.json()),
 			fetch("../../assets/items.json").then(response => response.json()),
 		])
 		.then(response => {
-			Fetch.items = response[0];
+			Fetch.font = response[0];
+			Fetch.items = response[1];
 
 			const
 				InfoLayer		= new Layer({name: "info"}),
 				CrosshairLayer	= new Layer({name: "crosshair"}),
-				HUD				= new Layer({name: "hud"}),
+				HUDLayer				= new Layer({name: "hud"}),
 				ContainerLayer	= new Layer({
 					name: "container",
 					visible: 0,
 				});
+
+			// Event listeners
+			addEventListener("contextmenu", e => e.preventDefault());
 
 			InfoLayer
 				.add(
@@ -39,10 +45,10 @@ export const Fetch = {
 						name: "tip-console",
 						origin: [
 							() => 0,
-							() => window.innerHeight / 2 - 10 * HUD.scale,
+							() => window.innerHeight / 2 - 10 * HUDLayer.scale,
 						],
 						texture: "font/ascii.png",
-						text: "HUD Demo",
+						text: "HUDLayer Demo",
 						text_color: "#FF5555",
 					}),
 				)
@@ -58,8 +64,8 @@ export const Fetch = {
 							() => 0,
 						],
 						size: [
-							() => 9 * HUD.scale,
-							() => 9 * HUD.scale,
+							() => 9 * CrosshairLayer.scale,
+							() => 9 * CrosshairLayer.scale,
 						],
 						texture: "gui/icons.png",
 						uv: [3, 3],
@@ -67,26 +73,26 @@ export const Fetch = {
 				)
 				.update();
 
-			HUD
+			HUDLayer
 				.add(
 					new Component({
 						type: "container",
 						name: "hotbar",
 						origin: [
 							() => 0,
-							() => -window.innerHeight / 2 + 11 * HUD.scale,
+							() => -window.innerHeight / 2 + 11 * HUDLayer.scale,
 						],
 						size: [
-							() => 182 * HUD.scale,
-							() => 22 * HUD.scale,
+							() => 182 * HUDLayer.scale,
+							() => 22 * HUDLayer.scale,
 						],
 						texture: "gui/widgets.png",
 						uv: [0, 0],
 						slots: Array.from({length: 9}, (_, i) => {
 							return new Slot({
 								origin: [
-									() => -80 * HUD.scale + 20 * i * HUD.scale,
-									() => (-window.innerHeight / 2) + 3 * HUD.scale,
+									() => -80 * HUDLayer.scale + 20 * i * HUDLayer.scale,
+									() => (-window.innerHeight / 2) + 3 * HUDLayer.scale,
 								],
 							});
 						}),
@@ -96,12 +102,12 @@ export const Fetch = {
 					new Component({
 						name: "selector",
 						origin: [
-							() => -80 * HUD.scale + 20 * HUD.scale * selected_slot,
-							() => (-window.innerHeight / 2) + 11 * HUD.scale,
+							() => -80 * HUDLayer.scale + 20 * HUDLayer.scale * selected_slot,
+							() => (-window.innerHeight / 2) + 11 * HUDLayer.scale,
 						],
 						size: [
-							() => 24 * HUD.scale,
-							() => 24 * HUD.scale,
+							() => 24 * HUDLayer.scale,
+							() => 24 * HUDLayer.scale,
 						],
 						texture: "gui/widgets.png",
 						uv: [0, 22],
@@ -112,11 +118,11 @@ export const Fetch = {
 						name: "experience_bar",
 						origin: [
 							() => 0,
-							() => (-window.innerHeight / 2) + 26.5 * HUD.scale,
+							() => (-window.innerHeight / 2) + 26.5 * HUDLayer.scale,
 						],
 						size: [
-							() => 182 * HUD.scale,
-							() => 5 * HUD.scale,
+							() => 182 * HUDLayer.scale,
+							() => 5 * HUDLayer.scale,
 						],
 						texture: "gui/icons.png",
 						uv: [0, 64],
@@ -136,10 +142,10 @@ export const Fetch = {
 					}),
 				);
 
-			renderHealth(HUD);
-			renderHunger(HUD);
+			renderHealth(HUDLayer);
+			renderHunger(HUDLayer);
 
-			HUD.components.hotbar
+			HUDLayer.components.hotbar
 				.slots[0].assign(new Item(272))
 				.slots[1].assign(new Item(261))
 				.slots[2].assign(new Item(274))
@@ -147,13 +153,13 @@ export const Fetch = {
 				.slots[7].assign(new Item(326))
 				.slots[8].assign(new Item(297));
 
-			HUD.update();
+			HUDLayer.update();
 
 			let
 				selected_slot	= 0,
 				canSwitchSlot	= true,
 				isSlotKey		= false,
-				c				= HUD.components;
+				c				= HUDLayer.components;
 
 			addEventListener("keydown", e => {
 				if (!/^(Control(Left|Right)|F\d+)$/.test(e.code)) e.preventDefault();
@@ -162,7 +168,7 @@ export const Fetch = {
 					canSwitchSlot = false;
 
 					if (e.code === Keybinds.toggle_hud) {
-						HUD.toggle();
+						HUDLayer.toggle();
 						CrosshairLayer.toggle();
 					}
 
@@ -172,17 +178,17 @@ export const Fetch = {
 
 					if (isSlotKey) {
 						// Clear the previous selected slot
-						HUD.erase(c.selector);
+						HUDLayer.erase(c.selector);
 
 						// Re-draw the part of the hotbar where the selector was
-						HUD.ctx.drawImage(
-							HUD.loadedTextures[HUD.components.hotbar.texture],
+						HUDLayer.ctx.drawImage(
+							HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
 							c.hotbar.uv.x + (selected_slot * 20) - 1,
 							c.hotbar.uv.y,
-							c.selector.size.x() / HUD.scale,
-							c.hotbar.size.y() / HUD.scale,
-							(HUD.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
-							(HUD.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUD.scale,
+							c.selector.size.x() / HUDLayer.scale,
+							c.hotbar.size.y() / HUDLayer.scale,
+							(HUDLayer.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
+							(HUDLayer.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUDLayer.scale,
 							c.selector.size.x(),
 							c.hotbar.size.y(),
 						);
@@ -191,12 +197,12 @@ export const Fetch = {
 						selected_slot = Keybinds.hotbar_slots.indexOf(e.code);
 
 						c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+						HUDLayer.erase(c.tooltip);
 						// Performance issue
-						// HUD.erase(c.tooltip);
-						// HUD.draw(c.tooltip);
+						// HUDLayer.draw(c.tooltip);
 
 						// Re-draw the selector on the new hotbar slot
-						HUD.draw(c.selector);
+						HUDLayer.draw(c.selector);
 					}
 				}
 			});
@@ -205,17 +211,17 @@ export const Fetch = {
 
 			addEventListener("wheel", e => {
 				// Clear the previous selected slot
-				HUD.erase(c.selector);
+				HUDLayer.erase(c.selector);
 
 				// Re-draw the part of the hotbar where the selector was
-				HUD.ctx.drawImage(
-					HUD.loadedTextures[HUD.components.hotbar.texture],
+				HUDLayer.ctx.drawImage(
+					HUDLayer.loadedTextures[HUDLayer.components.hotbar.texture],
 					c.hotbar.uv.x + (selected_slot * 20) - 1,
 					c.hotbar.uv.y,
-					c.selector.size.x() / HUD.scale,
-					c.hotbar.size.y() / HUD.scale,
-					(HUD.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
-					(HUD.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUD.scale,
+					c.selector.size.x() / HUDLayer.scale,
+					c.hotbar.size.y() / HUDLayer.scale,
+					(HUDLayer.canvas.width / 2) - (c.selector.size.x() / 2) + c.selector.origin.x(),
+					(HUDLayer.canvas.height / 2) - (c.selector.size.y() / 2) - c.selector.origin.y() + HUDLayer.scale,
 					c.selector.size.x(),
 					c.hotbar.size.y(),
 				);
@@ -224,12 +230,12 @@ export const Fetch = {
 				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
 				c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+				HUDLayer.erase(c.tooltip);
 				// Performance issue
-				// HUD.erase(c.tooltip);
-				// HUD.draw(c.tooltip);
+				// HUDLayer.draw(c.tooltip);
 
 				// Re-draw the selector on the new hotbar slot
-				HUD.draw(c.selector);
+				HUDLayer.draw(c.selector);
 			});
 		})
 		.catch(error => console.error(error));

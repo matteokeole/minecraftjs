@@ -3,6 +3,9 @@ addEventListener("click", () => {
 	if (!ContainerLayer.visible && !MenuLayer.visible) Controls.lock();
 });
 
+// Context menu event
+addEventListener("contextmenu", e => e.preventDefault());
+
 // Press key event
 addEventListener("keydown", e => {
 	// Allow page refreshing and cache clearing

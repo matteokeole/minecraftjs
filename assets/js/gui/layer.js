@@ -23,6 +23,8 @@ function Layer(layer) {
 	this.canvas.width = this.size[0];
 	this.canvas.height = this.size[1];
 	this.canvas.style.visibility = this.visible ? "visible" : "hidden";
+	// Context menu event
+	this.canvas.addEventListener("contextmenu", e => e.preventDefault());
 	this.ctx = this.canvas.getContext("2d");
 	this.ctx.imageSmoothingEnabled = false;
 	this.components = {};
