@@ -59,8 +59,8 @@ export const Fetch = {
 							() => 0,
 						],
 						size: [
-							() => 6 * HUD.scale,
-							() => 6 * HUD.scale,
+							() => 9 * HUD.scale,
+							() => 9 * HUD.scale,
 						],
 						texture: "gui/icons.png",
 						uv: [3, 3],
