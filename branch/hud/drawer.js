@@ -18,7 +18,7 @@ export const
 				for (let char of line.text) {
 					line.width += (Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * l.scale : 6 * l.scale) + 2;
 
-					// Get the max possible line width for this text
+					// Get the max possible line width
 					if (line.width > maxWidth) maxWidth = line.width;
 				}
 			}
@@ -27,7 +27,7 @@ export const
 
 			// Update component size
 			c.size.x = () => maxWidth;
-			c.size.y = () => (12 * lines.length - 4) * l.scale;
+			c.size.y = () => 18 * lines.length;
 
 			let textY = (l.canvas.height / 2) - c.origin.y();
 			for (let line of lines) {
@@ -40,56 +40,40 @@ export const
 						x = i % 16,
 						y = Math.floor(i / 16);
 
-					/*if (c.text_shadow) {
+					if (c.text_shadow) {
+						l.ctx.globalAlpha = .245;
 						// Draw text shadow
 						l.ctx.drawImage(
 							l.loadedTextures[c.texture],
 							x * 8,
 							16 + y * 8,
-							18 / 3,
-							18 / 2.25,
+							6,
+							8,
 							textX + 2,
 							textY + 2,
 							12,
 							16,
 						);
+					}
 
-						let image = l.ctx.getImageData(
-							textX + 2,
-							textY + 2,
-							12,
-							18,
-						);
-
-						for (let j = 0; j < image.data.length; j += 4) {
-							image.data[j] -= 193;
-							image.data[j + 1] -= 193;
-							image.data[j + 2] -= 193;
-						}
-
-						l.ctx.putImageData(
-							image,
-							textX + 2,
-							textY + 2,
-						);
-					}*/
+					l.ctx.globalAlpha = 1;
 
 					// Draw text value
 					l.ctx.drawImage(
 						l.loadedTextures[c.texture],
 						x * 8,
 						16 + y * 8,
-						18 / 3,
-						18 / 2.25,
+						6,
+						8,
 						textX,
 						textY,
 						12,
 						16,
 					);
 
-					textX += (Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] * 2 : 6 * 2) + 2;
+					textX += 2 * (Fetch.font.char_size[char] ? Fetch.font.char_size[char][0] : 6) + 2;
 				}
-				textY += 12 * 2;
+				textY += 18;
 			}
 
 			l.ctx.globalCompositeOperation = "source-in";
@@ -97,7 +81,7 @@ export const
 			l.ctx.fillRect(
 				(l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
 				(l.canvas.height / 2) - c.origin.y(),
-				c.size.x(),
+				c.size.x() + 2,
 				c.size.y(),
 			);
 		} else {

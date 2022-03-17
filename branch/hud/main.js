@@ -48,8 +48,8 @@ export const Fetch = {
 							() => (window.innerHeight / 2) - 6 * HUDLayer.scale,
 						],
 						texture: "font/ascii.png",
-						text: "HUDLayer Demo",
-						text_color: Fetch.font.colors.gold,
+						text: "HUDLayer demo",
+						text_color: Fetch.font.colors.yellow,
 						text_shadow: true,
 					}),
 				)
@@ -129,6 +129,20 @@ export const Fetch = {
 						uv: [0, 64],
 					}),
 				)
+				/*.add(
+					new Component({
+						type: "text",
+						name: "test",
+						origin: [
+							() => 0,
+							() => (window.innerHeight / 2),
+						],
+						texture: "font/ascii.png",
+						text: "test",
+						text_color: Fetch.font.colors.red,
+						text_shadow: false,
+					}),
+				)*/
 				/*.add(
 					new Component({
 						type: "text",
