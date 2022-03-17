@@ -4,7 +4,7 @@ export const
 	draw = (l, c) => {
 		if (c.type === "text") {
 			// Split the text by line
-			const lines = c.text.split("\n").map(t => {
+			const lines = String(c.text).split("\n").map(t => {
 				return {
 					text: t,
 					width: 0,

@@ -57,8 +57,8 @@ export const Slot = function(slot = {}) {
 	this.init = () => {
 		// Size
 		this.size = {
-			x: () => 16 * this.component.layer.scale,
-			y: () => 16 * this.component.layer.scale,
+			x: () => 18 * this.component.layer.scale,
+			y: () => 18 * this.component.layer.scale,
 		};
 	};
 
@@ -67,15 +67,20 @@ export const Slot = function(slot = {}) {
 
 /**
  * Return the slot which has the same coordinates as the specified event target. If no slot is found, return False.
+ * Param	Type		Name		Description					Default value
+ * @param	{object}	component	The slot parent component	undefined
+ * @param	{integer}	x			The cursor X coordinate		0
+ * @param	{integer}	y			The cursor Y coordinate		0
  */
-Slot.getSlotAt = (c, x, y) => {
-	for (let slot of c.slots) {
-		if (
-			slot.origin.x() - slot.size.x() / 2 <= (x - window.innerWidth / 2).toFixed(0) &&
-			slot.origin.x() + slot.size.x() / 2 > (x - window.innerWidth / 2).toFixed(0) &&
-			slot.origin.y() - slot.size.y() / 2 <= -(y - window.innerHeight / 2).toFixed(0) &&
-			slot.origin.y() + slot.size.y() / 2 >= -(y - window.innerHeight / 2).toFixed(0)
+Slot.getSlotAt = (component, x = 0, y = 0) => {
+	for (let slot of component.slots) {
+		if (	
+			(window.innerWidth / 2) - (slot.size.x() / 2) + slot.origin.x()	<= x &&	// From left side
+			(window.innerWidth / 2) + (slot.size.x() / 2) + slot.origin.x()	>= x &&	// From right side
+			(window.innerHeight / 2) - (slot.size.y()) - slot.origin.y()	< y &&	// From top side
+			(window.innerHeight / 2) - slot.origin.y() - 1					> y 	// From bottom side
 		) return slot;
 	}
+
 	return false;
 };

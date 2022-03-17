@@ -3,8 +3,9 @@
 /* Inner border (bottom) color = #180035F5 */
 
 .tooltip {
-	width: fit-content;
-	height: fit-content;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	margin: auto;
 	padding: 0 4px 0 4px;
 	position: absolute;
@@ -12,9 +13,7 @@
 	border-image-slice: 1;
 	border-image-source: linear-gradient(to bottom, #26005FF5, #180035F5);
 	background-color: #100010F0;
-	background-clip: padding-box;
-	color: #FFF;
-	z-index: 999;
+	z-index: 2;
 }
 .tooltip::before {
 	content: "";

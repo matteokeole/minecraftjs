@@ -131,8 +131,8 @@ export const Layer = function(layer = {}) {
 								texture.addEventListener("load", () => {
 									this.ctx.drawImage(
 										texture,
-										0,
-										0,
+										-1,
+										-1,
 										slot.size.x() / this.scale,
 										slot.size.y() / this.scale,
 										(this.canvas.width / 2) - (slot.size.x() / 2) + slot.origin.x(),

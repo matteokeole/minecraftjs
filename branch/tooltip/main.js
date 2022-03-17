@@ -28,10 +28,7 @@ export const Fetch = {
 
 			const
 				ContainerLayer	= new Layer({name: "container"}),
-				TooltipLayer	= new Layer({
-					name: "tooltip",
-					visible: 0,
-				});
+				TooltipLayer	= new Layer({name: "tooltip"});
 
 			// Event listeners
 			addEventListener("contextmenu", e => e.preventDefault());
@@ -40,7 +37,7 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "tip-console",
+						name: "title",
 						origin: [
 							() => 0,
 							() => (window.innerHeight / 2) - 6 * ContainerLayer.scale,
@@ -60,16 +57,17 @@ export const Fetch = {
 							() => 0,
 						],
 						size: [
-							() => 352,
-							() => 332,
+							() => 176 * ContainerLayer.scale,
+							() => 166 * ContainerLayer.scale,
 						],
 						texture: "gui/container/inventory.png",
 						uv: [0, 0],
 						slots: Array.from({length: 9}, (_, i) => {
 							return new Slot({
+								type: "hotbar",
 								origin: [
-									() => -144 + i * 36,
-									() => -150,
+									() => -72 * ContainerLayer.scale + i * 18 * ContainerLayer.scale,
+									() => -76 * ContainerLayer.scale,
 								],
 							});
 						}),
@@ -84,20 +82,18 @@ export const Fetch = {
 				.slots[7].assign(new Item(326))
 				.slots[8].assign(new Item(297));
 
+			ContainerLayer.setScale(2);
 			ContainerLayer.update();
 
-			// TooltipLayer.canvas.style.width = "100px";
-			// TooltipLayer.canvas.style.height = "30px";
-			TooltipLayer.canvas.className = "tooltip";
-
+			TooltipLayer.toggle(0);
 			TooltipLayer
 				.add(
 					new Component({
 						type: "text",
 						name: "item_name",
 						origin: [
-							() => (-window.innerWidth / 2),
-							() => (window.innerHeight / 2),
+							() => 0,
+							() => 16,
 						],
 						texture: "font/ascii.png",
 						text: "Item Name",
@@ -107,19 +103,26 @@ export const Fetch = {
 				)
 				.update();
 
-			// let c = ContainerLayer.components;
+			const t = document.querySelector(".tooltip");
+			t.style.visibility = "hidden";
+			t.append(TooltipLayer.canvas);
 
 			addEventListener("mousemove", e => {
-				TooltipLayer.canvas.style.left = `${e.clientX}px`;
-				TooltipLayer.canvas.style.top = `${e.clientY}px`;
-
+				t.style.left = `${e.clientX + 18}px`;
+				t.style.top = `${e.clientY - 30}px`;
 				let current_slot = Slot.getSlotAt(ContainerLayer.components.inventory, e.clientX, e.clientY)
 				if (current_slot && current_slot.item) {
+					t.style.visibility = "visible";
 					TooltipLayer.toggle(1);
-					TooltipLayer.components.item_name.text = current_slot.item.displayName;
+					TooltipLayer.components.item_name.text = `${current_slot.item.displayName}\nTooltip text`;
 					TooltipLayer.erase(TooltipLayer.components.item_name);
+					t.style.width = `${TooltipLayer.components.item_name.size.x()}px`;
+					t.style.height = `${TooltipLayer.components.item_name.size.y()}px`;
 					TooltipLayer.draw(TooltipLayer.components.item_name);
-				} else TooltipLayer.toggle(0);
+				} else {
+					t.style.visibility = "hidden";
+					TooltipLayer.toggle(0);
+				}
 			});
 		})
 		.catch(error => console.error(error));

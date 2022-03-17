@@ -2,10 +2,16 @@
 @import url(layer.css);
 @import url(tooltip.css);
 
+:root {
+	--scale: 4px;
+}
+
 body {
+	display: flex;
+	justify-content: center;
 	margin: 0;
 	overflow: hidden;
-	background-color: #000;
+	background-color: #ff9800;
 	cursor: default;
 }
 
