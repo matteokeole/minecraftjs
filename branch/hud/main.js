@@ -48,7 +48,7 @@ export const Fetch = {
 							() => (window.innerHeight / 2) - 6 * HUDLayer.scale,
 						],
 						texture: "font/ascii.png",
-						text: "HUDLayer demo",
+						text: "HUDLayer Demo",
 						text_color: Fetch.font.colors.yellow,
 						text_shadow: true,
 					}),
@@ -129,21 +129,7 @@ export const Fetch = {
 						uv: [0, 64],
 					}),
 				)
-				/*.add(
-					new Component({
-						type: "text",
-						name: "test",
-						origin: [
-							() => 0,
-							() => (window.innerHeight / 2),
-						],
-						texture: "font/ascii.png",
-						text: "test",
-						text_color: Fetch.font.colors.red,
-						text_shadow: false,
-					}),
-				)*/
-				/*.add(
+				.add(
 					new Component({
 						type: "text",
 						name: "tooltip",
@@ -152,11 +138,11 @@ export const Fetch = {
 							() => (-window.innerHeight / 2) + 108,
 						],
 						texture: "font/ascii.png",
-						text: "",
-						text_color: "#FFFFFF",
+						text: "Tooltip",
+						text_color: Fetch.font.colors.white,
 						text_shadow: true,
 					}),
-				)*/;
+				);
 
 			renderHealth(HUDLayer);
 			renderHunger(HUDLayer);
@@ -213,9 +199,9 @@ export const Fetch = {
 						selected_slot = Keybinds.hotbar_slots.indexOf(e.code);
 
 						// Performance issue
-						// c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
-						// HUDLayer.erase(c.tooltip);
-						// HUDLayer.draw(c.tooltip);
+						c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+						HUDLayer.erase(c.tooltip);
+						HUDLayer.draw(c.tooltip);
 
 						// Re-draw the selector on the new hotbar slot
 						HUDLayer.draw(c.selector);
@@ -246,9 +232,9 @@ export const Fetch = {
 				selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
 
 				// Performance issue
-				// c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
-				// HUDLayer.erase(c.tooltip);
-				// HUDLayer.draw(c.tooltip);
+				c.tooltip.text = c.hotbar.slots[selected_slot].item ? c.hotbar.slots[selected_slot].item.displayName : "";
+				HUDLayer.erase(c.tooltip);
+				HUDLayer.draw(c.tooltip);
 
 				// Re-draw the selector on the new hotbar slot
 				HUDLayer.draw(c.selector);

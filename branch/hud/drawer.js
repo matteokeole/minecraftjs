@@ -76,7 +76,7 @@ export const
 				textY += 18;
 			}
 
-			l.ctx.globalCompositeOperation = "source-in";
+			l.ctx.globalCompositeOperation = "source-atop";
 			l.ctx.fillStyle = c.text_color;
 			l.ctx.fillRect(
 				(l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
@@ -84,6 +84,7 @@ export const
 				c.size.x() + 2,
 				c.size.y(),
 			);
+			l.ctx.globalCompositeOperation = "source-over";
 		} else {
 			// Pre-calculate component size
 			const size = {
@@ -112,13 +113,22 @@ export const
 			y: c.size.y(),
 		};
 
-		// Clear the area where is the component
-		l.ctx.clearRect(
-			(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
-			(l.canvas.height / 2) - (size.y / 2) - c.origin.y(),
-			size.x,
-			size.y,
-		);
+		// Clear the area where is located the component
+		if (c.type === "text") {
+			l.ctx.clearRect(
+				(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
+				(l.canvas.height / 2) - c.origin.y(),
+				size.x + 2,
+				size.y,
+			);
+		} else {
+			l.ctx.clearRect(
+				(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
+				(l.canvas.height / 2) - (size.y / 2) - c.origin.y(),
+				size.x,
+				size.y,
+			);
+		}
 	};
 
 /**
