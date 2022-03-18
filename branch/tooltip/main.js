@@ -90,14 +90,28 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "item_name",
+						name: "display_name",
 						origin: [
 							() => 0,
-							() => 16,
+							() => 18,
 						],
 						texture: "font/ascii.png",
-						text: "Item Name",
+						text: "display",
 						text_color: Fetch.font.colors.white,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "name",
+						origin: [
+							() => 0,
+							() => -2,
+						],
+						texture: "font/ascii.png",
+						text: "name",
+						text_color: Fetch.font.colors.dark_gray,
 						text_shadow: true,
 					}),
 				)
@@ -107,6 +121,8 @@ export const Fetch = {
 			t.style.visibility = "hidden";
 			t.append(TooltipLayer.canvas);
 
+			let c = TooltipLayer.components;
+
 			addEventListener("mousemove", e => {
 				t.style.left = `${e.clientX + 18}px`;
 				t.style.top = `${e.clientY - 30}px`;
@@ -114,11 +130,14 @@ export const Fetch = {
 				if (current_slot && current_slot.item) {
 					t.style.visibility = "visible";
 					TooltipLayer.toggle(1);
-					TooltipLayer.components.item_name.text = `${current_slot.item.displayName}\nTooltip text`;
-					TooltipLayer.erase(TooltipLayer.components.item_name);
-					t.style.width = `${TooltipLayer.components.item_name.size.x()}px`;
-					t.style.height = `${TooltipLayer.components.item_name.size.y()}px`;
-					TooltipLayer.draw(TooltipLayer.components.item_name);
+					c.display_name.text = current_slot.item.displayName;
+					c.name.text = `minecraft:${current_slot.item.name}`;
+					TooltipLayer.erase(c.display_name);
+					TooltipLayer.draw(c.display_name);
+					TooltipLayer.erase(c.name);
+					TooltipLayer.draw(c.name);
+					t.style.width = `${Math.max(c.display_name.size.x(), c.name.size.x())}px`;
+					t.style.height = `${c.display_name.size.y() * 2 + 8}px`;
 				} else {
 					t.style.visibility = "hidden";
 					TooltipLayer.toggle(0);
