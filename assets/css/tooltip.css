@@ -3,11 +3,8 @@
 /* Inner border (bottom) color = #180035F5 */
 
 .tooltip {
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	margin: auto;
-	padding: 0 4px 0 4px;
+	padding: 4px 4px 0 4px;
 	position: absolute;
 	border: 2px solid;
 	border-image-slice: 1;

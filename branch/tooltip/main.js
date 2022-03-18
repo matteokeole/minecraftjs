@@ -39,13 +39,12 @@ export const Fetch = {
 						type: "text",
 						name: "title",
 						origin: [
-							() => 0,
-							() => (window.innerHeight / 2) - 6 * ContainerLayer.scale,
+							() => 10,
+							() => 10,
 						],
 						texture: "font/ascii.png",
 						text: "Detailed Tooltip Demo",
-						text_color: Fetch.font.colors.yellow,
-						text_shadow: true,
+						text_color: Fetch.font.colors.gray,
 					}),
 				)
 				.add(
@@ -53,8 +52,8 @@ export const Fetch = {
 						type: "container",
 						name: "inventory",
 						origin: [
-							() => 0,
-							() => 0,
+							() => ContainerLayer.canvas.width / 2,
+							() => ContainerLayer.canvas.height / 2,
 						],
 						size: [
 							() => 176 * ContainerLayer.scale,
@@ -93,11 +92,25 @@ export const Fetch = {
 						name: "display_name",
 						origin: [
 							() => 0,
-							() => 18,
+							() => 0,
 						],
 						texture: "font/ascii.png",
-						text: "display",
+						text: "Potion of Poison",
 						text_color: Fetch.font.colors.white,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "effect",
+						origin: [
+							() => 0,
+							() => 23,
+						],
+						texture: "font/ascii.png",
+						text: "Poison II (0:21)",
+						text_color: Fetch.font.colors.red,
 						text_shadow: true,
 					}),
 				)
@@ -107,11 +120,39 @@ export const Fetch = {
 						name: "name",
 						origin: [
 							() => 0,
-							() => -2,
+							() => 43,
 						],
 						texture: "font/ascii.png",
-						text: "name",
+						text: "minecraft:potion",
 						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "nbt_tags",
+						origin: [
+							() => 0,
+							() => 62,
+						],
+						texture: "font/ascii.png",
+						text: "NBT: 1 tag(s)",
+						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "show_nbt",
+						origin: [
+							() => 0,
+							() => 82,
+						],
+						texture: "font/ascii.png",
+						text: "Hold [Left Shift] to show NBT",
+						text_color: Fetch.font.colors.white,
 						text_shadow: true,
 					}),
 				)
@@ -132,12 +173,14 @@ export const Fetch = {
 					TooltipLayer.toggle(1);
 					c.display_name.text = current_slot.item.displayName;
 					c.name.text = `minecraft:${current_slot.item.name}`;
-					TooltipLayer.erase(c.display_name);
-					TooltipLayer.draw(c.display_name);
-					TooltipLayer.erase(c.name);
-					TooltipLayer.draw(c.name);
-					t.style.width = `${Math.max(c.display_name.size.x(), c.name.size.x())}px`;
-					t.style.height = `${c.display_name.size.y() * 2 + 8}px`;
+					t.style.width = Math.max(
+						c.display_name.size.x(),
+						c.effect.size.x(),
+						c.name.size.x(),
+						c.nbt_tags.size.x(),
+						c.show_nbt.size.x(),
+					) + 2 + "px";
+					t.style.height = `${(c.display_name.size.y() + 2) * Object.keys(c).length + 1}px`;
 				} else {
 					t.style.visibility = "hidden";
 					TooltipLayer.toggle(0);

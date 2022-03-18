@@ -29,9 +29,9 @@ export const
 			c.size.x = () => maxWidth;
 			c.size.y = () => 18 * lines.length;
 
-			let textY = (l.canvas.height / 2) - c.origin.y();
+			let textY = c.origin.y();
 			for (let line of lines) {
-				let textX = (l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x();
+				let textX = c.origin.x();
 				for (let char of line.text) {
 					let i = Fetch.font.chars.indexOf(char);
 					if (i === -1) i = 0;
@@ -79,30 +79,24 @@ export const
 			l.ctx.globalCompositeOperation = "source-atop";
 			l.ctx.fillStyle = c.text_color;
 			l.ctx.fillRect(
-				(l.canvas.width / 2) - (c.size.x() / 2) + c.origin.x(),
-				(l.canvas.height / 2) - c.origin.y(),
+				c.origin.x(),
+				c.origin.y(),
 				c.size.x() + 2,
 				c.size.y(),
 			);
 			l.ctx.globalCompositeOperation = "source-over";
 		} else {
-			// Pre-calculate component size
-			const size = {
-				x: c.size.x(),
-				y: c.size.y(),
-			};
-
 			// Re-draw component
 			l.ctx.drawImage(
 				l.loadedTextures[c.texture],
 				c.uv.x,
 				c.uv.y,
-				size.x / l.scale,
-				size.y / l.scale,
-				(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
-				(l.canvas.height / 2) - (size.y / 2) - c.origin.y(),
-				size.x,
-				size.y,
+				c.size.x() / l.scale,
+				c.size.y() / l.scale,
+				c.origin.x() - c.size.x() / 2,
+				c.origin.y() - c.size.y() / 2,
+				c.size.x(),
+				c.size.y(),
 			);
 		}
 	},
@@ -116,15 +110,15 @@ export const
 		// Clear the area where is located the component
 		if (c.type === "text") {
 			l.ctx.clearRect(
-				(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
-				(l.canvas.height / 2) - c.origin.y(),
+				c.origin.x(),
+				c.origin.y(),
 				size.x + 2,
 				size.y,
 			);
 		} else {
 			l.ctx.clearRect(
-				(l.canvas.width / 2) - (size.x / 2) + c.origin.x(),
-				(l.canvas.height / 2) - (size.y / 2) - c.origin.y(),
+				c.origin.x() - size.x / 2,
+				c.origin.y() - size.y / 2,
 				size.x,
 				size.y,
 			);
