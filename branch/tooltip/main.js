@@ -66,7 +66,7 @@ export const Fetch = {
 								type: "hotbar",
 								origin: [
 									() => -72 * ContainerLayer.scale + i * 18 * ContainerLayer.scale,
-									() => -76 * ContainerLayer.scale,
+									() => -18 * ContainerLayer.scale,
 								],
 							});
 						}),
@@ -74,133 +74,41 @@ export const Fetch = {
 				);
 
 			const
-				fermented_spider_eye = new Item(866),
-				netherite_sword = new Item(724);
-			fermented_spider_eye.type = "item";
-			netherite_sword.type = "tool";
+				diamond_sword = new Item(719),
+				diamond_chestplate = new Item(751),
+				bread = new Item(737);
+
+			diamond_sword.type = "tool";
+			diamond_chestplate.type = "armor";
+			bread.type = "item";
 
 			ContainerLayer.components.inventory
-				.slots[0].assign(fermented_spider_eye)
-				.slots[1].assign(netherite_sword);
+				.slots[0].assign(diamond_sword)
+				.slots[4].assign(diamond_chestplate)
+				.slots[8].assign(bread);
 
 			ContainerLayer.setScale(2);
 			ContainerLayer.update();
 
 			TooltipLayer.toggle(0);
-			TooltipLayer
-				.add(
+			TooltipLayer.setScale(2);
+			for (let i = 0; i < 14; i++) {
+				TooltipLayer.add(
 					new Component({
 						type: "text",
-						name: "line_1",
+						name: `line_${i + 1}`,
 						origin: [
 							() => 0,
-							() => 0,
+							() => (i ? 2 : 0) + 20 * i,
 						],
 						texture: "font/ascii.png",
-						text: "",
+						text: "dfv",
 						text_color: Fetch.font.colors.white,
 						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_2",
-						origin: [
-							() => 0,
-							() => 22,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_3",
-						origin: [
-							() => 0,
-							() => 42,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_4",
-						origin: [
-							() => 0,
-							() => 62,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_5",
-						origin: [
-							() => 0,
-							() => 82,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.white,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_6",
-						origin: [
-							() => 0,
-							() => 102,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_7",
-						origin: [
-							() => 0,
-							() => 122,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "line_8",
-						origin: [
-							() => 0,
-							() => 142,
-						],
-						texture: "font/ascii.png",
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				)
-				.update();
+					})
+				);
+			}
+			TooltipLayer.update();
 
 			const t = document.querySelector(".tooltip");
 			t.style.visibility = "hidden";
@@ -218,7 +126,7 @@ export const Fetch = {
 					t.style.visibility = "visible";
 					TooltipLayer.toggle(1);
 
-					let displayedLines = 1;
+					let displayedLines = 0;
 
 					for (let comp of Object.values(c)) {
 						comp.text = "";
@@ -230,27 +138,23 @@ export const Fetch = {
 
 					switch (current_slot.item.type) {
 						case "item":
-							displayedLines += 2;
+							displayedLines = 2;
 
-							c.line_3.text_color = Fetch.font.colors.dark_gray;
+							c.line_2.text_color = Fetch.font.colors.dark_gray;
 							c.line_2.text = "minecraft:" + current_slot.item.name;
 							TooltipLayer.redraw(c.line_2);
-
-							c.line_3.text_color = Fetch.font.colors.dark_gray;
-							c.line_3.text = "No NBT tag";
-							TooltipLayer.redraw(c.line_3);
 
 							break;
 
 						case "tool":
-							displayedLines += 7;
+							displayedLines = 7;
 
-							c.line_3.text_color = Fetch.font.colors.dark_gray;
+							c.line_2.text_color = Fetch.font.colors.dark_gray;
 							c.line_2.text = "";
 							TooltipLayer.redraw(c.line_2);
 
 							c.line_3.text_color = Fetch.font.colors.gray;
-							c.line_3.text = "When in main hand:";
+							c.line_3.text = "When in Main Hand:";
 							TooltipLayer.redraw(c.line_3);
 
 							c.line_4.text_color = Fetch.font.colors.dark_green;
@@ -261,17 +165,42 @@ export const Fetch = {
 							c.line_5.text = " 1.6 Attack Speed";
 							TooltipLayer.redraw(c.line_5);
 
-							c.line_6.text_color = Fetch.font.colors.dark_gray;
-							c.line_6.text = "minecraft:" + current_slot.item.name;
+							c.line_6.text_color = Fetch.font.colors.white;
+							c.line_6.text = "Durability: 1560 / 1561";
 							TooltipLayer.redraw(c.line_6);
 
-							c.line_7.text_color = Fetch.font.colors.white;
-							c.line_7.text = "Durability: 1560 / 1561";
+							c.line_7.text_color = Fetch.font.colors.dark_gray;
+							c.line_7.text = "minecraft:" + current_slot.item.name;
 							TooltipLayer.redraw(c.line_7);
 
-							c.line_8.text_color = Fetch.font.colors.dark_gray;
-							c.line_8.text = "NBT: 1 tag(s)";
-							TooltipLayer.redraw(c.line_8);
+							break;
+
+						case "armor":
+							displayedLines = 7;
+
+							c.line_2.text_color = Fetch.font.colors.dark_gray;
+							c.line_2.text = "";
+							TooltipLayer.redraw(c.line_2);
+
+							c.line_3.text_color = Fetch.font.colors.gray;
+							c.line_3.text = "When on Body:";
+							TooltipLayer.redraw(c.line_3);
+
+							c.line_4.text_color = Fetch.font.colors.blue;
+							c.line_4.text = "+8 Armor";
+							TooltipLayer.redraw(c.line_4);
+
+							c.line_5.text_color = Fetch.font.colors.blue;
+							c.line_5.text = "+8 Armor Thoughness";
+							TooltipLayer.redraw(c.line_5);
+
+							c.line_6.text_color = Fetch.font.colors.white;
+							c.line_6.text = "Durability: 1560 / 1561";
+							TooltipLayer.redraw(c.line_6);
+
+							c.line_7.text_color = Fetch.font.colors.dark_gray;
+							c.line_7.text = "minecraft:" + current_slot.item.name;
+							TooltipLayer.redraw(c.line_7);
 
 							break;
 					}
@@ -286,6 +215,12 @@ export const Fetch = {
 						c.line_6.size.x(),
 						c.line_7.size.x(),
 						c.line_8.size.x(),
+						c.line_9.size.x(),
+						c.line_10.size.x(),
+						c.line_11.size.x(),
+						c.line_12.size.x(),
+						c.line_13.size.x(),
+						c.line_14.size.x(),
 					) + 2 + "px";
 					t.style.height = `${20 * displayedLines + 1}px`;
 				} else {
