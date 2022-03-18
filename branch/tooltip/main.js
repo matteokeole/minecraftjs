@@ -73,13 +73,15 @@ export const Fetch = {
 					}),
 				);
 
+			const
+				fermented_spider_eye = new Item(866),
+				netherite_sword = new Item(724);
+			fermented_spider_eye.type = "item";
+			netherite_sword.type = "tool";
+
 			ContainerLayer.components.inventory
-				.slots[0].assign(new Item(272))
-				.slots[1].assign(new Item(261))
-				.slots[2].assign(new Item(274))
-				.slots[6].assign(new Item(368))
-				.slots[7].assign(new Item(326))
-				.slots[8].assign(new Item(297));
+				.slots[0].assign(fermented_spider_eye)
+				.slots[1].assign(netherite_sword);
 
 			ContainerLayer.setScale(2);
 			ContainerLayer.update();
@@ -89,13 +91,13 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "display_name",
+						name: "line_1",
 						origin: [
 							() => 0,
 							() => 0,
 						],
 						texture: "font/ascii.png",
-						text: "Potion of Poison",
+						text: "",
 						text_color: Fetch.font.colors.white,
 						text_shadow: true,
 					}),
@@ -103,27 +105,13 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "effect",
+						name: "line_2",
 						origin: [
 							() => 0,
-							() => 23,
+							() => 22,
 						],
 						texture: "font/ascii.png",
-						text: "Poison II (0:21)",
-						text_color: Fetch.font.colors.red,
-						text_shadow: true,
-					}),
-				)
-				.add(
-					new Component({
-						type: "text",
-						name: "name",
-						origin: [
-							() => 0,
-							() => 43,
-						],
-						texture: "font/ascii.png",
-						text: "minecraft:potion",
+						text: "",
 						text_color: Fetch.font.colors.dark_gray,
 						text_shadow: true,
 					}),
@@ -131,13 +119,27 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "nbt_tags",
+						name: "line_3",
+						origin: [
+							() => 0,
+							() => 42,
+						],
+						texture: "font/ascii.png",
+						text: "",
+						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "line_4",
 						origin: [
 							() => 0,
 							() => 62,
 						],
 						texture: "font/ascii.png",
-						text: "NBT: 1 tag(s)",
+						text: "",
 						text_color: Fetch.font.colors.dark_gray,
 						text_shadow: true,
 					}),
@@ -145,14 +147,56 @@ export const Fetch = {
 				.add(
 					new Component({
 						type: "text",
-						name: "show_nbt",
+						name: "line_5",
 						origin: [
 							() => 0,
 							() => 82,
 						],
 						texture: "font/ascii.png",
-						text: "Hold [Left Shift] to show NBT",
+						text: "",
 						text_color: Fetch.font.colors.white,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "line_6",
+						origin: [
+							() => 0,
+							() => 102,
+						],
+						texture: "font/ascii.png",
+						text: "",
+						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "line_7",
+						origin: [
+							() => 0,
+							() => 122,
+						],
+						texture: "font/ascii.png",
+						text: "",
+						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				)
+				.add(
+					new Component({
+						type: "text",
+						name: "line_8",
+						origin: [
+							() => 0,
+							() => 142,
+						],
+						texture: "font/ascii.png",
+						text: "",
+						text_color: Fetch.font.colors.dark_gray,
 						text_shadow: true,
 					}),
 				)
@@ -167,20 +211,83 @@ export const Fetch = {
 			addEventListener("mousemove", e => {
 				t.style.left = `${e.clientX + 18}px`;
 				t.style.top = `${e.clientY - 30}px`;
-				let current_slot = Slot.getSlotAt(ContainerLayer.components.inventory, e.clientX, e.clientY)
+
+				let current_slot = Slot.getSlotAt(ContainerLayer.components.inventory, e.clientX, e.clientY);
+
 				if (current_slot && current_slot.item) {
 					t.style.visibility = "visible";
 					TooltipLayer.toggle(1);
-					c.display_name.text = current_slot.item.displayName;
-					c.name.text = `minecraft:${current_slot.item.name}`;
+
+					let displayedLines = 1;
+
+					for (let comp of Object.values(c)) {
+						comp.text = "";
+						TooltipLayer.redraw(comp);
+					}
+
+					c.line_1.text = current_slot.item.displayName;
+					TooltipLayer.redraw(c.line_1);
+
+					switch (current_slot.item.type) {
+						case "item":
+							displayedLines += 2;
+
+							c.line_3.text_color = Fetch.font.colors.dark_gray;
+							c.line_2.text = "minecraft:" + current_slot.item.name;
+							TooltipLayer.redraw(c.line_2);
+
+							c.line_3.text_color = Fetch.font.colors.dark_gray;
+							c.line_3.text = "No NBT tag";
+							TooltipLayer.redraw(c.line_3);
+
+							break;
+
+						case "tool":
+							displayedLines += 7;
+
+							c.line_3.text_color = Fetch.font.colors.dark_gray;
+							c.line_2.text = "";
+							TooltipLayer.redraw(c.line_2);
+
+							c.line_3.text_color = Fetch.font.colors.gray;
+							c.line_3.text = "When in main hand:";
+							TooltipLayer.redraw(c.line_3);
+
+							c.line_4.text_color = Fetch.font.colors.dark_green;
+							c.line_4.text = " 7 Attack Damage";
+							TooltipLayer.redraw(c.line_4);
+
+							c.line_5.text_color = Fetch.font.colors.dark_green;
+							c.line_5.text = " 1.6 Attack Speed";
+							TooltipLayer.redraw(c.line_5);
+
+							c.line_6.text_color = Fetch.font.colors.dark_gray;
+							c.line_6.text = "minecraft:" + current_slot.item.name;
+							TooltipLayer.redraw(c.line_6);
+
+							c.line_7.text_color = Fetch.font.colors.white;
+							c.line_7.text = "Durability: 1560 / 1561";
+							TooltipLayer.redraw(c.line_7);
+
+							c.line_8.text_color = Fetch.font.colors.dark_gray;
+							c.line_8.text = "NBT: 1 tag(s)";
+							TooltipLayer.redraw(c.line_8);
+
+							break;
+					}
+
+					// Scale tooltip to canvas
 					t.style.width = Math.max(
-						c.display_name.size.x(),
-						c.effect.size.x(),
-						c.name.size.x(),
-						c.nbt_tags.size.x(),
-						c.show_nbt.size.x(),
+						c.line_1.size.x(),
+						c.line_2.size.x(),
+						c.line_3.size.x(),
+						c.line_4.size.x(),
+						c.line_5.size.x(),
+						c.line_6.size.x(),
+						c.line_7.size.x(),
+						c.line_8.size.x(),
 					) + 2 + "px";
-					t.style.height = `${(c.display_name.size.y() + 2) * Object.keys(c).length + 1}px`;
+					t.style.height = `${20 * displayedLines + 1}px`;
 				} else {
 					t.style.visibility = "hidden";
 					TooltipLayer.toggle(0);

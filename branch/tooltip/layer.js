@@ -151,6 +151,10 @@ export const Layer = function(layer = {}) {
 	};
 
 	this.draw = c => draw(this, c);
+	this.redraw = c => {
+		erase(this, c);
+		draw(this, c);
+	};
 	this.erase = c => erase(this, c);
 
 	/* Initialization */
