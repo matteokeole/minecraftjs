@@ -7,12 +7,16 @@ import {getAutoScale, draw, erase} from "./functions.js";
  * Param	Type		Name				Description						Default value
  * @param	{object}	layer				Layer data object				{}
  * @param	{string}	layer.name			Layer name						"UNKNOWN_LAYER"
+ * @param	{string}	layer.parent		Layer DOM parent				document.body
  * @param	{boolean}	layer.visible		Layer visibility attribute		1
  * @param	{object}	layer.components	Layer default component list	{}
  */
 export const Layer = function(layer = {}) {
 	// Name
 	this.name = layer.name ?? "UNKNOWN_LAYER";
+
+	// DOM parent
+	this.parent = layer.parent ?? document.body;
 
 	// Size
 	this.size = {
@@ -176,8 +180,8 @@ export const Layer = function(layer = {}) {
 	// Remove canvas blur effect
 	this.ctx.imageSmoothingEnabled = false;
 
-	// Append the layer canvas to the DOM
-	document.body.append(this.canvas);
+	// Append the canvas element to the layer parent
+	this.parent.append(this.canvas);
 
 	// Set the canvas visibility for the first time
 	this.toggle(this.visible);

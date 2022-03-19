@@ -15,7 +15,7 @@ export const
 
 (() => {
 	// Check for Fetch API browser compatibility
-	if(!"fetch" in window) return console.error("This browser doesn't support Fetch API.");
+	if (!"fetch" in window) return console.error("This browser doesn't support Fetch API.");
 
 	// Request resource files
 	Promise
