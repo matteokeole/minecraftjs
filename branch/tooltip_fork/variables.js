@@ -36,5 +36,4 @@ export const
 		health: 15,
 		max_hunger: 20,
 		hunger: 17,
-	},
-	axes = ["x", "y"];
+	};

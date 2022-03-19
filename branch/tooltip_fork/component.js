@@ -91,6 +91,7 @@ export const Component = function(component = {}) {
 			break;
 
 		case "text":
+			this.texture = "font/ascii.png";
 			this.text = component.text ?? "";
 			this.text_background = component.text_background ?? undefined;
 			this.text_background_alpha = component.text_background_alpha ?? 1;

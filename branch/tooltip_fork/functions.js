@@ -1,6 +1,9 @@
 import {Settings, Player} from "./variables.js";
 import {Component} from "./component.js";
-import {Fetch} from "./main.js";
+import {Interface, Fetch} from "./main.js";
+
+let startTime = performance.now(),
+	frame = 0;
 
 export const
 	renderHealth = layer => {
@@ -97,9 +100,7 @@ export const
 					);
 			}
 		}
-	};
-
-export const
+	},
 	getAutoScale = () => {
 		return (
 			window.innerWidth <= 640 || window.innerHeight < 480 ? 1 :
@@ -144,8 +145,8 @@ export const
 			}
 
 			// Update component size
-			size.x = (max_width + 2) * l.scale;
-			size.y = 9 * lines.length * l.scale;
+			c.size.x = (max_width + 2) * l.scale;
+			c.size.y = 9 * lines.length * l.scale;
 
 			// Pre-calculate component origin
 			for (let a of ["x", "y"]) {
@@ -153,24 +154,23 @@ export const
 					// Top and left cases are set by default
 					case "bottom":
 					case "right":
-						origin[a] = l.size[a] - size[a] - offset[a];
+						origin[a] = l.size[a] - c.size[a] - offset[a];
 						break;
 					case "center":
-						origin[a] = l.size[a] / 2 - size[a] / 2 + offset[a];
+						origin[a] = l.size[a] / 2 - c.size[a] / 2 + offset[a];
 						break;
 				}
 			}
 
-			let textY = origin.y + l.scale;
-			for (let line of lines) {
-				let textX = origin.x + l.scale;
-				for (let char of line.text) {
-					let i = Fetch.font.chars.indexOf(char);
-					if (i === -1) i = 0;
+			let y = origin.y + l.scale;
 
-					let
-						u = i % 16,
-						v = Math.floor(i / 16);
+			for (let line of lines) {
+				let x = origin.x + l.scale;
+
+				for (let char of line.text) {
+					let i = Fetch.font.chars.indexOf(char),
+						u = i % 16 * 8,
+						v = 8 * (Math.floor(i / 16) + 2);
 
 					if (c.text_shadow) {
 						l.ctx.globalAlpha = .245;
@@ -178,12 +178,12 @@ export const
 						// Draw text shadow
 						l.ctx.drawImage(
 							l.loadedTextures[c.texture],
-							u * 8,
-							v * 8 + 16,
+							u,
+							v,
 							6,
 							8,
-							textX + l.scale,
-							textY + l.scale,
+							x + l.scale, // Shadow offset
+							y + l.scale, // Shadow offset
 							6 * l.scale,
 							8 * l.scale,
 						);
@@ -194,21 +194,21 @@ export const
 					// Draw text value
 					l.ctx.drawImage(
 						l.loadedTextures[c.texture],
-						u * 8,
-						v * 8 + 16,
+						u,
+						v,
 						6,
 						8,
-						textX,
-						textY,
+						x,
+						y,
 						6 * l.scale,
 						8 * l.scale,
 					);
 
 					// Move the drawer 1 character to right
-					textX += ((Fetch.font.char_size[char] ?? 5) + 1) * l.scale;
+					x += ((Fetch.font.char_size[char] ?? 5) + 1) * l.scale;
 				}
 				// Move the drawer 1 character to bottom
-				textY += 9 * l.scale;
+				y += 9 * l.scale;
 			}
 
 			l.ctx.globalCompositeOperation = "source-atop";
@@ -216,8 +216,8 @@ export const
 			l.ctx.fillRect(
 				origin.x,
 				origin.y,
-				size.x,
-				size.y,
+				c.size.x,
+				c.size.y,
 			);
 
 			if (c.text_background) {
@@ -227,8 +227,8 @@ export const
 				l.ctx.fillRect(
 					origin.x,
 					origin.y,
-					size.x,
-					size.y,
+					c.size.x,
+					c.size.y,
 				);
 			}
 
@@ -279,8 +279,13 @@ export const
 				y: offset.y,
 			};
 
+		if (c.type === "text") {
+			size.x /= l.scale;
+			size.y /= l.scale;
+		}
+
 		// Pre-calculate component origin
-		for (let a of axes) {
+		for (let a of ["x", "y"]) {
 			switch (c.origin[a]) {
 				// Top and left cases are set by default
 				case "bottom":
@@ -295,27 +300,24 @@ export const
 
 		// Clear the area where is located the component
 		l.ctx.clearRect(
-			c.origin.x,
-			c.origin.y,
+			origin.x,
+			origin.y,
 			size.x,
 			size.y,
 		);
-	};
-
-/**
- * Convert an hexadecimal color to its RGB variant.
- * @param	{string}	hex	Hexadecimal code, hash optional.	undefined
- */
-const hexToRGB = hex => {
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result ? {
-		r: parseInt(result[1], 16),
-		g: parseInt(result[2], 16),
-		b: parseInt(result[3], 16),
-	} : null;
-};
-
-export const
+	},
+	/**
+	 * Convert an hexadecimal color to its RGB variant.
+	 * @param	{string}	hex	Hexadecimal code, hash optional.	undefined
+	 */
+	hexToRGB = hex => {
+		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+			r: parseInt(result[1], 16),
+			g: parseInt(result[2], 16),
+			b: parseInt(result[3], 16),
+		} : null;
+	},
 	/**
 	 * Generate scripts to get current JavaScript version.
 	 */
@@ -337,4 +339,22 @@ export const
 	 */
 	get_platform_architecture = () => {
 		return (navigator.userAgent.indexOf("WOW64") !== 1 || navigator.platform === "Win64") ? 64 : 32;
+	},
+	/**
+	 * Return current frames per second.
+	 */
+	get_fps = () => {
+		let time = performance.now();
+
+		frame++;
+
+		if (time - startTime > 1000) {
+			Interface.debug.components.debug_fps.text = (frame / ((time - startTime) / 1000)).toFixed(0) + " fps";
+			Interface.debug.redraw(Interface.debug.components.debug_fps);
+
+			startTime = time;
+			frame = 0;
+		}
+
+		requestAnimationFrame(get_fps);
 	};

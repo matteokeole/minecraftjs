@@ -3,7 +3,7 @@ import {Layer} from "./layer.js";
 import {Component} from "./component.js";
 import {Slot} from "./slot.js";
 import {Item} from "./item.js";
-import {getAutoScale, draw, erase, renderHealth, renderHunger, get_js_version, get_platform_architecture} from "./functions.js";
+import {getAutoScale, draw, erase, renderHealth, renderHunger, get_js_version, get_platform_architecture, get_fps} from "./functions.js";
 import "./listeners.js";
 
 export const
@@ -38,8 +38,7 @@ export const
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 1],
-						texture: "font/ascii.png",
-						text: "Minecraft (220319)",
+						text: "Minecraft JS (pre-alpha 220319)",
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
@@ -51,34 +50,7 @@ export const
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 10],
-						texture: "font/ascii.png",
-						text: "60 fps",
-						text_background: "#080400",
-						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_chunks_c",
-						type: "text",
-						origin: ["left", "top"],
-						offset: [1, 19],
-						texture: "font/ascii.png",
-						text: "Chunks[C] W: 0 E: 0",
-						text_background: "#080400",
-						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_chunks_s",
-						type: "text",
-						origin: ["left", "top"],
-						offset: [1, 28],
-						texture: "font/ascii.png",
-						text: "Chunks[S] W: 0 E: 0",
+						text: get_fps(),
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
@@ -89,9 +61,8 @@ export const
 						name: "debug_xyz",
 						type: "text",
 						origin: ["left", "top"],
-						offset: [1, 46],
-						texture: "font/ascii.png",
-						text: "XYZ: 0.000 / 0.000000 / 0.000",
+						offset: [1, 28],
+						text: "XYZ: 0.000 / 0.00000 / 0.000",
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
@@ -102,8 +73,7 @@ export const
 						name: "debug_block",
 						type: "text",
 						origin: ["left", "top"],
-						offset: [1, 55],
-						texture: "font/ascii.png",
+						offset: [1, 37],
 						text: "Block: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
@@ -115,8 +85,7 @@ export const
 						name: "debug_chunk",
 						type: "text",
 						origin: ["left", "top"],
-						offset: [1, 64],
-						texture: "font/ascii.png",
+						offset: [1, 46],
 						text: "Chunk: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
@@ -128,9 +97,8 @@ export const
 						name: "debug_facing",
 						type: "text",
 						origin: ["left", "top"],
-						offset: [1, 73],
-						texture: "font/ascii.png",
-						text: "Facing: - (Towards -) (0 / 0)",
+						offset: [1, 55],
+						text: "Facing: - (Towards - -) (0 / 0)",
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
@@ -142,7 +110,6 @@ export const
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 1],
-						texture: "font/ascii.png",
 						text: `JavaScript: ${get_js_version()} ${get_platform_architecture()}bit`,
 						text_background: "#080400",
 						text_background_alpha: .21,
@@ -155,7 +122,6 @@ export const
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 19],
-						texture: "font/ascii.png",
 						text: `CPU: ${navigator.hardwareConcurrency}x`,
 						text_background: "#080400",
 						text_background_alpha: .21,
@@ -168,7 +134,6 @@ export const
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 37],
-						texture: "font/ascii.png",
 						text: `Display: ${window.innerWidth}x${window.innerHeight}`,
 						text_background: "#080400",
 						text_background_alpha: .21,
@@ -198,7 +163,6 @@ export const
 						type: "text",
 						origin: ["center", "top"],
 						offset: [0, 8],
-						texture: "font/ascii.png",
 						text: "Responsive GUI Demo (tooltip branch fork)\n\nPress [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
 						text_color: Fetch.font.colors.black,
 					})
@@ -232,10 +196,8 @@ export const
 						uv: [0, 64],
 					}),
 				);
-
 			renderHealth(Interface.hud);
 			renderHunger(Interface.hud);
-			
 			Interface.hud.update();
 		})
 		.catch(error => console.error(error));
