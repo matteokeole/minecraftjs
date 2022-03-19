@@ -22,5 +22,3 @@ The 'game' is available [here](https://matteoo34.github.io/minecraftjs) and the 
 + Items on hotbar
 + Advanced experience bar
 + A more Promise-based code
-
-Test dev branch
