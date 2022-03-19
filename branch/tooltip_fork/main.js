@@ -142,19 +142,6 @@ export const
 				)
 				.update();
 
-			Interface.crosshair = new Layer({name: "crosshair"});
-			Interface.crosshair
-				.add(
-					new Component({
-						name: "crosshair",
-						origin: ["center", "center"],
-						size: [9, 9],
-						texture: "gui/icons.png",
-						uv: [3, 3],
-					}),
-				)
-				.update();
-
 			Interface.hud = new Layer({name: "hud"});
 			Interface.hud
 				.add(
@@ -199,6 +186,20 @@ export const
 			renderHealth(Interface.hud);
 			renderHunger(Interface.hud);
 			Interface.hud.update();
+
+			Interface.crosshair = new Layer({name: "crosshair"});
+			Interface.crosshair
+				.add(
+					new Component({
+						name: "crosshair",
+						origin: ["center", "center"],
+						offset: [0, 0],
+						size: [9, 9],
+						texture: "gui/icons.png",
+						uv: [3, 3],
+					}),
+				)
+				.update();
 		})
 		.catch(error => console.error(error));
 })();

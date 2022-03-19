@@ -11,7 +11,13 @@ addEventListener("resize", () => {
 	updateScale = setTimeout(() => {
 		Interface.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
 
+		Interface.debug.canvas.width = window.innerWidth;
+		Interface.debug.size.x = window.innerWidth;
 		Interface.debug
+			.setScale(getAutoScale())
+			.update();
+
+		Interface.crosshair
 			.setScale(getAutoScale())
 			.update();
 
