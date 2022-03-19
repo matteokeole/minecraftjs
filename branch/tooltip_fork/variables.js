@@ -7,6 +7,7 @@ export const
 		strafe_right: "KeyD",
 		jump: "Space",
 		toggle_hud: "F1",
+		toggle_debug: "F3",
 		open_inventory: "Tab",
 		hotbar_slots: [
 			"Digit1",
@@ -20,6 +21,10 @@ export const
 			"Digit9",
 		],
 	},
+	Can = {
+		toggle_hud: true,
+		toggle_debug: true,
+	},
 	Settings = {
 		/**
 		 * GUI scale. Can be 1 (small), 2 (normal) or 3 (large).
@@ -28,8 +33,8 @@ export const
 	},
 	Player = {
 		max_health: 20,
-		health: 20,
+		health: 15,
 		max_hunger: 20,
-		hunger: 20,
+		hunger: 17,
 	},
 	axes = ["x", "y"];

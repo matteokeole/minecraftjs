@@ -1,21 +1,23 @@
 /**
  * Construct a new layer component.
  *
- * Param	Type		Name					Description						Default value
- * @param	{object}	component				Component data object			{}
- * @param	{string}	component.name			Component name (used in layer)	"UNKNOWN_COMPONENT"
- * @param	{string}	component.type			Component element type			"default"
- * @param	{boolean}	component.visible		Component visibility attribute	1
- * @param	{array}		component.origin		Component position origin		{x: 0, y: 0}
- * @param	{array}		component.offset		Component position offset		{x: 0, y: 0}
- * @param	{array}		component.size			Component size					{x: 0, y: 0}
- * @param	{string}	component.texture		Component texture file path		""
- * @param	{array}		component.uv			Component texture offset		{x: 0, y: 0}
- * @param	{array}		component.slots			Component slots					[] if component type = "container"
- * @param	{array}		component.text			Component text value			"" if component type = "text"
- * @param	{array}		component.text_color	Component text color			"#FFF" if component type = "text"
- * @param	{array}		component.text_size		Component text size				20 if component type = "text"
- * @param	{array}		component.text_shadow	Component text shadow			false if component type = "text"
+ * Param	Type		Name						Description						Default value
+ * @param	{object}	component					Component data object			{}
+ * @param	{string}	component.name				Component name (used in layer)	"UNKNOWN_COMPONENT"
+ * @param	{string}	component.type				Component element type			"default"
+ * @param	{boolean}	component.visible			Component visibility attribute	1
+ * @param	{array}		component.origin			Component position origin		{x: 0, y: 0}
+ * @param	{array}		component.offset			Component position offset		{x: 0, y: 0}
+ * @param	{array}		component.size				Component size					{x: 0, y: 0}
+ * @param	{string}	component.texture			Component texture file path		""
+ * @param	{array}		component.uv				Component texture offset		{x: 0, y: 0}
+ * @param	{array}		component.slots				Component slots					[] if component type = "container"
+ * @param	{array}		component.text				Component text value			"" if component type = "text"
+ * @param	{array}		component.text_background	Component text background color	undefined
+ * @param	{array}		component.text_background_alpha	Component text background opacity	1 if component type = "text"
+ * @param	{array}		component.text_color		Component text color			"#FFFFFF" if component type = "text"
+ * @param	{array}		component.text_size			Component text size				20 if component type = "text"
+ * @param	{array}		component.text_shadow		Component text shadow			false if component type = "text"
  */
 export const Component = function(component = {}) {
 	// Name
@@ -56,7 +58,7 @@ export const Component = function(component = {}) {
 
 	/**
 	 * Toggle component visibility.
- 	 * @param	{boolean}	state				The visibility to be applied	Opposite of the current visibility
+ 	 * @param	{boolean}	state					The visibility to be applied	Opposite of the current visibility
 	 */
 	this.toggle = (state = !this.visible) => {
 		this.visible = Number(state);
@@ -68,7 +70,7 @@ export const Component = function(component = {}) {
 	/**
 	 * Update component position on the layer.
 	 * NOTE: Use a canvas update method to apply the new coordinates.
- 	 * @param	{array}	origin				The new component position			[current X position, current Y position]
+ 	 * @param	{array}	origin						The new component position		[current X position, current Y position]
 	 */
 	this.move = (origin = [this.origin.x, this.origin.y]) => {
 		this.origin.x = origin[0];
@@ -90,6 +92,8 @@ export const Component = function(component = {}) {
 
 		case "text":
 			this.text = component.text ?? "";
+			this.text_background = component.text_background ?? undefined;
+			this.text_background_alpha = component.text_background_alpha ?? 1;
 			this.text_color = component.text_color ?? "#FFFFFF";
 			this.text_shadow = component.text_shadow ?? false;
 
