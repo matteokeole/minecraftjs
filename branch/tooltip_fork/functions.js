@@ -1,19 +1,21 @@
 import {Settings, Player} from "./variables.js";
 import {Component} from "./component.js";
-import {Interface, Fetch} from "./main.js";
+import {UI, Fetch} from "./main.js";
 
 let startTime = performance.now(),
 	frame = 0;
 
 export const
-	renderHealth = layer => {
+	render_health = () => {
+		const l = UI.hud;
+
 		// Heart outlines
 		for (let i = 0; i < Player.max_health / 2; i++) {
-			layer.add(
+			l.add(
 					new Component({
 						name: `heart_outline_${i}`,
 						origin: ["center", "bottom"],
-						offset: [-layer.components.hotbar.size.x / 2 + 4.5 + 8 * i, 30],
+						offset: [-l.components.hotbar.size.x / 2 + 4.5 + 8 * i, 30],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [16, 0],
@@ -27,11 +29,11 @@ export const
 			// Add half-heart if health value is odd
 			if (Player.health % 2 !== 0 && i + 1 === Player.health) {
 				j = i / 2;
-				layer.add(
+				l.add(
 						new Component({
 							name: `heart_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [-layer.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
+							offset: [-l.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
 							size: [8, 7],
 							texture: "gui/icons.png",
 							uv: [62, 1],
@@ -41,11 +43,11 @@ export const
 			}
 			else if (i % 2 === 0) {
 				j = i / 2;
-				layer.add(
+				l.add(
 						new Component({
 							name: `heart_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [-layer.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
+							offset: [-l.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
 							size: [8, 7],
 							texture: "gui/icons.png",
 							uv: [53, 1],
@@ -54,14 +56,16 @@ export const
 			}
 		}
 	},
-	renderHunger = layer => {
+	render_hunger = () => {
+		const l = UI.hud;
+
 		// Hunger outlines
 		for (let i = 0; i < Player.max_hunger / 2; i++) {
-			layer.add(
+			l.add(
 					new Component({
 						name: `hunger_outline_${i}`,
 						origin: ["center", "bottom"],
-						offset: [layer.components.hotbar.size.x / 2 - 4.5 - 8 * i, 30],
+						offset: [l.components.hotbar.size.x / 2 - 4.5 - 8 * i, 30],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [16, 27],
@@ -75,11 +79,11 @@ export const
 			// Add half-hunger if hunger value is odd
 			if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
 				j = i / 2;
-				layer.add(
+				l.add(
 						new Component({
 							name: `hunger_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [layer.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
+							offset: [l.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
 							size: [8, 9],
 							texture: "gui/icons.png",
 							uv: [62, 27],
@@ -88,11 +92,11 @@ export const
 			}
 			else if (i % 2 === 0) {
 				j = i / 2;
-				layer.add(
+				l.add(
 						new Component({
 							name: `hunger_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [layer.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
+							offset: [l.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
 							size: [8, 9],
 							texture: "gui/icons.png",
 							uv: [53, 27],
@@ -101,7 +105,54 @@ export const
 			}
 		}
 	},
-	getAutoScale = () => {
+	render_hotbar_selector = (prev_slot, new_slot) => {
+		let
+			l = UI.hud,
+			c = l.components,
+			selected_slot = prev_slot;
+
+		// Clear the previous selected slot
+		l.erase(c.selector);
+
+		// Pre-calculate component size & offset
+		const
+			size = {
+				x: c.selector.size.x * l.scale,
+				y: c.selector.size.y * l.scale,
+			},
+			offset = {
+				x: c.selector.offset.x * l.scale,
+				y: c.selector.offset.y * l.scale,
+			},
+			origin = {
+				x: l.size.x / 2 - size.x / 2 + offset.x,
+				y: l.size.y - size.y - offset.y,
+			};
+
+		// Re-draw the part of the hotbar where the selector was
+		l.ctx.drawImage(
+			l.loaded_textures[c.hotbar.texture],
+			c.hotbar.uv.x + (selected_slot * 20) - 1,
+			c.hotbar.uv.y,
+			c.selector.size.x,
+			c.hotbar.size.y,
+			origin.x,
+			origin.y + l.scale,
+			size.x,
+			size.y - l.scale * 2,
+		);
+
+		// Increment/decrement selector based on wheel direction
+		selected_slot = new_slot;
+
+		c.selector.offset.x = -80 + 20 * selected_slot;
+
+		// Re-draw the selector on the new hotbar slot
+		l.draw(c.selector);
+
+		return selected_slot;
+	},
+	get_auto_scale = () => {
 		return (
 			window.innerWidth <= 640 || window.innerHeight < 480 ? 1 :
 				(window.innerWidth <= 960 || window.innerHeight < 720) && Settings.gui_scale >= 2 ? 2 :
@@ -177,7 +228,7 @@ export const
 
 						// Draw text shadow
 						l.ctx.drawImage(
-							l.loadedTextures[c.texture],
+							l.loaded_textures[c.texture],
 							u,
 							v,
 							6,
@@ -193,7 +244,7 @@ export const
 
 					// Draw text value
 					l.ctx.drawImage(
-						l.loadedTextures[c.texture],
+						l.loaded_textures[c.texture],
 						u,
 						v,
 						6,
@@ -217,7 +268,7 @@ export const
 				origin.x,
 				origin.y,
 				c.size.x,
-				c.size.y,
+				c.size.y + (c.text_shadow && l.scale),
 			);
 
 			if (c.text_background) {
@@ -228,7 +279,7 @@ export const
 					origin.x,
 					origin.y,
 					c.size.x,
-					c.size.y,
+					c.size.y + (c.text_shadow && l.scale),
 				);
 			}
 
@@ -251,7 +302,7 @@ export const
 
 			// Draw component
 			l.ctx.drawImage(
-				l.loadedTextures[c.texture],
+				l.loaded_textures[c.texture],
 				c.uv.x,
 				c.uv.y,
 				size.x / l.scale,
@@ -349,8 +400,8 @@ export const
 		frame++;
 
 		if (time - startTime > 1000) {
-			Interface.debug.components.debug_fps.text = (frame / ((time - startTime) / 1000)).toFixed(0) + " fps";
-			Interface.debug.redraw(Interface.debug.components.debug_fps);
+			UI.debug.components.debug_fps.text = (frame / ((time - startTime) / 1000)).toFixed(0) + " fps";
+			UI.debug.redraw(UI.debug.components.debug_fps);
 
 			startTime = time;
 			frame = 0;

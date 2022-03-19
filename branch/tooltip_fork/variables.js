@@ -24,16 +24,18 @@ export const
 	Can = {
 		toggle_hud: true,
 		toggle_debug: true,
+		open_inventory: true,
 	},
 	Settings = {
-		/**
-		 * GUI scale. Can be 1 (small), 2 (normal) or 3 (large).
-		 */
 		gui_scale: 2,
+		advanced_tooltips: false,
 	},
 	Player = {
 		max_health: 20,
 		health: 15,
 		max_hunger: 20,
 		hunger: 17,
+	},
+	CONST = {
+		DEFAULT_SCALE: 2,
 	};

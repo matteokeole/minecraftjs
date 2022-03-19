@@ -22,4 +22,4 @@ The 3D system uses the library THREE.js.
 + Advanced item tooltips
 + Hotbar slot selection revision
 
-*Huge thanks to @HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig).*
+*Huge thanks to @HritikRC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig).*

@@ -21,7 +21,7 @@
  */
 export const Component = function(component = {}) {
 	// Name
-	this.name = component.name ?? "UNKNOWN_COMPONENT";
+	this.name = component.name;
 
 	// Type
 	this.type = component.type ?? "default";

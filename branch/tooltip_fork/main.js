@@ -1,17 +1,20 @@
-import {Keybinds, Player} from "./variables.js";
 import {Layer} from "./layer.js";
 import {Component} from "./component.js";
-import {Slot} from "./slot.js";
-import {Item} from "./item.js";
-import {getAutoScale, draw, erase, renderHealth, renderHunger, get_js_version, get_platform_architecture, get_fps} from "./functions.js";
+import {
+	get_fps,
+	get_js_version,
+	get_platform_architecture,
+	render_health,
+	render_hunger
+} from "./functions.js";
 import "./listeners.js";
 
 export const
+	UI = {},
 	Fetch = {
 		font: undefined,
 		items: undefined,
-	},
-	Interface = {};
+	};
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -27,14 +30,11 @@ export const
 			Fetch.font = response[0];
 			Fetch.items = response[1];
 
-			Interface.debug = new Layer({
+			UI.debug = new Layer({
 				name: "debug",
 				visible: 0,
-			});
-			Interface.debug
-				.add(
-					new Component({
-						name: "debug_title",
+				components: {
+					debug_title: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 1],
@@ -42,11 +42,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_fps",
+					}),
+					debug_fps: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 10],
@@ -54,11 +51,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_xyz",
+					}),
+					debug_xyz: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 28],
@@ -66,11 +60,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_block",
+					}),
+					debug_block: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 37],
@@ -78,11 +69,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_chunk",
+					}),
+					debug_chunk: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 46],
@@ -90,11 +78,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_facing",
+					}),
+					debug_facing: new Component({
 						type: "text",
 						origin: ["left", "top"],
 						offset: [1, 55],
@@ -102,11 +87,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_js",
+					}),
+					debug_js: new Component({
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 1],
@@ -114,11 +96,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_cpu",
+					}),
+					debug_cpu: new Component({
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 19],
@@ -126,11 +105,8 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.add(
-					new Component({
-						name: "debug_display",
+					}),
+					debug_display: new Component({
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 37],
@@ -138,68 +114,77 @@ export const
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
-					})
-				)
-				.update();
+					}),
+				},
+			});
+			UI.debug.update();
 
-			Interface.hud = new Layer({name: "hud"});
-			Interface.hud
-				.add(
-					new Component({
-						name: "title",
+			UI.hud = new Layer({
+				name: "hud",
+				components: {
+					title: new Component({
 						type: "text",
 						origin: ["center", "top"],
 						offset: [0, 8],
-						text: "Responsive GUI Demo (tooltip branch fork)\n\nPress [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
-						text_color: Fetch.font.colors.black,
-					})
-				)
-				.add(
-					new Component({
-						name: "hotbar",
+						text: "Responsive GUI Demo\n\nPress [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
+						text_color: Fetch.font.colors.gray,
+					}),
+					hotbar: new Component({
 						origin: ["center", "bottom"],
+						offset: [0, 0],
 						size: [182, 22],
 						texture: "gui/widgets.png",
 						uv: [0, 0],
 					}),
-				)
-				.add(
-					new Component({
-						name: "selector",
+					selector: new Component({
 						origin: ["center", "bottom"],
 						offset: [-80, -1],
 						size: [24, 24],
 						texture: "gui/widgets.png",
 						uv: [0, 22],
 					}),
-				)
-				.add(
-					new Component({
-						name: "experience_bar",
+					experience_bar: new Component({
 						origin: ["center", "bottom"],
 						offset: [0, 24],
 						size: [182, 5],
 						texture: "gui/icons.png",
 						uv: [0, 64],
 					}),
-				);
-			renderHealth(Interface.hud);
-			renderHunger(Interface.hud);
-			Interface.hud.update();
+				},
+			});
+			render_health();
+			render_hunger();
+			UI.hud.update();
 
-			Interface.crosshair = new Layer({name: "crosshair"});
-			Interface.crosshair
-				.add(
-					new Component({
-						name: "crosshair",
+			UI.crosshair = new Layer({
+				name: "crosshair",
+				components: {
+					crosshair: new Component({
 						origin: ["center", "center"],
 						offset: [0, 0],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [3, 3],
 					}),
-				)
-				.update();
+				},
+			});
+			UI.crosshair.update();
+
+			UI.container = new Layer({
+				name: "container",
+				visible: 0,
+				components: {
+					inventory: new Component({
+						type: "container",
+						origin: ["center", "center"],
+						offset: [0, 0],
+						size: [176, 166],
+						texture: "gui/container/inventory.png",
+						uv: [0, 0],
+					}),
+				}
+			});
+			UI.container.update();
 		})
 		.catch(error => console.error(error));
 })();
