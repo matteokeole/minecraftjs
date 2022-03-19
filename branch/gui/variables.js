@@ -39,3 +39,5 @@ export const
 	CONST = {
 		DEFAULT_SCALE: 2,
 	};
+
+document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);

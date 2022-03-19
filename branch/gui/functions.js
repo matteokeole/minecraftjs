@@ -7,15 +7,13 @@ let startTime = performance.now(),
 
 export const
 	render_health = () => {
-		const l = UI.hud;
-
 		// Heart outlines
 		for (let i = 0; i < Player.max_health / 2; i++) {
-			l.add(
+			UI.hud.add(
 					new Component({
 						name: `heart_outline_${i}`,
 						origin: ["center", "bottom"],
-						offset: [-l.components.hotbar.size.x / 2 + 4.5 + 8 * i, 30],
+						offset: [-UI.hud.components.hotbar.size.x / 2 + 4.5 + 8 * i, 30],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [16, 0],
@@ -29,11 +27,11 @@ export const
 			// Add half-heart if health value is odd
 			if (Player.health % 2 !== 0 && i + 1 === Player.health) {
 				j = i / 2;
-				l.add(
+				UI.hud.add(
 						new Component({
 							name: `heart_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [-l.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
+							offset: [-UI.hud.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
 							size: [8, 7],
 							texture: "gui/icons.png",
 							uv: [62, 1],
@@ -43,11 +41,11 @@ export const
 			}
 			else if (i % 2 === 0) {
 				j = i / 2;
-				l.add(
+				UI.hud.add(
 						new Component({
 							name: `heart_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [-l.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
+							offset: [-UI.hud.components.hotbar.size.x / 2 + 5 + 4 * i, 31],
 							size: [8, 7],
 							texture: "gui/icons.png",
 							uv: [53, 1],
@@ -57,15 +55,13 @@ export const
 		}
 	},
 	render_hunger = () => {
-		const l = UI.hud;
-
 		// Hunger outlines
 		for (let i = 0; i < Player.max_hunger / 2; i++) {
-			l.add(
+			UI.hud.add(
 					new Component({
 						name: `hunger_outline_${i}`,
 						origin: ["center", "bottom"],
-						offset: [l.components.hotbar.size.x / 2 - 4.5 - 8 * i, 30],
+						offset: [UI.hud.components.hotbar.size.x / 2 - 4.5 - 8 * i, 30],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [16, 27],
@@ -79,11 +75,11 @@ export const
 			// Add half-hunger if hunger value is odd
 			if (Player.hunger % 2 !== 0 && i + 1 === Player.hunger) {
 				j = i / 2;
-				l.add(
+				UI.hud.add(
 						new Component({
 							name: `hunger_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [l.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
+							offset: [UI.hud.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
 							size: [8, 9],
 							texture: "gui/icons.png",
 							uv: [62, 27],
@@ -92,11 +88,11 @@ export const
 			}
 			else if (i % 2 === 0) {
 				j = i / 2;
-				l.add(
+				UI.hud.add(
 						new Component({
 							name: `hunger_inner_${j}`,
 							origin: ["center", "bottom"],
-							offset: [l.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
+							offset: [UI.hud.components.hotbar.size.x / 2 - 4 - 4 * i, 30],
 							size: [8, 9],
 							texture: "gui/icons.png",
 							uv: [53, 27],
@@ -106,51 +102,46 @@ export const
 		}
 	},
 	render_hotbar_selector = (prev_slot, new_slot) => {
-		let
-			l = UI.hud,
-			c = l.components,
-			selected_slot = prev_slot;
+		let hotbar = UI.hud.components.hotbar,
+			selector = UI.hud.components.selector;
 
 		// Clear the previous selected slot
-		l.erase(c.selector);
+		UI.hud.erase(selector);
 
-		// Pre-calculate component size & offset
+		// Pre-calculate component size, offset & origin
 		const
 			size = {
-				x: c.selector.size.x * l.scale,
-				y: c.selector.size.y * l.scale,
+				x: selector.size.x * UI.hud.scale,
+				y: selector.size.y * UI.hud.scale,
 			},
 			offset = {
-				x: c.selector.offset.x * l.scale,
-				y: c.selector.offset.y * l.scale,
+				x: selector.offset.x * UI.hud.scale,
+				y: selector.offset.y * UI.hud.scale,
 			},
 			origin = {
-				x: l.size.x / 2 - size.x / 2 + offset.x,
-				y: l.size.y - size.y - offset.y,
+				x: UI.hud.size.x / 2 - size.x / 2 + offset.x,
+				y: UI.hud.size.y - size.y - offset.y,
 			};
 
 		// Re-draw the part of the hotbar where the selector was
-		l.ctx.drawImage(
-			l.loaded_textures[c.hotbar.texture],
-			c.hotbar.uv.x + (selected_slot * 20) - 1,
-			c.hotbar.uv.y,
-			c.selector.size.x,
-			c.hotbar.size.y,
+		UI.hud.ctx.drawImage(
+			UI.hud.loaded_textures[hotbar.texture],
+			hotbar.uv.x + (prev_slot * 20) - 1,
+			hotbar.uv.y,
+			selector.size.x,
+			hotbar.size.y,
 			origin.x,
-			origin.y + l.scale,
+			origin.y + UI.hud.scale,
 			size.x,
-			size.y - l.scale * 2,
+			size.y - UI.hud.scale * 2,
 		);
 
-		// Increment/decrement selector based on wheel direction
-		selected_slot = new_slot;
-
-		c.selector.offset.x = -80 + 20 * selected_slot;
+		selector.offset.x = -80 + 20 * new_slot;
 
 		// Re-draw the selector on the new hotbar slot
-		l.draw(c.selector);
+		UI.hud.draw(selector);
 
-		return selected_slot;
+		return new_slot;
 	},
 	get_auto_scale = () => {
 		return (
@@ -283,6 +274,7 @@ export const
 				);
 			}
 
+			// Reset composite operation and alpha values before drawing other components
 			l.ctx.globalCompositeOperation = "source-over";
 			l.ctx.globalAlpha = 1;
 		} else {
@@ -330,11 +322,6 @@ export const
 				y: offset.y,
 			};
 
-		if (c.type === "text") {
-			size.x /= l.scale;
-			size.y /= l.scale;
-		}
-
 		// Pre-calculate component origin
 		for (let a of ["x", "y"]) {
 			switch (c.origin[a]) {
@@ -358,31 +345,22 @@ export const
 		);
 	},
 	/**
-	 * Convert an hexadecimal color to its RGB variant.
-	 * @param	{string}	hex	Hexadecimal code, hash optional.	undefined
-	 */
-	hexToRGB = hex => {
-		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-		return result ? {
-			r: parseInt(result[1], 16),
-			g: parseInt(result[2], 16),
-			b: parseInt(result[3], 16),
-		} : null;
-	},
-	/**
 	 * Generate scripts to get current JavaScript version.
 	 */
 	get_js_version = () => {
 		for (let i = 1; i <= 9; i++) {
-			// Create new script element
+			// Create a new script
 			let script = document.createElement("script");
 
 			script.setAttribute("language", `javascript1.${i}`);
 			script.textContent = `js = 1.${i}`;
 
 			document.body.append(script);
+
+			// Remove the script when the version is obtained
+			script.remove();
 		}
-		
+
 		return js;
 	},
 	/**
@@ -396,11 +374,10 @@ export const
 	 */
 	get_fps = () => {
 		let time = performance.now();
-
 		frame++;
 
 		if (time - startTime > 1000) {
-			UI.debug.components.debug_fps.text = (frame / ((time - startTime) / 1000)).toFixed(0) + " fps";
+			UI.debug.components.debug_fps.text = `${(frame / ((time - startTime) / 1000)).toFixed(0)} fps`;
 			UI.debug.redraw(UI.debug.components.debug_fps);
 
 			startTime = time;

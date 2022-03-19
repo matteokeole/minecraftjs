@@ -1,12 +1,16 @@
 /**
  * Construct a slot (item container).
  *
- * Param	Type		Name		Description			Default value
- * @param	{object}	slot		Slot data object	{}
- * @param	{string}	slot.type	Slot type			"default"
- * @param	{array}		slot.origin	Slot position		{x: 0, y: 0}
+ * Param	Type		Name/Default				Description
+ * @param	{object}	[slot={}]					Slot data object
+ * @param	{string}	[slot.type="default"]		Slot type
+ * @param	{array}		[slot.origin={x: 0, y: 0}]	Slot position
+ * @param	{array}		[slot.offset={x: 0, y: 0}]	Slot offset
  */
 export const Slot = function(slot = {}) {
+	// ID
+	this.id = ++slot_increment;
+
 	// Type
 	this.type = slot.type ?? "default";
 
@@ -19,68 +23,62 @@ export const Slot = function(slot = {}) {
 		y: slot.origin ? slot.origin[1] : 0,
 	};
 
-	// Current item
+	// Offset
+	this.offset = {
+		x: slot.offset ? slot.offset[0] : 0,
+		y: slot.offset ? slot.offset[1] : 0,
+	};
+
+	// Size
+	this.size = {
+		x: 18,
+		y: 18,
+	};
+
+	// Current assigned item
 	this.item = null;
 
 	/**
-	 * Assign an item to the slot and drop the previous one.
-	 * @param {object} item - The item to be assigned
+	 * Assign an item to the slot and return the previous one.
+	 * @param	{object}	item	The item to be assigned
 	 */
 	this.assign = item => {
-		// item.displayName = items.filter(i => item.id === i.id)[0].displayName;
+		// Stock the previous item during the swap
+		const prev_item = this.item;
+
 		this.item = item;
 
-		return this.component;
+		return prev_item;
 	};
 
 	/**
-	 * Assign an item to the slot and return the previous one.
-	 * @param {object} item - The item to be assigned
-	 */
-	this.swap = item => {
-		// Stock the previous item
-		let previousItem = this.item;
-
-		// Assign the new item
-		this.assign(item);
-
-		return previousItem;
-	};
-
-	/**
-	 * Remove the current item from the slot.
+	 * Remove the slot current item.
 	 */
 	this.empty = () => {
 		this.item = null;
-	};
-
-	this.init = () => {
-		// Size
-		this.size = {
-			x: () => 18 * this.component.layer.scale,
-			y: () => 18 * this.component.layer.scale,
-		};
 	};
 
 	return this;
 };
 
 /**
- * Return the slot which has the same coordinates as the specified event target. If no slot is found, return False.
- * Param	Type		Name		Description					Default value
- * @param	{object}	component	The slot parent component	undefined
- * @param	{integer}	x			The cursor X coordinate		0
- * @param	{integer}	y			The cursor Y coordinate		0
+ * Return the slot which has the same coordinates as the specified event target, or false if no slot is found.
+ * Param	Type		Name/Default	Description
+ * @param	{object}	component		The slot parent component
+ * @param	{integer}	[x=0]			The X coordinate to check
+ * @param	{integer}	[y=0]			The Y coordinate to check
  */
-Slot.getSlotAt = (component, x = 0, y = 0) => {
+Slot.get_slot_at = (component, x = 0, y = 0) => {
 	for (let slot of component.slots) {
-		if (	
-			(window.innerWidth / 2) - (slot.size.x() / 2) + slot.origin.x()	<= x &&	// From left side
-			(window.innerWidth / 2) + (slot.size.x() / 2) + slot.origin.x()	>= x &&	// From right side
-			(window.innerHeight / 2) - (slot.size.y()) - slot.origin.y()	< y &&	// From top side
-			(window.innerHeight / 2) - slot.origin.y() - 1					> y 	// From bottom side
+		if (
+			x >= slot.x && // From left side
+			x < slot.x + slot.size.x * component.layer.scale && // From right side
+			y > slot.y && // From top side
+			y < slot.y + slot.size.y * component.layer.scale // From bottom side
 		) return slot;
 	}
 
 	return false;
 };
+
+let slot_increment = 0;

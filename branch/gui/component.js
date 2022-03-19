@@ -84,7 +84,6 @@ export const Component = function(component = {}) {
 
 			// Assign each slot to this component
 			for (let slot of this.slots) {
-				slot.init();
 				slot.component = this;
 			}
 

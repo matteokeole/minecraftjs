@@ -109,7 +109,7 @@ export const Layer = function(layer = {}) {
 	 * Load once all component textures into an array which can be used to render components, then calls the callback function.
 	 * @param	{function}	callback			The callback function			Function
 	 */
-	this.loadTextures = (callback = Function()) => {
+	this.load_textures = (callback = Function()) => {
 		let sources = [];
 
 		// Get the list of component texture sources
@@ -139,11 +139,11 @@ export const Layer = function(layer = {}) {
 	 * NOTE: The component textures will be reloaded everytime you call this method.
 	 */
 	this.update = () => {
-		// Clear canvas content
+		// Clear previous canvas content
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		// Load component textures
-		this.loadTextures(loaded_textures => {
+		this.load_textures(loaded_textures => {
 			// Loop through layer components
 			for (let c of Object.values(this.components)) {
 				if (c.visible) {
@@ -151,7 +151,64 @@ export const Layer = function(layer = {}) {
 
 					// Slot containers
 					if (c.slots) {
+						const
+							size = {
+								x: c.size.x * this.scale,
+								y: c.size.y * this.scale,
+							},
+							offset = {
+								x: c.offset.x * this.scale,
+								y: c.offset.y * this.scale,
+							},
+							origin = {
+								x: offset.x,
+								y: offset.y,
+							};
+
+						// Pre-calculate component origin
+						for (let a of ["x", "y"]) {
+							switch (c.origin[a]) {
+								// Top and left cases are set by default
+								case "bottom":
+								case "right":
+									origin[a] = this.size[a] - size[a] - offset[a];
+									break;
+								case "center":
+									origin[a] = this.size[a] / 2 - size[a] / 2 + offset[a];
+									break;
+							}
+						}
+
 						for (let slot of c.slots) {
+							// Pre-calculate slot size & offset
+							const
+								slot_size = {
+									x: slot.size.x * this.scale,
+									y: slot.size.y * this.scale,
+								},
+								slot_offset = {
+									x: slot.offset.x * this.scale,
+									y: slot.offset.y * this.scale,
+								};
+
+							// Pre-calculate slot origin
+							for (let a of ["x", "y"]) {
+								switch (slot.origin[a]) {
+									// Top and left cases are set by default
+									case "top":
+									case "left":
+										slot[a] = origin[a] + slot_offset[a];
+										break;
+									case "bottom":
+									case "right":
+										slot[a] = origin[a] + size[a] - slot_size[a] - slot_offset[a];
+										break;
+									case "center":
+										slot[a] = origin[a] + size[a] / 2 - slot_size[a] / 2 + slot_offset[a];
+										break;
+								}
+							}
+
 							if (slot.item) {
 								const texture = new Image();
 
@@ -160,12 +217,12 @@ export const Layer = function(layer = {}) {
 										texture,
 										-1,
 										-1,
-										slot.size.x() / this.scale,
-										slot.size.y() / this.scale,
-										(this.canvas.width / 2) - (slot.size.x() / 2) + slot.origin.x(),
-										(this.canvas.height / 2) - (slot.size.y()) - slot.origin.y(),
-										slot.size.x(),
-										slot.size.y(),
+										slot.size.x,
+										slot.size.y,
+										slot.x,
+										slot.y,
+										slot.size.x * this.scale,
+										slot.size.y * this.scale,
 									);
 								});
 								texture.src = `../../assets/textures/item/${slot.item.name}.png`;
