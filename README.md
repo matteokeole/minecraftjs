@@ -1,4 +1,4 @@
-### Minecraft remake using vanilla JavaScript & THREE.js
+### Minecraft remake using JavaScript & THREE.js
 
 Most of the code is made with vanilla JavaScript for a better performance.  
 The 3D system uses the library THREE.js.  
