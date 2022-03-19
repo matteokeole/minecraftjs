@@ -3,7 +3,7 @@
 Most of the code is made with vanilla JavaScript for a better performance.  
 The 3D system uses the library THREE.js.  
 
-	Links
+**Links:**
 - Main branch: [https://matteoo34.github.io/minecraftjs](https://matteoo34.github.io/minecraftjs)
 - HUD demo with hotbar slot selection & tooltips: [https://matteoo34.github.io/minecraftjs/branch/hud](https://matteoo34.github.io/minecraftjs/branch/hud)
 - Advanced tooltip demo: [https://matteoo34.github.io/minecraftjs/branch/tooltip](https://matteoo34.github.io/minecraftjs/branch/tooltip)
@@ -17,9 +17,9 @@ The 3D system uses the library THREE.js.
 + Inverted crosshair
 + Health bar/hunger bar rendering
 
-*Huge thanks to @HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig).*
-
 **Next implementations:**
 + Responsive/scalable GUI
 + Advanced item tooltips
 + Hotbar slot selection revision
+
+*Huge thanks to @HritikMC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig).*
