@@ -1,5 +1,5 @@
 import {UI} from "./main.js";
-import {get_auto_scale, render_hotbar_selector} from "./functions.js";
+import {get_auto_scale, update_scale, render_hotbar_selector} from "./functions.js";
 import {Slot} from "./class/Slot.js";
 import {Keybinds, Can, Settings} from "./variables.js";
 
@@ -13,34 +13,16 @@ let
 
 addEventListener("contextmenu", e => e.preventDefault());
 
-/*addEventListener("resize", () => {
+addEventListener("resize", () => {
 	clearTimeout(updateScale);
 	updateScale = setTimeout(() => {
-		UI.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
+		// UI.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
 
-		UI.debug
-			.set_size()
-			.set_scale(get_auto_scale())
-			.update();
-
-		UI.crosshair
-			.set_size()
-			.set_scale(get_auto_scale())
-			.update();
-
-		UI.hud
-			.set_size()
-			.set_scale(get_auto_scale())
-			.update();
-
-		UI.container
-			.set_size()
-			.set_scale(get_auto_scale())
-			.update();
+		update_scale(get_auto_scale());
 	}, 50);
 });
 
-addEventListener("keydown", e => {
+/*addEventListener("keydown", e => {
 	if (!/^(ControlLeft|F(5|11|12))$/.test(e.code)) e.preventDefault();
 
 	const tooltip = document.querySelector(".tooltip");

@@ -5,8 +5,8 @@
  * @param	{object}	[component={}]						Component data object
  * @param	{string}	[component.type="default"]			Component type
  * @param	{boolean}	[component.visible=1]				Component visibility state
- * @param	{array}		[component.origin=["left", "top"]]	Component position origin
- * @param	{array}		[component.offset=[0, 0]]			Component position offset
+ * @param	{array}		[component.origin=["left", "top"]]	Component origin
+ * @param	{array}		[component.offset=[0, 0]]			Component offset
  * @param	{array}		[component.size=[0, 0]]				Component size
  * @param	{string}	[component.texture]					Component texture file path, if text component the texture will be the font file path
  * @param	{array}		[component.uv=[0, 0]]				Component texture offset
@@ -48,9 +48,7 @@ export const Component = function(component = {}) {
 			this.slots = component.slots ?? [];
 
 			// Assign each slot to this component
-			for (let slot of this.slots) {
-				slot.component = this;
-			}
+			this.slots.forEach(s => s.component = this);
 
 			break;
 

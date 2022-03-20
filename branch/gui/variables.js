@@ -27,7 +27,8 @@ export const
 		open_inventory: true,
 	},
 	Settings = {
-		gui_scale: 2,
+		user_gui_scale: 2,
+		gui_scale: null,
 	},
 	Player = {
 		max_health: 20,

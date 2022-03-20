@@ -1,14 +1,22 @@
 import {Settings, Player} from "./variables.js";
 import {Component} from "./class/Component.js";
-import {UI, Fetch} from "./main.js";
+import {Fetch, UI} from "./main.js";
 
 let startTime = performance.now(),
 	frame = 0;
 
 export const
-	update_layers = () => {
+	update_scale = scale => {
+		Settings.gui_scale = scale;
+
+		// Update CSS scale variable
+		document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);
+
+		// Update layers
 		for (let layer of Object.values(UI)) {
-			layer.update();
+			layer
+				.resize()
+				.redraw();
 		}
 	},
 	render_health = () => {
@@ -149,11 +157,21 @@ export const
 		return new_slot;
 	},
 	get_auto_scale = () => {
-		return (
+		let default_width = 640,
+			default_height = 480;
+
+		for (let i = 1; i <= Settings.user_gui_scale; i++) {
+			if (
+				window.innerWidth <= default_width + default_width * (i - 1) / 2 ||
+				window.innerHeight < default_height + default_height * (i - 1) / 2
+			) return i;
+		}
+
+		/*return (
 			window.innerWidth <= 640 || window.innerHeight < 480 ? 1 :
-				(window.innerWidth <= 960 || window.innerHeight < 720) && Settings.gui_scale >= 2 ? 2 :
-					Settings.gui_scale >= 3 ? 3 : Settings.gui_scale
-		);
+				(window.innerWidth <= 960 || window.innerHeight < 720) && Settings.user_gui_scale >= 2 ? 2 :
+					Settings.user_gui_scale >= 3 ? 3 : Settings.user_gui_scale
+		);*/
 	},
 	draw = (l, c) => {
 		// Pre-calculate component size & offset

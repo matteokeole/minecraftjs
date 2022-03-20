@@ -117,9 +117,7 @@ export const Layer = function(layer = {}) {
 		let sources = [], count = 0;
 
 		// Get the list of component texture sources
-		for (let i of Object.values(this.components)) {
-			i.texture && sources.push(i.texture);
-		}
+		Object.values(this.components).forEach(c => c.texture && sources.push(c.texture));
 
 		// Get rid of duplicate sources
 		sources = [...new Set(sources)];
@@ -178,10 +176,10 @@ export const Layer = function(layer = {}) {
 	/* Initialization */
 
 	// Initialize layer components
-	for (let component of Object.entries(this.components)) {
-		component[1].name = component[1].name ?? component[0];
-		component[1].layer = this;
-	}
+	Object.entries(this.components).forEach(c => {
+		c[1].name = c[1].name ?? c[0];
+		c[1].layer = this;
+	});
 
 	// Set canvas class and ID
 	this.canvas.className = "layer";

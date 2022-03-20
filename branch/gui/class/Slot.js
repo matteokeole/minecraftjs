@@ -1,15 +1,17 @@
+let i = -1;
+
 /**
  * Construct a slot (item container).
  *
  * Param	Type		Name=Default				Description
  * @param	{object}	[slot={}]					Slot data object
  * @param	{string}	[slot.type="default"]		Slot type
- * @param	{array}		[slot.origin={x: 0, y: 0}]	Slot position
- * @param	{array}		[slot.offset={x: 0, y: 0}]	Slot offset
+ * @param	{array}		[slot.origin=["left, "top]]	Slot origin
+ * @param	{array}		[slot.offset=[0, 0]]		Slot offset
  */
 export const Slot = function(slot = {}) {
 	// ID
-	this.id = ++slot_increment;
+	this.id = ++i;
 
 	// Type
 	this.type = slot.type ?? "default";
@@ -18,22 +20,13 @@ export const Slot = function(slot = {}) {
 	this.component = null;
 
 	// Origin
-	this.origin = {
-		x: slot.origin ? slot.origin[0] : 0,
-		y: slot.origin ? slot.origin[1] : 0,
-	};
+	this.origin = slot.origin ?? [0, 0];
 
 	// Offset
-	this.offset = {
-		x: slot.offset ? slot.offset[0] : 0,
-		y: slot.offset ? slot.offset[1] : 0,
-	};
+	this.offset = slot.offset ?? [0, 0];
 
 	// Size
-	this.size = {
-		x: 18,
-		y: 18,
-	};
+	this.size = [18, 18];
 
 	// Current assigned item
 	this.item = null;
@@ -62,11 +55,10 @@ export const Slot = function(slot = {}) {
 };
 
 /**
- * Return the slot which has the same coordinates as the specified event target, or false if no slot is found.
- * Param	Type		Name/Default	Description
- * @param	{object}	component		The slot parent component
- * @param	{number}	[x=0]			The X coordinate to check
- * @param	{number}	[y=0]			The Y coordinate to check
+ * Return the slot found at the specified coordinates or false if none is found.
+ * @param	{object}	component	The parent component
+ * @param	{number}	[x=0]		The X coordinate to check
+ * @param	{number}	[y=0]		The Y coordinate to check
  */
 Slot.get_slot_at = (component, x = 0, y = 0) => {
 	for (let slot of component.slots) {
@@ -80,5 +72,3 @@ Slot.get_slot_at = (component, x = 0, y = 0) => {
 
 	return false;
 };
-
-let slot_increment = 0;

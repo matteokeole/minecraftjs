@@ -3,6 +3,7 @@ import {Component} from "./class/Component.js";
 import {Slot} from "./class/Slot.js";
 import {Item} from "./class/Item.js";
 import {
+	get_auto_scale,
 	get_fps,
 	get_js_version,
 	get_platform,
@@ -24,7 +25,7 @@ const required_textures = [
 	"assets/items.json",
 ];
 
-document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);
+Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale() : Settings.user_gui_scale;
 
 (() => {
 	// Check for Fetch API browser compatibility
