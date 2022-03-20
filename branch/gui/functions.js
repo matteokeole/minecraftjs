@@ -6,6 +6,11 @@ let startTime = performance.now(),
 	frame = 0;
 
 export const
+	update_layers = () => {
+		for (let layer of Object.values(UI)) {
+			layer.update();
+		}
+	},
 	render_health = () => {
 		// Heart outlines
 		for (let i = 0; i < Player.max_health / 2; i++) {

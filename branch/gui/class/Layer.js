@@ -1,13 +1,14 @@
-import {CONST, Settings} from "./../variables.js";
-import {get_auto_scale, draw, erase} from "./../functions.js";
+import {Settings} from "./../variables.js";
+
+let i = -1;
 
 /**
  * Construct a new interface layer with an associated canvas.
  *
- * Param	Type		Name/Default					Description
+ * Param	Type		Name=Default					Description
  * @param	{object}	[layer={}]						Layer data object
- * @param	{string}	[layer.name=""]					Layer name (used as canvas ID)
- * @param	{string}	[layer.parent=document.body]	Layer DOM parent
+ * @param	{string}	[layer.name=`layer_${i}`]		Layer name (used as canvas ID)
+ * @param	{object}	[layer.parent=document.body]	Layer DOM parent
  * @param	{boolean}	[layer.visible=1]				Layer visibility state
  * @param	{object}	[layer.components={}]			Layer component list
  */
@@ -40,8 +41,8 @@ export const Layer = function(layer = {}) {
 	/**
 	 * Set the layer size.
 	 * NOTE: The new size will be applied on the layer components after a canvas update.
-	 * @param	{integer}	[width=window.innerWidth]	Width value
-	 * @param	{integer}	[height=window.innerHeight]	Height value
+	 * @param	{number}	[width=window.innerWidth]	Width value
+	 * @param	{number}	[height=window.innerHeight]	Height value
 	 */
 	this.resize = (width = window.innerWidth, height = window.innerHeight) => {
 		this.w = width;
@@ -51,8 +52,8 @@ export const Layer = function(layer = {}) {
 	};
 
 	/**
-	 * Toggle the layer visibility using a canvas CSS attribute. If omitted, the state will be the opposite of the current layer visibility.
- 	 * @param	{boolean}	[state=!this.visible]	The visibility to be applied
+	 * Toggle layer visibility using a canvas CSS attribute. If omitted, the state will be the opposite of the current visibility.
+ 	 * @param	{boolean}	[state=!this.visible]	The new visibility value
 	 */
 	this.toggle = (state = !this.visible) => {
 		this.visible = Number(state);
@@ -63,66 +64,43 @@ export const Layer = function(layer = {}) {
 	};
 
 	/**
-	 * Load once all component textures into an array which can be used to render components, then calls the callback function.
-	 * @param	{function}	callback			The callback function			Function
+	 * Calculate the component scaled size/offset and absolute position.
+ 	 * @param	{object}	component	Component
 	 */
-	this.load_textures = (callback = Function()) => {
-		let sources = [];
-
-		// Get the list of component texture sources
-		for (let i of Object.values(this.components)) {
-			i.texture && sources.push(i.texture);
-		}
-
-		// Get rid of duplicate sources
-		sources = [...new Set(sources)];
-
-		// Load each texture into an image element
-		let count = 0;
-		for (let i in sources) {
-			// Create new image
-			this.loaded_textures[sources[i]] = new Image();
-			this.loaded_textures[sources[i]].addEventListener("load", () => {
-				// Exec the callback when all textures all loaded
-				++count === sources.length && callback();
-			});
-			// The source path starts with "assets/textures/"
-			this.loaded_textures[sources[i]].src = "../../assets/textures/" + sources[i];
-		}
-	};
-
-	this.get_absolute_position = c => {
+	this.compute = component => {
 		// Set component scaled size
-		c.w = c.size.x * Settings.gui_scale;
-		c.h = c.size.y * Settings.gui_scale;
+		component.w = component.size[0] * Settings.gui_scale;
+		component.h = component.size[1] * Settings.gui_scale;
 
-		// Calculate component absolute position
-		const o = {
-			x: c.offset.x * Settings.gui_scale,
-			y: c.offset.y * Settings.gui_scale,
-		};
+		// Set component scaled offset
+		const o = [
+			component.offset[0] * Settings.gui_scale,
+			component.offset[1] * Settings.gui_scale,
+		];
 
-		switch (c.origin.x) {
+		// Calculate component absolute X position
+		switch (component.origin[0]) {
 			case "left":
-				c.x = o.x;
+				component.x = o[0];
 				break;
 			case "right":
-				c.x = this.w - c.w - o.x;
+				component.x = this.w - component.w - o[0];
 				break;
 			case "center":
-				c.x = this.w / 2 - c.w / 2 + o.x;
+				component.x = this.w / 2 - component.w / 2 + o[0];
 				break;
 		}
 
-		switch (c.origin.y) {
+		// Calculate component absolute Y position
+		switch (component.origin[1]) {
 			case "top":
-				c.y = o.y;
+				component.y = o[1];
 				break;
 			case "bottom":
-				c.y = this.h - c.h - o.y;
+				component.y = this.h - component.h - o[1];
 				break;
 			case "center":
-				c.y = this.h / 2 - c.h / 2 + o.y;
+				component.y = this.h / 2 - component.h / 2 + o[1];
 				break;
 		}
 
@@ -136,8 +114,27 @@ export const Layer = function(layer = {}) {
 		// Clear the canvas
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		// Reload textures
-		this.load_textures(this.redraw);
+		let sources = [], count = 0;
+
+		// Get the list of component texture sources
+		for (let i of Object.values(this.components)) {
+			i.texture && sources.push(i.texture);
+		}
+
+		// Get rid of duplicate sources
+		sources = [...new Set(sources)];
+
+		// Load each texture into an image
+		for (let i in sources) {
+			this.loaded_textures[sources[i]] = new Image();
+			this.loaded_textures[sources[i]].addEventListener("load", () => {
+				// Redraw components when all textures are loaded
+				++count === sources.length && this.redraw();
+			});
+			this.loaded_textures[sources[i]].src = `../../assets/textures/${sources[i]}`;
+		}
+
+		return this;
 	};
 
 	/**
@@ -146,24 +143,27 @@ export const Layer = function(layer = {}) {
 	 * @param	{...object}	components	Component(s) to be redrawed
 	 */
 	this.redraw = (...components) => {
+		// Get all components if the param is omitted
 		if (!components.length) components = Object.values(this.components).map(c => c.name);
 
-		// Redraw specific components
 		for (let component of components) {
-			if (!this.components[component]) return console.error(new Error(`Drawer error: "${component}" is not a children of "${this.name}".`));
+			// Check if the component is defined
+			if (!this.components[component]) return console.error(new Error(`"${component}" is not a children of the layer "${this.name}".`));
 
-			// Component found
 			const c = this.components[component];
+
+			// Check if the component texture is loaded
+			if (!this.loaded_textures[c.texture]) return console.error(new Error(`Can't find the loaded texture of "${c.name}" (from layer "${this.name}").`));
 
 			if (c.visible) {
 				this
-					.get_absolute_position(c)
+					.compute(c)
 					.ctx.drawImage(
 						this.loaded_textures[c.texture],
-						c.uv.x,
-						c.uv.y,
-						c.size.x,
-						c.size.y,
+						c.uv[0],
+						c.uv[1],
+						c.size[0],
+						c.size[0],
 						c.x,
 						c.y,
 						c.w,
@@ -171,159 +171,34 @@ export const Layer = function(layer = {}) {
 					);
 			}
 		}
-		// Load component textures
-		/*this.load_textures(() => {
-			// Loop through layer components
-			for (let c of Object.values(this.components)) {
-				if (c.visible) {
-					draw(this, c);
 
-					// Slot containers
-					if (c.slots) {
-						const
-							size = {
-								x: c.size.x * this.scale,
-								y: c.size.y * this.scale,
-							},
-							offset = {
-								x: c.offset.x * this.scale,
-								y: c.offset.y * this.scale,
-							},
-							origin = {
-								x: offset.x,
-								y: offset.y,
-							};
-
-						// Pre-calculate component origin
-						for (let a of ["x", "y"]) {
-							switch (c.origin[a]) {
-								// Top and left cases are set by default
-								case "bottom":
-								case "right":
-									origin[a] = this.size[a] - size[a] - offset[a];
-									break;
-								case "center":
-									origin[a] = this.size[a] / 2 - size[a] / 2 + offset[a];
-									break;
-							}
-						}
-
-						for (let slot of c.slots) {
-							// Pre-calculate slot size & offset
-							const
-								slot_size = {
-									x: slot.size.x * this.scale,
-									y: slot.size.y * this.scale,
-								},
-								slot_offset = {
-									x: slot.offset.x * this.scale,
-									y: slot.offset.y * this.scale,
-								};
-
-							// Pre-calculate slot origin
-							for (let a of ["x", "y"]) {
-								switch (slot.origin[a]) {
-									// Top and left cases are set by default
-									case "top":
-									case "left":
-										slot[a] = origin[a] + slot_offset[a];
-										break;
-									case "bottom":
-									case "right":
-										slot[a] = origin[a] + size[a] - slot_size[a] - slot_offset[a];
-										break;
-									case "center":
-										slot[a] = origin[a] + size[a] / 2 - slot_size[a] / 2 + slot_offset[a];
-										break;
-								}
-							}
-
-							if (slot.item) {
-								const texture = new Image();
-
-								texture.addEventListener("load", () => {
-									this.ctx.drawImage(
-										texture,
-										-1,
-										-1,
-										slot.size.x,
-										slot.size.y,
-										slot.x,
-										slot.y,
-										slot.size.x * this.scale,
-										slot.size.y * this.scale,
-									);
-								});
-								texture.src = `../../assets/textures/item/${slot.item.name}.png`;
-							}
-						}
-					}
-				}
-			}
-		});*/
+		return this;
 	};
 
 	/* Initialization */
 
-	// Init layer components
+	// Initialize layer components
 	for (let component of Object.entries(this.components)) {
 		component[1].name = component[1].name ?? component[0];
 		component[1].layer = this;
 	}
 
-	// Set canvas class and ID attributes
+	// Set canvas class and ID
 	this.canvas.className = "layer";
 	this.canvas.id = this.name;
 
-	// Stretch canvas size to the full screen size
+	// Stretch the canvas to the full screen size
 	this.canvas.width = window.screen.width;
 	this.canvas.height = window.screen.height;
 
 	// Remove canvas blur effect
 	this.ctx.imageSmoothingEnabled = false;
 
-	// Append the canvas element to the layer parent
+	// Append the canvas to the layer parent
 	this.parent.append(this.canvas);
 
-	// Set the default canvas visibility
+	// Set default canvas visibility
 	this.toggle(this.visible);
 
 	return this;
 };
-
-let layer_count = 0;
-
-/*
-
-Layer.toggle()
-Layer.resize()
-Layer.update() = reload textures + clear + redraw
-Layer.redraw()
-
-Remove
-Layer.set_scale()
-Layer.add()
-Layer.remove()
-
-Base origin
-c.origin.x
-c.origin.y
-Base size
-c.size.x
-c.size.y
-Base offset
-c.offset.x
-c.offset.y
-
-c.origin = []
-c.offset = []
-c.size = []
-
-Absolute position
-c.x
-c.y
-Scaled size
-c.w
-c.h
-
-*/

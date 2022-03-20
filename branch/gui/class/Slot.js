@@ -1,7 +1,7 @@
 /**
  * Construct a slot (item container).
  *
- * Param	Type		Name/Default				Description
+ * Param	Type		Name=Default				Description
  * @param	{object}	[slot={}]					Slot data object
  * @param	{string}	[slot.type="default"]		Slot type
  * @param	{array}		[slot.origin={x: 0, y: 0}]	Slot position
@@ -65,8 +65,8 @@ export const Slot = function(slot = {}) {
  * Return the slot which has the same coordinates as the specified event target, or false if no slot is found.
  * Param	Type		Name/Default	Description
  * @param	{object}	component		The slot parent component
- * @param	{integer}	[x=0]			The X coordinate to check
- * @param	{integer}	[y=0]			The Y coordinate to check
+ * @param	{number}	[x=0]			The X coordinate to check
+ * @param	{number}	[y=0]			The Y coordinate to check
  */
 Slot.get_slot_at = (component, x = 0, y = 0) => {
 	for (let slot of component.slots) {

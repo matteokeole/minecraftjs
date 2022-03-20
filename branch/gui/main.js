@@ -19,6 +19,11 @@ export const
 		items: undefined,
 	};
 
+const required_textures = [
+	"assets/font.json",
+	"assets/items.json",
+];
+
 document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);
 
 (() => {
@@ -27,10 +32,7 @@ document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`)
 
 	// Request resource files
 	Promise
-		.all([
-			fetch("../../assets/font.json").then(r => r.json()),
-			fetch("../../assets/items.json").then(r => r.json()),
-		])
+		.all(required_textures.map(t => fetch(`../../${t}`).then(response => response.json())))
 		.then(response => {
 			Fetch.font = response[0];
 			Fetch.items = response[1];
@@ -137,11 +139,6 @@ document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`)
 				},
 			});
 			UI.crosshair.update();
-
-			setTimeout(() => {
-				Settings.gui_scale = 10;
-				UI.crosshair.update();
-			}, 1000)
 
 			/*UI.container = new Layer({
 				name: "container",

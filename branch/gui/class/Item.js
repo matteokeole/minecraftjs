@@ -4,7 +4,7 @@ import {Fetch} from "./../main.js";
  * Create a new game item.
  *
  * Param	Type		Name		Description			Default value
- * @param	{integer}	id			Item ID				1 (minecraft:air)
+ * @param	{number}	id			Item ID				1 (minecraft:air)
  */
 export const Item = function(id = 1) {
 	// ID (from item ID list)
