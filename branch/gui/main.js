@@ -3,7 +3,7 @@ import {Component} from "./class/Component.js";
 import {Slot} from "./class/Slot.js";
 import {Item} from "./class/Item.js";
 import {
-	get_auto_scale,
+	update_scale,
 	get_fps,
 	get_js_version,
 	get_platform,
@@ -11,7 +11,7 @@ import {
 	render_hunger,
 } from "./functions.js";
 import "./listeners.js";
-import {Settings} from "./variables.js";
+import {Settings, Player} from "./variables.js";
 
 export const
 	UI = {},
@@ -25,7 +25,7 @@ const required_textures = [
 	"assets/items.json",
 ];
 
-Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale() : Settings.user_gui_scale;
+update_scale();
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -38,7 +38,7 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 			Fetch.font = response[0];
 			Fetch.items = response[1];
 
-			/*UI.debug = new Layer({
+			UI.debug = new Layer({
 				name: "debug",
 				visible: 0,
 				components: {
@@ -125,7 +125,7 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 					}),
 				},
 			});
-			UI.debug.update();*/
+			UI.debug.update();
 
 			UI.crosshair = new Layer({
 				name: "crosshair",
@@ -141,7 +141,7 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 			});
 			UI.crosshair.update();
 
-			/*UI.container = new Layer({
+			UI.container = new Layer({
 				name: "container",
 				// visible: 0,
 				components: {
@@ -161,13 +161,14 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 					}),
 				}
 			});
-			const bread = new Item(737);
-			const diamond_sword = new Item(719);
-			UI.container.components.inventory.slots[8].assign(bread);
+			const
+				diamond_sword = new Item(719),
+				bread = new Item(737);
 			UI.container.components.inventory.slots[0].assign(diamond_sword);
-			UI.container.update();*/
+			UI.container.components.inventory.slots[8].assign(bread);
+			UI.container.update();
 
-			/*const tooltip = document.querySelector(".tooltip");
+			const tooltip = document.querySelector(".tooltip");
 			UI.tooltip = new Layer({
 				name: "tooltip",
 				visible: 1,
@@ -191,9 +192,9 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 					}),
 				},
 			});
-			UI.tooltip.update();*/
+			UI.tooltip.update();
 
-			/*UI.hud = new Layer({
+			UI.hud = new Layer({
 				name: "hud",
 				components: {
 					title: new Component({
@@ -202,6 +203,7 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 						offset: [0, 8],
 						text: "Press [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
 						text_color: Fetch.font.colors.gray,
+						text_shadow: true,
 					}),
 					hotbar: new Component({
 						origin: ["center", "bottom"],
@@ -228,7 +230,7 @@ Settings.gui_scale = Settings.user_gui_scale > get_auto_scale() ? get_auto_scale
 			});
 			render_health();
 			render_hunger();
-			UI.hud.update();*/
+			setTimeout(UI.hud.update, 200);
 		})
 		.catch(error => console.error(error));
 })();

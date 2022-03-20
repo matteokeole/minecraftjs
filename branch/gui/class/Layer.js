@@ -1,6 +1,7 @@
+import {print} from "./../functions.js";
 import {Settings} from "./../variables.js";
 
-let i = -1;
+let i = 0;
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -64,43 +65,59 @@ export const Layer = function(layer = {}) {
 	};
 
 	/**
+	 * Add component(s) to the layer.
+	 * NOTE: The new components will be drawn after a canvas update.
+	 * @param	{...object}	components	Component(s) to be added
+	 */
+	this.add = (...components) => {
+		for (let component of components) {
+			// Link the component to this layer
+			component.layer = this;
+
+			this.components[component.name] = component;
+		}
+
+		return this;
+	};
+
+	/**
 	 * Calculate the component scaled size/offset and absolute position.
  	 * @param	{object}	component	Component
 	 */
-	this.compute = component => {
+	this.compute = c => {
 		// Set component scaled size
-		component.w = component.size[0] * Settings.gui_scale;
-		component.h = component.size[1] * Settings.gui_scale;
+		c.w = c.size[0] * Settings.gui_scale;
+		c.h = c.size[1] * Settings.gui_scale;
 
 		// Set component scaled offset
 		const o = [
-			component.offset[0] * Settings.gui_scale,
-			component.offset[1] * Settings.gui_scale,
+			c.offset[0] * Settings.gui_scale,
+			c.offset[1] * Settings.gui_scale,
 		];
 
 		// Calculate component absolute X position
-		switch (component.origin[0]) {
+		switch (c.origin[0]) {
 			case "left":
-				component.x = o[0];
+				c.x = o[0];
 				break;
 			case "right":
-				component.x = this.w - component.w - o[0];
+				c.x = this.w - c.w - o[0];
 				break;
 			case "center":
-				component.x = this.w / 2 - component.w / 2 + o[0];
+				c.x = this.w / 2 - c.w / 2 + o[0];
 				break;
 		}
 
 		// Calculate component absolute Y position
-		switch (component.origin[1]) {
+		switch (c.origin[1]) {
 			case "top":
-				component.y = o[1];
+				c.y = o[1];
 				break;
 			case "bottom":
-				component.y = this.h - component.h - o[1];
+				c.y = this.h - c.h - o[1];
 				break;
 			case "center":
-				component.y = this.h / 2 - component.h / 2 + o[1];
+				c.y = this.h / 2 - c.h / 2 + o[1];
 				break;
 		}
 
@@ -109,11 +126,9 @@ export const Layer = function(layer = {}) {
 
 	/**
 	 * Reload the component textures and redraw all components on the canvas.
+	 * NOTE: This method reloads the component textures each time it is called.
 	 */
 	this.update = () => {
-		// Clear the canvas
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
 		let sources = [], count = 0;
 
 		// Get the list of component texture sources
@@ -136,13 +151,22 @@ export const Layer = function(layer = {}) {
 	};
 
 	/**
-	 * Redraw the specified component(s) on the canvas, or all if omitted.
-	 * NOTE: This method won't reload the textures. Use Layer.update() instead.
+	 * Redraw the specified component(s) on the canvas, or all if omitted (with a canvas clearing).
+	 * NOTE: This method doesn't reload the component textures.
 	 * @param	{...object}	components	Component(s) to be redrawed
 	 */
 	this.redraw = (...components) => {
+		let all = false;
+
 		// Get all components if the param is omitted
-		if (!components.length) components = Object.values(this.components).map(c => c.name);
+		if (!components.length) {
+			all = true;
+
+			components = Object.values(this.components).map(c => c.name);
+
+			// Clear the canvas
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
 
 		for (let component of components) {
 			// Check if the component is defined
@@ -154,21 +178,77 @@ export const Layer = function(layer = {}) {
 			if (!this.loaded_textures[c.texture]) return console.error(new Error(`Can't find the loaded texture of "${c.name}" (from layer "${this.name}").`));
 
 			if (c.visible) {
-				this
-					.compute(c)
-					.ctx.drawImage(
-						this.loaded_textures[c.texture],
-						c.uv[0],
-						c.uv[1],
-						c.size[0],
-						c.size[0],
-						c.x,
-						c.y,
-						c.w,
-						c.h,
-					);
+				this.compute(c);
+
+				// Clear the area where is the component
+				if (!all) this.erase(c);
+
+				// Adapt the drawing method to the component type
+				if (c.type === "text") print(c);
+				else this.draw(c);
 			}
 		}
+
+		return this;
+	};
+
+	/**
+	 * Draw a specified non-text component on the canvas.
+	 * @param	{object}	c	Component to be drawed
+	 */
+	this.draw = c => {
+		this.ctx.drawImage(
+			this.loaded_textures[c.texture],
+			c.uv[0],
+			c.uv[1],
+			c.size[0],
+			c.size[1],
+			c.x,
+			c.y,
+			c.w,
+			c.h,
+		);
+
+		if (c.type === "container") {
+			for (let slot of c.slots) {
+				this.compute(slot);
+
+				slot.inner_size[0] = (slot.size[0] - 2) * Settings.gui_scale;
+				slot.inner_size[1] = (slot.size[1] - 2) * Settings.gui_scale;
+				slot.x += this.w / 2 - c.w / 2;
+				slot.y -= this.h / 2 - c.h / 2;
+
+				if (slot.item) {
+					const texture = new Image();
+					texture.addEventListener("load", () => {
+						this.ctx.drawImage(
+							texture,
+							0,
+							0,
+							16,
+							16,
+							slot.x + Settings.gui_scale,
+							slot.y + Settings.gui_scale,
+							slot.inner_size[0],
+							slot.inner_size[1],
+						);
+					});
+					texture.src = `../../assets/textures/item/${slot.item.name}.png`;
+				}
+			}
+		}
+
+		return this;
+	};
+
+	/**
+	 * Erase the specified component on the canvas.
+	 * @param	{object}	c	Component to be erased
+	 */
+	this.erase = c => {
+		let h = c.h + (c.type === "text" ? Settings.gui_scale : 0);
+
+		this.ctx.clearRect(c.x, c.y, c.w, h);
 
 		return this;
 	};

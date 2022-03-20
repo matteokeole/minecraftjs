@@ -28,13 +28,12 @@ export const
 	},
 	Settings = {
 		user_gui_scale: 2,
-		gui_scale: null,
 	},
 	Player = {
 		max_health: 20,
-		health: 15,
+		health: 20,
 		max_hunger: 20,
-		hunger: 17,
+		hunger: 20,
 	},
 	CONST = {
 		DEFAULT_SCALE: 2,

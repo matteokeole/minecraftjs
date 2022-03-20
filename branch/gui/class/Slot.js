@@ -1,4 +1,6 @@
-let i = -1;
+import {Settings} from "./../variables.js";
+
+let i = 0;
 
 /**
  * Construct a slot (item container).
@@ -27,6 +29,7 @@ export const Slot = function(slot = {}) {
 
 	// Size
 	this.size = [18, 18];
+	this.inner_size = [16, 16];
 
 	// Current assigned item
 	this.item = null;
@@ -64,9 +67,9 @@ Slot.get_slot_at = (component, x = 0, y = 0) => {
 	for (let slot of component.slots) {
 		if (
 			x >= slot.x && // From left side
-			x < slot.x + slot.size.x * component.layer.scale && // From right side
+			x < slot.x + slot.size[0] * Settings.gui_scale && // From right side
 			y > slot.y && // From top side
-			y < slot.y + slot.size.y * component.layer.scale // From bottom side
+			y < slot.y + slot.size[1] * Settings.gui_scale // From bottom side
 		) return slot;
 	}
 

@@ -3,6 +3,7 @@
  *
  * Param	Type		Name=Default						Description
  * @param	{object}	[component={}]						Component data object
+ * @param	{string}	[component.name]					Component name
  * @param	{string}	[component.type="default"]			Component type
  * @param	{boolean}	[component.visible=1]				Component visibility state
  * @param	{array}		[component.origin=["left", "top"]]	Component origin
@@ -18,32 +19,32 @@
  * @param	{boolean}	[component.text_shadow=false]		Component text shadow
  */
 export const Component = function(component = {}) {
+	// Name
+	this.name = component.name;
+
+	// Type
+	this.type = component.type ?? "default";
+
+	// Visibility state
+	this.visible = component.visible ?? 1;
+
+	// Origin
+	this.origin = component.origin ?? ["left", "top"];
+
+	// Offset
+	this.offset = component.offset ?? [0, 0];
+
+	// Size
+	this.size = component.size ?? [0, 0];
+
+	// Texture file path
+	this.texture = component.texture;
+
+	// Texture offset
+	this.uv = component.uv ?? [0, 0];
+
 	// Apply attributes depending on component type
 	switch (this.type) {
-		default:
-			// Type
-			this.type = component.type ?? "default";
-
-			// Visibility state
-			this.visible = component.visible ?? 1;
-
-			// Origin
-			this.origin = component.origin ?? ["left", "top"];
-
-			// Offset
-			this.offset = component.offset ?? [0, 0];
-
-			// Size
-			this.size = component.size ?? [0, 0];
-
-			// Texture file path
-			this.texture = component.texture;
-
-			// Texture offset
-			this.uv = component.uv ?? [0, 0];
-
-			break;
-
 		case "container":
 			this.slots = component.slots ?? [];
 

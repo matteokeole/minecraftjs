@@ -1,10 +1,10 @@
 import {UI} from "./main.js";
-import {get_auto_scale, update_scale, render_hotbar_selector} from "./functions.js";
+import {update_scale, render_hotbar_selector} from "./functions.js";
 import {Slot} from "./class/Slot.js";
 import {Keybinds, Can, Settings} from "./variables.js";
 
 let
-	updateScale,
+	scale_timeout,
 	keys = [],
 	debug_visible = 0,
 	selected_slot = 0,
@@ -14,15 +14,15 @@ let
 addEventListener("contextmenu", e => e.preventDefault());
 
 addEventListener("resize", () => {
-	clearTimeout(updateScale);
-	updateScale = setTimeout(() => {
-		// UI.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
+	clearTimeout(scale_timeout);
+	scale_timeout = setTimeout(() => {
+		UI.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
 
-		update_scale(get_auto_scale());
+		update_scale();
 	}, 50);
 });
 
-/*addEventListener("keydown", e => {
+addEventListener("keydown", e => {
 	if (!/^(ControlLeft|F(5|11|12))$/.test(e.code)) e.preventDefault();
 
 	const tooltip = document.querySelector(".tooltip");
@@ -110,10 +110,10 @@ addEventListener("mousemove", e => {
 		// Clear previous slot
 		UI.container.ctx.fillStyle = "#8D8D8D";
 		UI.container.ctx.fillRect(
-			previous_slot.x + UI.container.scale,
-			previous_slot.y + UI.container.scale,
-			(previous_slot.size.x - 2) * UI.container.scale,
-			(previous_slot.size.y - 2) * UI.container.scale,
+			previous_slot.x + Settings.gui_scale,
+			previous_slot.y + Settings.gui_scale,
+			previous_slot.inner_size[0],
+			previous_slot.inner_size[1],
 		);
 
 		previous_slot = {};
@@ -126,28 +126,28 @@ addEventListener("mousemove", e => {
 			// Draw current slot
 			UI.container.ctx.fillStyle = "#C5C5C5";
 			UI.container.ctx.fillRect(
-				slot.x + UI.container.scale,
-				slot.y + UI.container.scale,
-				(slot.size.x - 2) * UI.container.scale,
-				(slot.size.y - 2) * UI.container.scale,
+				slot.x + Settings.gui_scale,
+				slot.y + Settings.gui_scale,
+				slot.inner_size[0],
+				slot.inner_size[1],
 			);
 		}
 
 		if (slot.item && UI.container.visible) {
-			UI.tooltip.components.display_name.text = slot.item.displayName;
-			UI.tooltip.redraw(UI.tooltip.components.display_name);
+			UI.tooltip.components.display_name.text = slot.item.display_name;
+			UI.tooltip.redraw("display_name");
 
 			UI.tooltip.components.name.text = `minecraft:${slot.item.name}`;
-			UI.tooltip.redraw(UI.tooltip.components.name);
+			UI.tooltip.redraw("name");
 
-			UI.tooltip.set_size(
-				Math.max.apply(Math, Object.values(UI.tooltip.components).map(c => c.size.x)) + Settings.gui_scale * 2,
-				(UI.tooltip.components.display_name.size.y + Settings.gui_scale * 3) * Object.values(UI.tooltip.components).length,
+			UI.tooltip.resize(
+				Math.max.apply(Math, Object.values(UI.tooltip.components).map(c => c.w)) + Settings.gui_scale * 2,
+				(UI.tooltip.components.display_name.h + Settings.gui_scale * 3) * Object.values(UI.tooltip.components).length,
 			);
 
 			tooltip.style.cssText = `
-				width: ${UI.tooltip.size.x}px;
-				height: ${UI.tooltip.size.y}px;
+				width: ${UI.tooltip.w}px;
+				height: ${UI.tooltip.h}px;
 				left: ${e.clientX + 9 * Settings.gui_scale}px;
 				top: ${e.clientY - 15 * Settings.gui_scale}px;
 			`;
@@ -156,9 +156,4 @@ addEventListener("mousemove", e => {
 			tooltip.style.visibility = "visible";
 		}
 	}
-});*/
-
-/*
-Item display name
-Item name
-*/
+});
