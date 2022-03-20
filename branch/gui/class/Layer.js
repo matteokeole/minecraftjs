@@ -1,5 +1,5 @@
-import {CONST, Settings} from "./variables.js";
-import {get_auto_scale, draw, erase} from "./functions.js";
+import {CONST, Settings} from "./../variables.js";
+import {get_auto_scale, draw, erase} from "./../functions.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -19,15 +19,10 @@ export const Layer = function(layer = {}) {
 	this.parent = layer.parent ?? document.body;
 
 	// Size
-	this.size = {
-		x: window.innerWidth,
-		y: window.innerHeight,
-	};
+	this.w = window.innerWidth;
+	this.h = window.innerHeight;
 
-	// Scale multiplier
-	this.scale = get_auto_scale();
-
-	// Visibility state
+	// Visibility
 	this.visible = layer.visible ?? 1;
 
 	// Canvas
@@ -39,7 +34,7 @@ export const Layer = function(layer = {}) {
 	// Component list
 	this.components = layer.components ?? {};
 
-	// Loaded texture list (accessible with the component texture value)
+	// Loaded texture list
 	this.loaded_textures = {};
 
 	/**
@@ -48,20 +43,9 @@ export const Layer = function(layer = {}) {
 	 * @param	{integer}	[width=window.innerWidth]	Width value
 	 * @param	{integer}	[height=window.innerHeight]	Height value
 	 */
-	this.set_size = (width = window.innerWidth, height = window.innerHeight) => {
-		this.size.x = width;
-		this.size.y = height;
-
-		return this;
-	};
-
-	/**
-	 * Set the layer scale multiplier.
-	 * NOTE: The new scale will be applied on the layer components after a canvas update.
- 	 * @param	{integer}	[scale=CONST.DEFAULT_SCALE]	Scale multiplier
-	 */
-	this.set_scale = (scale = CONST.DEFAULT_SCALE) => {
-		this.scale = scale;
+	this.resize = (width = window.innerWidth, height = window.innerHeight) => {
+		this.w = width;
+		this.h = height;
 
 		return this;
 	};
@@ -74,33 +58,6 @@ export const Layer = function(layer = {}) {
 		this.visible = Number(state);
 
 		this.canvas.style.visibility = ["hidden", "visible"][this.visible];
-
-		return this;
-	};
-
-	/**
-	 * Add component(s) to the layer.
-	 * NOTE: The new components will be drawn after a canvas update.
-	 * @param	{...object}	components	Component(s) to be added
-	 */
-	this.add = (...components) => {
-		for (let component of components) {
-			// Link the component to this layer
-			component.layer = this;
-
-			this.components[component.name] = component;
-		}
-
-		return this;
-	};
-
-	/**
-	 * Remove a component from the layer.
-	 * NOTE: The removed component will be erased after a canvas update.
-	 * @param	{object}	component	Name of the component to be removed
-	 */
-	this.remove = component => {
-		this.components[component.name] = undefined;
 
 		return this;
 	};
@@ -126,24 +83,96 @@ export const Layer = function(layer = {}) {
 			// Create new image
 			this.loaded_textures[sources[i]] = new Image();
 			this.loaded_textures[sources[i]].addEventListener("load", () => {
-				// If all the textures are loaded, call the function with the texture list
-				++count === sources.length && callback(this.loaded_textures);
+				// Exec the callback when all textures all loaded
+				++count === sources.length && callback();
 			});
 			// The source path starts with "assets/textures/"
 			this.loaded_textures[sources[i]].src = "../../assets/textures/" + sources[i];
 		}
 	};
 
+	this.get_absolute_position = c => {
+		// Set component scaled size
+		c.w = c.size.x * Settings.gui_scale;
+		c.h = c.size.y * Settings.gui_scale;
+
+		// Calculate component absolute position
+		const o = {
+			x: c.offset.x * Settings.gui_scale,
+			y: c.offset.y * Settings.gui_scale,
+		};
+
+		switch (c.origin.x) {
+			case "left":
+				c.x = o.x;
+				break;
+			case "right":
+				c.x = this.w - c.w - o.x;
+				break;
+			case "center":
+				c.x = this.w / 2 - c.w / 2 + o.x;
+				break;
+		}
+
+		switch (c.origin.y) {
+			case "top":
+				c.y = o.y;
+				break;
+			case "bottom":
+				c.y = this.h - c.h - o.y;
+				break;
+			case "center":
+				c.y = this.h / 2 - c.h / 2 + o.y;
+				break;
+		}
+
+		return this;
+	};
+
 	/**
-	 * Clear the canvas and re-draw the visible components.
-	 * NOTE: The component textures will be reloaded everytime you call this method.
+	 * Reload the component textures and redraw all components on the canvas.
 	 */
 	this.update = () => {
-		// Clear previous canvas content
+		// Clear the canvas
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+		// Reload textures
+		this.load_textures(this.redraw);
+	};
+
+	/**
+	 * Redraw the specified component(s) on the canvas, or all if omitted.
+	 * NOTE: This method won't reload the textures. Use Layer.update() instead.
+	 * @param	{...object}	components	Component(s) to be redrawed
+	 */
+	this.redraw = (...components) => {
+		if (!components.length) components = Object.values(this.components).map(c => c.name);
+
+		// Redraw specific components
+		for (let component of components) {
+			if (!this.components[component]) return console.error(new Error(`Drawer error: "${component}" is not a children of "${this.name}".`));
+
+			// Component found
+			const c = this.components[component];
+
+			if (c.visible) {
+				this
+					.get_absolute_position(c)
+					.ctx.drawImage(
+						this.loaded_textures[c.texture],
+						c.uv.x,
+						c.uv.y,
+						c.size.x,
+						c.size.y,
+						c.x,
+						c.y,
+						c.w,
+						c.h,
+					);
+			}
+		}
 		// Load component textures
-		this.load_textures(loaded_textures => {
+		/*this.load_textures(() => {
 			// Loop through layer components
 			for (let c of Object.values(this.components)) {
 				if (c.visible) {
@@ -231,16 +260,7 @@ export const Layer = function(layer = {}) {
 					}
 				}
 			}
-		});
-	};
-
-	this.draw = c => draw(this, c);
-
-	this.erase = c => erase(this, c);
-
-	this.redraw = c => {
-		erase(this, c);
-		draw(this, c);
+		});*/
 	};
 
 	/* Initialization */
@@ -272,3 +292,38 @@ export const Layer = function(layer = {}) {
 };
 
 let layer_count = 0;
+
+/*
+
+Layer.toggle()
+Layer.resize()
+Layer.update() = reload textures + clear + redraw
+Layer.redraw()
+
+Remove
+Layer.set_scale()
+Layer.add()
+Layer.remove()
+
+Base origin
+c.origin.x
+c.origin.y
+Base size
+c.size.x
+c.size.y
+Base offset
+c.offset.x
+c.offset.y
+
+c.origin = []
+c.offset = []
+c.size = []
+
+Absolute position
+c.x
+c.y
+Scaled size
+c.w
+c.h
+
+*/

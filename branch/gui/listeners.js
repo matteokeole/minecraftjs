@@ -1,6 +1,6 @@
 import {UI} from "./main.js";
 import {get_auto_scale, render_hotbar_selector} from "./functions.js";
-import {Slot} from "./slot.js";
+import {Slot} from "./class/Slot.js";
 import {Keybinds, Can, Settings} from "./variables.js";
 
 let
@@ -13,7 +13,7 @@ let
 
 addEventListener("contextmenu", e => e.preventDefault());
 
-addEventListener("resize", () => {
+/*addEventListener("resize", () => {
 	clearTimeout(updateScale);
 	updateScale = setTimeout(() => {
 		UI.debug.components.debug_display.text = `Display: ${window.innerWidth}x${window.innerHeight}`;
@@ -166,12 +166,17 @@ addEventListener("mousemove", e => {
 			tooltip.style.cssText = `
 				width: ${UI.tooltip.size.x}px;
 				height: ${UI.tooltip.size.y}px;
-				left: ${e.clientX + 18}px;
-				top: ${e.clientY - 30}px;
+				left: ${e.clientX + 9 * Settings.gui_scale}px;
+				top: ${e.clientY - 15 * Settings.gui_scale}px;
 			`;
 
 			UI.tooltip.toggle(1);
 			tooltip.style.visibility = "visible";
 		}
 	}
-});
+});*/
+
+/*
+Item display name
+Item name
+*/

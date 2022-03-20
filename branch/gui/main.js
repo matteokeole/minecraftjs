@@ -1,15 +1,16 @@
-import {Layer} from "./layer.js";
-import {Component} from "./component.js";
-import {Slot} from "./slot.js";
-import {Item} from "./item.js";
+import {Layer} from "./class/Layer.js";
+import {Component} from "./class/Component.js";
+import {Slot} from "./class/Slot.js";
+import {Item} from "./class/Item.js";
 import {
 	get_fps,
 	get_js_version,
-	get_platform_architecture,
+	get_platform,
 	render_health,
-	render_hunger
+	render_hunger,
 } from "./functions.js";
 import "./listeners.js";
+import {Settings} from "./variables.js";
 
 export const
 	UI = {},
@@ -17,6 +18,8 @@ export const
 		font: undefined,
 		items: undefined,
 	};
+
+document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -32,7 +35,7 @@ export const
 			Fetch.font = response[0];
 			Fetch.items = response[1];
 
-			UI.debug = new Layer({
+			/*UI.debug = new Layer({
 				name: "debug",
 				visible: 0,
 				components: {
@@ -94,7 +97,7 @@ export const
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 1],
-						text: `JavaScript: ${get_js_version()} ${get_platform_architecture()}bit`,
+						text: `JavaScript: ${get_js_version()} ${get_platform()}bit`,
 						text_background: "#080400",
 						text_background_alpha: .21,
 						text_color: Fetch.font.colors.white,
@@ -119,16 +122,87 @@ export const
 					}),
 				},
 			});
-			UI.debug.update();
+			UI.debug.update();*/
 
-			UI.hud = new Layer({
+			UI.crosshair = new Layer({
+				name: "crosshair",
+				components: {
+					crosshair: new Component({
+						origin: ["center", "center"],
+						offset: [0, 0],
+						size: [9, 9],
+						texture: "gui/icons.png",
+						uv: [3, 3],
+					}),
+				},
+			});
+			UI.crosshair.update();
+
+			setTimeout(() => {
+				Settings.gui_scale = 10;
+				UI.crosshair.update();
+			}, 1000)
+
+			/*UI.container = new Layer({
+				name: "container",
+				// visible: 0,
+				components: {
+					inventory: new Component({
+						type: "container",
+						origin: ["center", "center"],
+						offset: [0, 0],
+						size: [176, 166],
+						texture: "gui/container/inventory.png",
+						uv: [0, 0],
+						slots: Array.from({length: 9}, (_, i) => {
+							return new Slot({
+								origin: ["left", "bottom"],
+								offset: [7 + i * 18, 7],
+							});
+						}),
+					}),
+				}
+			});
+			const bread = new Item(737);
+			const diamond_sword = new Item(719);
+			UI.container.components.inventory.slots[8].assign(bread);
+			UI.container.components.inventory.slots[0].assign(diamond_sword);
+			UI.container.update();*/
+
+			/*const tooltip = document.querySelector(".tooltip");
+			UI.tooltip = new Layer({
+				name: "tooltip",
+				visible: 1,
+				parent: tooltip,
+				components: {
+					display_name: new Component({
+						type: "text",
+						origin: ["left", "top"],
+						offset: [1, 1],
+						text: "",
+						text_color: Fetch.font.colors.white,
+						text_shadow: true,
+					}),
+					name: new Component({
+						type: "text",
+						origin: ["left", "top"],
+						offset: [1, 13],
+						text: "",
+						text_color: Fetch.font.colors.dark_gray,
+						text_shadow: true,
+					}),
+				},
+			});
+			UI.tooltip.update();*/
+
+			/*UI.hud = new Layer({
 				name: "hud",
 				components: {
 					title: new Component({
 						type: "text",
 						origin: ["center", "top"],
 						offset: [0, 8],
-						text: "Responsive GUI Demo\n\nPress [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
+						text: "Press [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
 						text_color: Fetch.font.colors.gray,
 					}),
 					hotbar: new Component({
@@ -156,71 +230,7 @@ export const
 			});
 			render_health();
 			render_hunger();
-			UI.hud.update();
-
-			UI.crosshair = new Layer({
-				name: "crosshair",
-				components: {
-					crosshair: new Component({
-						origin: ["center", "center"],
-						offset: [0, 0],
-						size: [9, 9],
-						texture: "gui/icons.png",
-						uv: [3, 3],
-					}),
-				},
-			});
-			UI.crosshair.update();
-
-			UI.container = new Layer({
-				name: "container",
-				// visible: 0,
-				components: {
-					inventory: new Component({
-						type: "container",
-						origin: ["center", "center"],
-						offset: [0, 0],
-						size: [176, 166],
-						texture: "gui/container/inventory.png",
-						uv: [0, 0],
-						slots: Array.from({length: 9}, (_, i) => {
-							return new Slot({
-								origin: ["left", "bottom"],
-								offset: [7 + i * 18, 7],
-							});
-						}),
-					}),
-				}
-			});
-			const bread = new Item(737);
-			UI.container.components.inventory.slots[8].assign(bread);
-			UI.container.update();
-
-			const tooltip = document.querySelector(".tooltip");
-			UI.tooltip = new Layer({
-				name: "tooltip",
-				visible: 1,
-				parent: tooltip,
-				components: {
-					display_name: new Component({
-						type: "text",
-						origin: ["left", "top"],
-						offset: [1, 1],
-						text: "",
-						text_color: Fetch.font.colors.white,
-						text_shadow: true,
-					}),
-					name: new Component({
-						type: "text",
-						origin: ["left", "top"],
-						offset: [1, 13],
-						text: "",
-						text_color: Fetch.font.colors.dark_gray,
-						text_shadow: true,
-					}),
-				},
-			});
-			UI.tooltip.update();
+			UI.hud.update();*/
 		})
 		.catch(error => console.error(error));
 })();

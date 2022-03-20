@@ -1,4 +1,4 @@
-import {Fetch} from "./main.js";
+import {Fetch} from "./../main.js";
 
 /**
  * Create a new game item.

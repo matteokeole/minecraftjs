@@ -1,5 +1,5 @@
 import {Settings, Player} from "./variables.js";
-import {Component} from "./component.js";
+import {Component} from "./class/Component.js";
 import {UI, Fetch} from "./main.js";
 
 let startTime = performance.now(),
@@ -278,20 +278,6 @@ export const
 			l.ctx.globalCompositeOperation = "source-over";
 			l.ctx.globalAlpha = 1;
 		} else {
-			// Pre-calculate component origin
-			for (let a of ["x", "y"]) {
-				switch (c.origin[a]) {
-					// Top and left cases are set by default
-					case "bottom":
-					case "right":
-						origin[a] = l.size[a] - size[a] - offset[a];
-						break;
-					case "center":
-						origin[a] = l.size[a] / 2 - size[a] / 2 + offset[a];
-						break;
-				}
-			}
-
 			// Draw component
 			l.ctx.drawImage(
 				l.loaded_textures[c.texture],
@@ -341,7 +327,7 @@ export const
 			origin.x,
 			origin.y,
 			size.x,
-			size.y,
+			size.y + l.scale,
 		);
 	},
 	/**
@@ -364,10 +350,10 @@ export const
 		return js;
 	},
 	/**
-	 * Return platform architecture number.
+	 * Return 64 or 32 for the platform architecture.
 	 */
-	get_platform_architecture = () => {
-		return (navigator.userAgent.indexOf("WOW64") !== 1 || navigator.platform === "Win64") ? 64 : 32;
+	get_platform = () => {
+		return (navigator.userAgent.includes("WOW64") || navigator.platform === "Win64") ? 64 : 32;
 	},
 	/**
 	 * Return current frames per second.

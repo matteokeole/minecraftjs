@@ -28,7 +28,6 @@ export const
 	},
 	Settings = {
 		gui_scale: 2,
-		advanced_tooltips: false,
 	},
 	Player = {
 		max_health: 20,
@@ -39,5 +38,3 @@ export const
 	CONST = {
 		DEFAULT_SCALE: 2,
 	};
-
-document.documentElement.style.setProperty("--scale", `${Settings.gui_scale}px`);

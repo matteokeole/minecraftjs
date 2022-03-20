@@ -3,12 +3,11 @@
  *
  * Param	Type		Name						Description						Default value
  * @param	{object}	component					Component data object			{}
- * @param	{string}	component.name				Component name (used in layer)	"UNKNOWN_COMPONENT"
  * @param	{string}	component.type				Component element type			"default"
  * @param	{boolean}	component.visible			Component visibility attribute	1
- * @param	{array}		component.origin			Component position origin		{x: 0, y: 0}
- * @param	{array}		component.offset			Component position offset		{x: 0, y: 0}
- * @param	{array}		component.size				Component size					{x: 0, y: 0}
+ * @param	{array}		component.origin			Component position origin		["left", "top"]
+ * @param	{array}		component.offset			Component position offset		[0, 0]
+ * @param	{array}		component.size				Component size					[0, 0]
  * @param	{string}	component.texture			Component texture file path		""
  * @param	{array}		component.uv				Component texture offset		{x: 0, y: 0}
  * @param	{array}		component.slots				Component slots					[] if component type = "container"
@@ -20,9 +19,6 @@
  * @param	{array}		component.text_shadow		Component text shadow			false if component type = "text"
  */
 export const Component = function(component = {}) {
-	// Name
-	this.name = component.name;
-
 	// Type
 	this.type = component.type ?? "default";
 
@@ -30,22 +26,13 @@ export const Component = function(component = {}) {
 	this.visible = component.visible ?? 1;
 
 	// Origin
-	this.origin = {
-		x: component.origin ? component.origin[0] : 0,
-		y: component.origin ? component.origin[1] : 0,
-	};
+	this.origin = component.origin ?? ["left", "top"];
 
 	// Offset
-	this.offset = {
-		x: component.offset ? component.offset[0] : 0,
-		y: component.offset ? component.offset[1] : 0,
-	};
+	this.offset = component.offset ?? [0, 0];
 
 	// Size
-	this.size = {
-		x: component.size ? component.size[0] : 0,
-		y: component.size ? component.size[1] : 0,
-	};
+	this.size = component.size ?? [0, 0];
 
 	// Texture file path
 	this.texture = component.texture ?? "";
