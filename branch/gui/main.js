@@ -143,7 +143,7 @@ update_scale();
 
 			UI.container = new Layer({
 				name: "container",
-				// visible: 0,
+				visible: 0,
 				components: {
 					inventory: new Component({
 						type: "container",
@@ -201,7 +201,7 @@ update_scale();
 						type: "text",
 						origin: ["center", "top"],
 						offset: [0, 8],
-						text: "Press [F1] to toggle the HUD.\nPress [F3] to toggle the debug screen.",
+						text: "Press [F1] to toggle HUD.\nPress [F3] to toggle the debug screen.\nPress [Tab] to open inventory.",
 						text_color: Fetch.font.colors.gray,
 						text_shadow: true,
 					}),

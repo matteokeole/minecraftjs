@@ -61,6 +61,8 @@ export const Layer = function(layer = {}) {
 
 		this.canvas.style.visibility = ["hidden", "visible"][this.visible];
 
+		if (this.parent !== document.body) this.parent.style.visibility = this.canvas.style.visibility;
+
 		return this;
 	};
 

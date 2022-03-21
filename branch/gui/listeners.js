@@ -54,7 +54,6 @@ addEventListener("keydown", e => {
 			UI.container.toggle();
 
 			if (!UI.container.visible) {
-				tooltip.style.visibility = "hidden";
 				UI.tooltip.toggle(0);
 			}
 
@@ -63,7 +62,6 @@ addEventListener("keydown", e => {
 		case keys.includes(Keybinds.escape) && Boolean(UI.container.visible):
 			UI.container.toggle();
 			
-			tooltip.style.visibility = "hidden";
 			UI.tooltip.toggle(0);
 
 			break;
@@ -104,7 +102,6 @@ addEventListener("mousemove", e => {
 		tooltip = document.querySelector(".tooltip");
 
 	UI.tooltip.toggle(0);
-	tooltip.style.visibility = "hidden";
 
 	if (previous_slot.id) {
 		// Clear previous slot
@@ -153,7 +150,6 @@ addEventListener("mousemove", e => {
 			`;
 
 			UI.tooltip.toggle(1);
-			tooltip.style.visibility = "visible";
 		}
 	}
 });

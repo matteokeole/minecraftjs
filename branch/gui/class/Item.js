@@ -11,18 +11,18 @@ export const Item = function(id = 1) {
 	this.id = id;
 
 	// Get the item from the fetched list
-	let temp = Fetch.items.filter(i => this.id === i.id)[0];
+	this.temp = Fetch.items.filter(i => this.id === i.id)[0];
 
 	// Code name
-	this.name = temp.name ?? "";
+	this.name = this.temp.name ?? "";
 
 	// Display name
-	this.display_name = temp.displayName ?? "";
+	this.display_name = this.temp.displayName ?? "";
 
 	// Parent slot
 	this.slot = null;
 
-	temp = null;
+	delete this.temp;
 
 	return this;
 };
