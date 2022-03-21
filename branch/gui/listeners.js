@@ -23,7 +23,7 @@ addEventListener("resize", () => {
 });
 
 addEventListener("keydown", e => {
-	if (!/^(ControlLeft|F(5|11|12))$/.test(e.code)) e.preventDefault();
+	if (e.code === "F3") e.preventDefault();
 
 	const tooltip = document.querySelector(".tooltip");
 

@@ -13,8 +13,6 @@ The 3D is built with the library THREE.js.
 + Responsive and scalable GUI
 
 **Features to implement next:**
-+ Advanced item tooltips
-+ Movable items
-+ Revision of health bar/hunger bar rendering
++ GUI entire revision (this may take some time)
 
 *Huge thanks to @HritikRC for the THREE.js part tutorial. The playlist link is [here](https://www.youtube.com/playlist?list=PLEtXCX1lakbhq_01JKJILx90wLfdwrJig).*
