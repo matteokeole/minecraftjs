@@ -197,7 +197,7 @@ export const
 		// Calculate line widths
 		for (let line of lines) {
 			for (let char of line.text) {
-				line.w += (Fetch.font.char_size[char] ?? 5) + 1;
+				line.w += (Fetch.font.size[char] ?? 5) + 1;
 
 				// Get the max possible line width
 				if (line.w > max_width) max_width = line.w;
@@ -253,7 +253,7 @@ export const
 				);
 
 				// Move the drawer 1 character to right
-				x += ((Fetch.font.char_size[char] ?? 5) + 1) * Settings.gui_scale;
+				x += ((Fetch.font.size[char] ?? 5) + 1) * Settings.gui_scale;
 			}
 			// Move the drawer 1 character to bottom
 			y += 9 * Settings.gui_scale;

@@ -65,7 +65,7 @@ export function Layer(l = {}) {
 		}
 		return this;
 	};
-	this.update = () => {
+	this.load_textures = callback => {
 		let sources = [...new Set(component_values.map(c => c.texture))],
 			source_length = sources.length,
 			count = 0;
@@ -73,29 +73,38 @@ export function Layer(l = {}) {
 			if (!LOADED_TEXTURES[i]) {
 				LOADED_TEXTURES[i] = new Image();
 				LOADED_TEXTURES[i].addEventListener("load", () => {
-					++count === source_length && this.redraw();
+					(callback && ++count === source_length) && callback();
 				});
 				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
-			} else ++count === source_length && this.redraw();
+			} else LOADED_TEXTURES[i].addEventListener("load", () => {
+				(callback && ++count === source_length) && callback();
+			});
 		}
 		return this;
 	};
+	this.update = () => {
+		this.load_textures(this.redraw);
+		return this;
+	};
 	this.redraw = (...cs) => {
+		let redraw_single = false;
 		if (!cs.length) {
 			cs = component_values.map(c => c.name);
 			this.erase();
-		}
+		} else redraw_single = true;
 		for (let c of cs) {
 			c = this.components[c];
-			this.compute(c).draw(c);
+			this.compute(c);
+			redraw_single && this.erase(c);
+			this.draw(c);
 		}
 		return this;
 	};
 	this.draw = c => {
 		if (c.type === "text") {
-			let x, y = c.y;
+			let x, y = c.y + scale;
 			for (let l of c.lines) {
-				x = c.x;
+				x = c.x + scale;
 				for (let ch of l) {
 					let i = Font.chars.indexOf(ch),
 						u = i % 16 * 8,

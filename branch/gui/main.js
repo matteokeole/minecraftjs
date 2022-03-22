@@ -49,7 +49,7 @@ update_scale();
 						text: "Minecraft JS (pre-alpha 220319)",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_fps: new Component({
 						type: "text",
@@ -58,7 +58,7 @@ update_scale();
 						text: get_fps(),
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_xyz: new Component({
 						type: "text",
@@ -67,7 +67,7 @@ update_scale();
 						text: "XYZ: 0.000 / 0.00000 / 0.000",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_block: new Component({
 						type: "text",
@@ -76,7 +76,7 @@ update_scale();
 						text: "Block: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_chunk: new Component({
 						type: "text",
@@ -85,7 +85,7 @@ update_scale();
 						text: "Chunk: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_facing: new Component({
 						type: "text",
@@ -94,7 +94,7 @@ update_scale();
 						text: "Facing: - (Towards - -) (0 / 0)",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_js: new Component({
 						type: "text",
@@ -103,7 +103,7 @@ update_scale();
 						text: `JavaScript: ${get_js_version()} ${get_platform()}bit`,
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_cpu: new Component({
 						type: "text",
@@ -112,7 +112,7 @@ update_scale();
 						text: `CPU: ${navigator.hardwareConcurrency}x`,
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 					debug_display: new Component({
 						type: "text",
@@ -121,7 +121,7 @@ update_scale();
 						text: `Display: ${window.innerWidth}x${window.innerHeight}`,
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 					}),
 				},
 			});
@@ -179,7 +179,7 @@ update_scale();
 						origin: ["left", "top"],
 						offset: [1, 1],
 						text: "",
-						text_color: Fetch.font.colors.white,
+						text_color: Fetch.font.color.white,
 						text_shadow: true,
 					}),
 					name: new Component({
@@ -187,7 +187,7 @@ update_scale();
 						origin: ["left", "top"],
 						offset: [1, 13],
 						text: "",
-						text_color: Fetch.font.colors.dark_gray,
+						text_color: Fetch.font.color.dark_gray,
 						text_shadow: true,
 					}),
 				},
@@ -202,7 +202,7 @@ update_scale();
 						origin: ["center", "top"],
 						offset: [0, 8],
 						text: "Press [F1] to toggle HUD.\nPress [F3] to toggle the debug screen.\nPress [Tab] to open inventory.",
-						text_color: Fetch.font.colors.gray,
+						text_color: Fetch.font.color.gray,
 						text_shadow: true,
 					}),
 					hotbar: new Component({
