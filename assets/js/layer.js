@@ -8,8 +8,7 @@ export function Layer(l = {}) {
 	let component_entries = Object.entries(this.components),
 		component_values = Object.values(this.components);
 	this.canvas = document.createElement("canvas");
-	this.canvas.className = "layer";
-	this.canvas.id = this.name;
+	this.canvas.className = `layer ${this.name}`;
 	this.canvas.width = WINDOW.MAX_WIDTH;
 	this.canvas.height = WINDOW.MAX_HEIGHT;
 	this.ctx = this.canvas.getContext("2d");
@@ -17,6 +16,13 @@ export function Layer(l = {}) {
 	this.resize = (w = WINDOW.WIDTH, h = WINDOW.HEIGHT) => {
 		this.w = w;
 		this.h = h;
+		return this;
+	};
+	this.visible = l.visible ?? 1;
+	let visibilities = ["hidden", "visible"];
+	this.toggle = (v = !this.visible) => {
+		this.visible = Number(v);
+		this.canvas.style.visibility = visibilities[this.visible];
 		return this;
 	};
 	this.compute = c => {
@@ -70,33 +76,34 @@ export function Layer(l = {}) {
 			source_length = sources.length,
 			count = 0;
 		for (let i of sources) {
-			if (!LOADED_TEXTURES[i]) {
+			if (i in LOADED_TEXTURES) {
+				LOADED_TEXTURES[i].addEventListener("load", () => {
+					callback && ++count === source_length && callback();
+				});
+			} else {
 				LOADED_TEXTURES[i] = new Image();
 				LOADED_TEXTURES[i].addEventListener("load", () => {
-					(callback && ++count === source_length) && callback();
+					callback && ++count === source_length && callback();
 				});
 				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
-			} else LOADED_TEXTURES[i].addEventListener("load", () => {
-				(callback && ++count === source_length) && callback();
-			});
+			}
 		}
-		return this;
 	};
 	this.update = () => {
 		this.load_textures(this.redraw);
 		return this;
 	};
 	this.redraw = (...cs) => {
-		let redraw_single = false;
+		let redraw_single = true;
 		if (!cs.length) {
+			redraw_single = false;
 			cs = component_values.map(c => c.name);
 			this.erase();
-		} else redraw_single = true;
+		}
 		for (let c of cs) {
 			c = this.components[c];
-			this.compute(c);
 			redraw_single && this.erase(c);
-			this.draw(c);
+			this.compute(c).draw(c);
 		}
 		return this;
 	};
@@ -155,16 +162,33 @@ export function Layer(l = {}) {
 				c.x, c.y,
 				c.w, c.h,
 			);
+			if (c.type === "container") {
+				for (let s of c.slots) {
+					c.compute_slot(s).draw_slot(s);
+				}
+			}
 		}
 		return this;
 	};
 	this.erase = c => {
-		c ? this.ctx.clearRect(c.x, c.y, c.w, c.h) : this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
+		if (c) {
+			this.ctx.clearRect(
+				c.x, c.y,
+				c.w, c.h,
+			);
+		} else {
+			this.ctx.clearRect(
+				0, 0,
+				WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT,
+			);
+		}
 		return this;
 	};
+
 	for (let c of component_entries) {
 		c[1].name = c[0];
 		c[1].layer = this;
 	}
 	this.parent.appendChild(this.canvas);
+	this.toggle(this.visible);
 }

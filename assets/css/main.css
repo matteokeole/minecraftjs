@@ -1,7 +1,7 @@
 body {
 	margin: 0;
 	overflow: hidden;
-	background-color: peachpuff;
+	background-color: #312646;
 }
 
 .layer {
@@ -10,4 +10,17 @@ body {
 	image-rendering: -webkit-crisp-edges;
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
+}
+
+.layer.crosshair {
+	mix-blend-mode: difference;
+	pointer-events: none;
+}
+
+.layer.debug {
+	pointer-events: none;
+}
+
+.layer.inventory, .layer.pause {
+	background-color: #000000C2;
 }
