@@ -1,8 +1,7 @@
-import {WINDOW, LOADED_TEXTURES, layers, gui_scale} from "./main.js";
-
+import {WINDOW, LOADED_TEXTURES, Font, layer_set, scale} from "./main.js";
 export function Layer(l = {}) {
 	this.name = l.name;
-	this.parent = l.parent ?? layers;
+	this.parent = l.parent ?? layer_set;
 	this.w = WINDOW.WIDTH;
 	this.h = WINDOW.HEIGHT;
 	this.components = l.components ?? {};
@@ -22,11 +21,26 @@ export function Layer(l = {}) {
 	};
 	this.compute = c => {
 		let o = [
-			c.offset[0] * gui_scale,
-			c.offset[1] * gui_scale,
+			c.offset[0] * scale,
+			c.offset[1] * scale,
 		];
-		c.w = c.size[0] * gui_scale;
-		c.h = c.size[1] * gui_scale;
+		if (c.type === "text") {
+			// Explode the text in lines
+			c.lines = c.text.split("\n");
+			let widths = [];
+			// Calculate line widths
+			for (let l of c.lines) {
+				let width = 0;
+				for (let c of l) {
+					width += (Font.size[c] ?? 5) + 1;
+				}
+				widths.push(width);
+			}
+			c.size[0] = Math.max(...widths) + 2;
+			c.size[1] = 9 * c.lines.length;
+		}
+		c.w = c.size[0] * scale;
+		c.h = c.size[1] * scale;
 		switch (c.origin[0]) {
 			case "left":
 				c.x = o[0];
@@ -62,7 +76,7 @@ export function Layer(l = {}) {
 					++count === source_length && this.redraw();
 				});
 				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
-			}
+			} else ++count === source_length && this.redraw();
 		}
 		return this;
 	};
@@ -78,28 +92,70 @@ export function Layer(l = {}) {
 		return this;
 	};
 	this.draw = c => {
-		this.ctx.drawImage(
-			LOADED_TEXTURES[c.texture],
-			c.uv[0],
-			c.uv[1],
-			c.size[0],
-			c.size[1],
-			c.x,
-			c.y,
-			c.w,
-			c.h,
-		);
+		if (c.type === "text") {
+			let x, y = c.y;
+			for (let l of c.lines) {
+				x = c.x;
+				for (let ch of l) {
+					let i = Font.chars.indexOf(ch),
+						u = i % 16 * 8,
+						v = 8 * (Math.floor(i / 16) + 2);
+					if (c.text_shadow) {
+						this.ctx.globalAlpha = .245;
+						this.ctx.drawImage(
+							LOADED_TEXTURES[c.texture],
+							u, v,
+							6, 8,
+							x + scale, y + scale,
+							6 * scale, 8 * scale,
+						);
+					}
+					this.ctx.globalAlpha = 1;
+					this.ctx.drawImage(
+						LOADED_TEXTURES[c.texture],
+						u, v,
+						6, 8,
+						x, y,
+						6 * scale, 8 * scale,
+					);
+					x += ((Font.size[ch] ?? 5) + 1) * scale;
+				}
+				y += 9 * scale;
+			}
+			this.ctx.globalCompositeOperation = "source-atop";
+			this.ctx.fillStyle = c.color;
+			this.ctx.fillRect(
+				c.x, c.y,
+				c.w, c.h + (c.text_shadow ? scale : 0),
+			);
+			if (c.text_background) {
+				this.ctx.globalCompositeOperation = "destination-over";
+				this.ctx.fillStyle = c.text_background;
+				this.ctx.globalAlpha = c.text_background_alpha;
+				this.ctx.fillRect(
+					c.x, c.y,
+					c.w, c.h + (c.text_shadow ? scale : 0),
+				);
+			}
+			this.ctx.globalCompositeOperation = "source-over";
+		} else {
+			this.ctx.drawImage(
+				LOADED_TEXTURES[c.texture],
+				c.uv[0], c.uv[1],
+				c.size[0], c.size[1],
+				c.x, c.y,
+				c.w, c.h,
+			);
+		}
 		return this;
 	};
 	this.erase = c => {
 		c ? this.ctx.clearRect(c.x, c.y, c.w, c.h) : this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
 		return this;
 	};
-
 	for (let c of component_entries) {
 		c[1].name = c[0];
 		c[1].layer = this;
 	}
-
 	this.parent.appendChild(this.canvas);
 }
