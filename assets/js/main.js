@@ -23,14 +23,19 @@ export const
 		},
 	});
 
-export let gui_scale = 2;
+export let
+	gui_scale = 2,
+	rescale;
 
 hud.update();
 
 document.body.appendChild(layers);
 
 addEventListener("resize", () => {
-	WINDOW.WIDTH = window.innerWidth;
-	WINDOW.HEIGHT = window.innerHeight;
-	hud.resize().redraw();
+	clearTimeout(rescale);
+	rescale = setTimeout(() => {
+		WINDOW.WIDTH = window.innerWidth;
+		WINDOW.HEIGHT = window.innerHeight;
+		hud.resize().redraw();
+	}, 50)
 });

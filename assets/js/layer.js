@@ -73,8 +73,7 @@ export function Layer(l = {}) {
 		}
 		for (let c of cs) {
 			c = this.components[c];
-			this.compute(c);
-			this.draw(c);
+			this.compute(c).draw(c);
 		}
 		return this;
 	};
@@ -93,7 +92,7 @@ export function Layer(l = {}) {
 		return this;
 	};
 	this.erase = c => {
-		c ? this.ctx.clearRect(c.x, c.y, c.w, c.h) : this.ctx.clearRect(0, 0, this.w, this.h);
+		c ? this.ctx.clearRect(c.x, c.y, c.w, c.h) : this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
 		return this;
 	};
 
