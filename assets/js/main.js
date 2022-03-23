@@ -1,6 +1,7 @@
 import {Layer} from "./Layer.js";
 import {Component} from "./Component.js";
 import {Slot} from "./Slot.js";
+import {Item} from "./Item.js";
 
 export const
 	WINDOW = {
@@ -63,8 +64,12 @@ export const
 			navigator.platform === "Win64"
 		) ? 64 : 32;
 	},
-	resources = ["assets/font.json"],
 	UI = {},
+	resources = [
+		"assets/font.json",
+		"assets/items.json",
+	],
+	Font = {},
 	Keybind = {
 		escape: "Escape",
 		walk_forwards: "KeyW",
@@ -181,7 +186,7 @@ export const
 	};
 
 export let
-	Font = {},
+	Items,
 	Color,
 	keys = [],
 	gui_scale = 2,
@@ -202,6 +207,7 @@ export let
 		.then(response => {
 			Font.chars = response[0].chars;
 			Font.size = response[0].size;
+			Items = response[1];
 			Color = response[0].color;
 
 			UI.hud = new Layer({
@@ -365,6 +371,9 @@ export let
 					}),
 				},
 			});
+
+			const pumpkin_pie = new Item(960);
+			UI.inventory.components.player_inventory.slots[35].assign(pumpkin_pie);
 
 			document.body.appendChild(layer_set);
 

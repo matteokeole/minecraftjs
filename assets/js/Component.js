@@ -1,4 +1,4 @@
-import {scale, Color} from "./main.js";
+import {LOADED_TEXTURES, scale, Color} from "./main.js";
 export function Component(c = {}) {
 	this.type = c.type ?? "default";
 	this.origin = c.origin;
@@ -15,6 +15,7 @@ export function Component(c = {}) {
 		this.text_background_alpha = c.text_background_alpha ?? 1;
 	} else if (this.type === "container") {
 		this.slots = c.slots;
+		for (let s of this.slots) {s.component = this}
 		this.compute_slot = s => {
 			let o = [
 				s.offset[0] * scale,
@@ -32,6 +33,15 @@ export function Component(c = {}) {
 				s.x + scale, s.y + scale,
 				s.w - 2 * scale, s.h - 2 * scale,
 			);
+			if (s.item && LOADED_TEXTURES[s.item.texture]) {
+				this.layer.ctx.drawImage(
+					LOADED_TEXTURES[s.item.texture],
+					0, 0,
+					16, 16,
+					s.x + scale, s.y + scale,
+					s.w - 2 * scale, s.h - 2 * scale,
+				);
+			}
 			return this;
 		};
 	}
