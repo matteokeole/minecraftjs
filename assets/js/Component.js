@@ -31,7 +31,8 @@ export function Component(c = {}) {
 		};
 		this.draw_slot = (s, hover = false) => {
 			this.layer.ctx.globalAlpha = 1;
-			if (hover) {
+			if (s.refer_to && s.refer_to.item) this.draw_reference_slot(s);
+			if (hover && !s.transparent) {
 				this.layer.ctx.fillStyle = "#fff";
 				this.layer.ctx.globalAlpha = .496;
 				this.layer.ctx.fillRect(
@@ -39,11 +40,13 @@ export function Component(c = {}) {
 					s.w - 2 * scale, s.h - 2 * scale,
 				);
 			} else {
-				this.layer.ctx.fillStyle = "#8d8d8d";
-				this.layer.ctx.fillRect(
-					s.x + scale, s.y + scale,
-					s.w - 2 * scale, s.h - 2 * scale,
-				);
+				if (!s.transparent) {
+					this.layer.ctx.fillStyle = "#8d8d8d";
+					this.layer.ctx.fillRect(
+						s.x + scale, s.y + scale,
+						s.w - 2 * scale, s.h - 2 * scale,
+					);
+				}
 				if (s.item && LOADED_TEXTURES[s.item.texture]) {
 					this.layer.ctx.drawImage(
 						LOADED_TEXTURES[s.item.texture],
@@ -52,22 +55,18 @@ export function Component(c = {}) {
 						s.x + scale, s.y + scale,
 						s.w - 2 * scale, s.h - 2 * scale,
 					);
-				}
+				} else if (s.refer_to && s.refer_to.item) this.draw_reference_slot(s);
 			}
 			return this;
 		};
-		this.clone_slots_of = (slots, c) => {
-			console.log("old", slots)
-			for (let i in slots) {
-				let slot = new Slot({
-					type: slots[i].type,
-				});
-				c.call(this, slot, i);
-				slot.component = this;
-				if (slots[i].item) slot.item = new Item(slots[i].item.id);
-				this.slots.push(slot);
-			}
-			return this;
+		this.draw_reference_slot = s => {
+			this.layer.ctx.drawImage(
+				LOADED_TEXTURES[s.refer_to.item.texture],
+				0, 0,
+				16, 16,
+				s.x + scale, s.y + scale,
+				s.w - 2 * scale, s.h - 2 * scale,
+			);
 		};
 	}
 }

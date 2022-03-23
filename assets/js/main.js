@@ -5,18 +5,18 @@ import {Item} from "./Item.js";
 
 export const
 	WINDOW = {
-		DEFAULT_WIDTH: 320,
-		DEFAULT_HEIGHT: 240,
-		WIDTH: window.innerWidth,
-		HEIGHT: window.innerHeight,
-		MAX_WIDTH: window.screen.width,
-		MAX_HEIGHT: window.screen.height,
+		DEFAULT_WIDTH:	320,
+		DEFAULT_HEIGHT:	240,
+		WIDTH:			innerWidth,
+		HEIGHT:			innerHeight,
+		MAX_WIDTH:		screen.width,
+		MAX_HEIGHT:		screen.height,
 	},
 	LOADED_TEXTURES = {},
-	layer_set = document.createDocumentFragment(),
+	LayerFragment = document.createDocumentFragment(),
 	update_scale = l => {
-		WINDOW.WIDTH = window.innerWidth;
-		WINDOW.HEIGHT = window.innerHeight;
+		WINDOW.WIDTH = innerWidth;
+		WINDOW.HEIGHT = innerHeight;
 		scale = gui_scale;
 		for (let i = gui_scale + 1; i > 1; i--) {
 			if (
@@ -47,7 +47,7 @@ export const
 			let script = document.createElement("script");
 
 			script.setAttribute("language", `javascript1.${i}`);
-			script.textContent = `js = 1.${i}`;
+			script.textContent = `js_version = 1.${i}`;
 
 			document.body.appendChild(script);
 
@@ -55,21 +55,21 @@ export const
 			script.remove();
 		}
 
-		return js;
+		return js_version;
 	},
 	get_registry_size = () => {
 		return (
-			navigator.userAgent.indexOf("WOW64") !== -1 ||
 			navigator.userAgent.indexOf("Win64") !== -1 ||
+			navigator.userAgent.indexOf("WOW64") !== -1 ||
 			navigator.platform === "Win64"
 		) ? 64 : 32;
 	},
 	UI = {},
-	resources = [
+	RESOURCES = [
 		"assets/font.json",
 		"assets/items.json",
 	],
-	Font = {},
+	FONT = {},
 	Keybind = {
 		escape: "Escape",
 		walk_forwards: "KeyW",
@@ -99,7 +99,13 @@ export const
 			toggle_debug: true,
 			toggle_pause: true,
 		},
+		hotbar_slots: Array.from({length: 9}, (_, i) => {
+			return new Slot({
+				type: "hotbar",
+			});
+		}),
 	},
+	visibilities = ["hidden", "visible"],
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -170,6 +176,7 @@ export const
 		);
 		s.offset[0] = -80 + 20 * n;
 		UI.hud.compute(s).draw(s);
+		h.slots.forEach(s => h.draw_slot(s));
 	},
 	hover_slot = e => {
 		let inventory = UI.inventory.components.player_inventory;
@@ -187,30 +194,40 @@ export const
 	};
 
 export let
-	Items,
-	Color,
-	keys = [],
-	gui_scale = 2,
-	selected_slot = 0,
-	prev_hovered_slot = false,
-	hovered_slot = false,
-	scale = gui_scale,
-	debug_visible = true,
-	startTime = performance.now(),
-	frame = 0;
+	Items, // Fetched item list
+	Color, // Fetched color list
+	layer_values, // Array of layers
+	keys = [], // Current pressed keys
+	gui_scale = 2, // Preferred interface scale
+	scale = gui_scale, // Current interface scale
+	selected_slot = 0, // Index of the current hotbar slot
+	prev_hovered_slot = false, // Index of the previously selected hotbar slot
+	hovered_slot = false, // Hovered slot reference
+	debug_visible = true, // Is debug menu visible
+	startTime = performance.now(), // For FPS counter
+	frame = 0; // For FPS counter
 
 (() => {
 	// Check for Fetch API browser compatibility
 	if (!"fetch" in window) return console.error("This browser doesn't support Fetch API.");
 
+	// Fetch JSON resources
 	Promise
-		.all(resources.map(r => fetch(r).then(response => response.json())))
+		.all(RESOURCES.map(r => fetch(r).then(response => response.json())))
 		.then(response => {
-			Font.chars = response[0].chars;
-			Font.size = response[0].size;
+			// Stock response
+			FONT.chars = response[0].chars;
+			FONT.size = response[0].size;
 			Items = response[1];
 			Color = response[0].color;
 
+
+
+			/* Create interface layers */
+
+
+
+			// HUD layer
 			UI.hud = new Layer({
 				name: "hud",
 				components: {
@@ -221,6 +238,15 @@ export let
 						size: [182, 22],
 						texture: "gui/widgets.png",
 						uv: [0, 0],
+						slots: Array.from({length: 9}, (_, i) => new Slot({
+							type: "hotbar",
+							offset: [
+								2 + i * 20,
+								2,
+							],
+							refer_to: Player.hotbar_slots[i],
+							transparent: true,
+						})),
 					}),
 					selector: new Component({
 						origin: ["center", "bottom"],
@@ -231,6 +257,8 @@ export let
 					}),
 				},
 			});
+
+			// Crosshair layer
 			UI.crosshair = new Layer({
 				name: "crosshair",
 				components: {
@@ -243,6 +271,8 @@ export let
 					}),
 				}
 			});
+
+			// Debug menu layer
 			UI.debug = new Layer({
 				name: "debug",
 				visible: debug_visible,
@@ -330,6 +360,8 @@ export let
 					}),
 				},
 			});
+
+			// Inventory layer
 			UI.inventory = new Layer({
 				name: "inventory",
 				components: {
@@ -354,11 +386,14 @@ export let
 									7 + i * 18,
 									141,
 								],
+								refer_to: Player.hotbar_slots[i],
 							})),
 						),
 					}),
 				},
 			});
+
+			// Pause menu layer
 			UI.pause = new Layer({
 				name: "pause",
 				visible: 0,
@@ -374,35 +409,45 @@ export let
 				},
 			});
 
+
+
+			// Get UI content as an array
+			layer_values = Object.values(UI);
+
 			const
 				pumpkin_pie = new Item(960),
 				bread = new Item(737);
-			UI.inventory.components.player_inventory.slots[34].assign(pumpkin_pie);
-			UI.inventory.components.player_inventory.slots[35].assign(bread);
 
-			UI.hud.components.hotbar.clone_slots_of(
-				UI.inventory.components.player_inventory.slots.filter(s => s.type === "hotbar"),
-				(s, i) => {
-					s.origin = ["left", "top"];
-					s.offset = [-80 + 20 * i];
-				},
-				UI.inventory.components.player_inventory
-			);
+			Player.hotbar_slots[7].assign(bread);
+			Player.hotbar_slots[8].assign(pumpkin_pie);
 
-			document.body.appendChild(layer_set);
+			document.body.appendChild(LayerFragment);
 
-			Object.values(UI).forEach(l => {
-				l.load_textures(() => update_scale(l));
-			});
+			// Load layer textures, then scale the UI
+			layer_values.forEach(l => {l.load_textures(() => update_scale(l))});
 
+
+
+			/* Event listeners */
+
+
+
+			// Keydown event
 			addEventListener("keydown", e => {
 				if (e.code === "F3" || e.code === "Tab" || e.code === "Digit4") e.preventDefault();
 				add_keybind(e);
 			});
+
+			// Keyup event
 			addEventListener("keyup", e => remove_keybind(e));
+
+			// Window resize event
 			addEventListener("resize", () => {
-				Object.values(UI).forEach(l => update_scale(l));
+				// Update layers with the new scale
+				layer_values.forEach(l => update_scale(l));
 			});
+
+			// Mouse wheel event
 			addEventListener("wheel", e => {
 				if (!UI.inventory.visible && !UI.pause.visible) {
 					let prev_slot = selected_slot;
@@ -410,6 +455,8 @@ export let
 					select_hotbar_slot(prev_slot, selected_slot);
 				}
 			});
+
+			// Mouse move event (only for the inventory layer)
 			UI.inventory.canvas.addEventListener("mousemove", e => hover_slot(e));
 		})
 		.catch(error => console.error(error));

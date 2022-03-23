@@ -1,98 +1,169 @@
-import {WINDOW, LOADED_TEXTURES, Font, layer_set, scale} from "./main.js";
-export function Layer(l = {}) {
-	this.name = l.name;
-	this.parent = l.parent ?? layer_set;
+import {WINDOW, LOADED_TEXTURES, FONT, LayerFragment, scale, visibilities} from "./main.js";
+
+/**
+ * Construct a new interface layer with an associated canvas.
+ *
+ * Param	Type		Name=Default					Description
+ * @param	{object}	[layer={}]						Layer data object
+ * @param	{string}	layer.name						Name (used as canvas ID)
+ * @param	{object}	[layer.parent=LayerFragment]	DOM parent
+ * @param	{boolean}	[layer.visible=1]				Visibility state
+ * @param	{object}	[layer.components={}]			Layer component list
+ */
+export function Layer(layer = {}) {
+	// Name
+	this.name = layer.name;
+
+	// DOM parent
+	this.parent = layer.parent ?? LayerFragment;
+
+	// Size
 	this.w = WINDOW.WIDTH;
 	this.h = WINDOW.HEIGHT;
-	this.components = l.components ?? {};
-	let component_entries = Object.entries(this.components),
-		component_values = Object.values(this.components);
+
+	// Visibility
+	this.visible = layer.visible ?? 1;
+
+	// Canvas
 	this.canvas = document.createElement("canvas");
-	this.canvas.className = `layer ${this.name}`;
-	this.canvas.width = WINDOW.MAX_WIDTH;
-	this.canvas.height = WINDOW.MAX_HEIGHT;
+
+	// Canvas context
 	this.ctx = this.canvas.getContext("2d");
-	this.ctx.imageSmoothingEnabled = false;
-	this.resize = (w = WINDOW.WIDTH, h = WINDOW.HEIGHT) => {
+
+	// Component list
+	this.components = layer.components ?? {};
+	let component_entries	= Object.entries(this.components),
+		component_values	= Object.values(this.components);
+
+	/**
+	 * Set the layer size.
+	 * NOTE: The new size will be applied on the layer components after a canvas update.
+	 * @param	{number}	[w=innerWidth]	Width value
+	 * @param	{number}	[h=innerHeight]	Height value
+	 */
+	this.resize = (w = innerWidth, h = innerHeight) => {
 		this.w = w;
 		this.h = h;
+
 		return this;
 	};
-	this.visible = l.visible ?? 1;
-	let visibilities = ["hidden", "visible"];
-	this.toggle = (v = !this.visible) => {
-		this.visible = Number(v);
+
+	/**
+	 * Toggle layer visibility using a canvas CSS attribute.
+	 * If omitted, the state will be the opposite of the current visibility.
+ 	 * @param	{boolean}	[v=!this.visible]	New visibility value
+	 */
+	this.toggle = (state = !this.visible) => {
+		this.visible = Number(state);
 		this.canvas.style.visibility = visibilities[this.visible];
+
 		return this;
 	};
+
+	/**
+	 * Calculate the scaled offset/size and absolute position for the specified component.
+ 	 * @param	{object}	c	Component
+	 */
 	this.compute = c => {
+		// Get scaled offset
 		let o = [
 			c.offset[0] * scale,
 			c.offset[1] * scale,
 		];
+
+		// Text components don't have size values by default, we need to calculate them using line size
 		if (c.type === "text") {
 			// Explode the text in lines
 			c.lines = c.text.split("\n");
+
 			let widths = [];
+
 			// Calculate line widths
 			for (let l of c.lines) {
-				let width = 0;
+				let w = 0;
 				for (let c of l) {
-					width += (Font.size[c] ?? 5) + 1;
+					w += (FONT.size[c] ?? 5) + 1;
 				}
-				widths.push(width);
+				widths.push(w);
 			}
+
+			// The width is the max line width found for this component
 			c.size[0] = Math.max(...widths) + 2;
+
+			// Multiply line number to get the height
 			c.size[1] = 9 * c.lines.length;
 		}
+
+		// Scale the size
 		c.w = c.size[0] * scale;
 		c.h = c.size[1] * scale;
+
+		// Calculate absolute X position
 		switch (c.origin[0]) {
 			case "left":
 				c.x = o[0];
 				break;
+
 			case "right":
 				c.x = this.w - c.w - o[0];
 				break;
+
 			case "center":
 				c.x = this.w / 2 - c.w / 2 + o[0];
 				break;
 		}
+
+		// Calculate absolute Y position
 		switch (c.origin[1]) {
 			case "top":
 				c.y = o[1];
 				break;
+
 			case "bottom":
 				c.y = this.h - c.h - o[1];
 				break;
+
 			case "center":
 				c.y = this.h / 2 - c.h / 2 + o[1];
 				break;
 		}
+
 		return this;
 	};
+
 	this.load_textures = callback => {
+		// Get the list of component texture sources (no duplicate entries)
 		let sources = [...new Set(component_values.map(c => c.texture))],
-			source_length = sources.length,
-			count = 0;
+			length = sources.length,
+			j = 0;
+
 		for (let i of sources) {
 			if (i in LOADED_TEXTURES) {
 				LOADED_TEXTURES[i].addEventListener("load", () => {
-					callback && ++count === source_length && callback();
+					// Run the callback function when all textures are loaded
+					callback && ++j === length && callback();
 				});
 			} else {
 				LOADED_TEXTURES[i] = new Image();
 				LOADED_TEXTURES[i].addEventListener("load", () => {
-					callback && ++count === source_length && callback();
+					// Run the callback function when all textures are loaded
+					callback && ++j === length && callback();
 				});
 				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
 			}
 		}
 	};
+
+	/**
+	 * Reload the component textures and redraw all components on the canvas.
+	 * NOTE: This method reloads the component textures each time it is called.
+	 */
 	this.update = () => {
 		this.load_textures(this.redraw);
+
 		return this;
 	};
+
 	this.redraw = (...cs) => {
 		let redraw_single = true;
 		if (!cs.length) {
@@ -107,13 +178,14 @@ export function Layer(l = {}) {
 		}
 		return this;
 	};
+
 	this.draw = c => {
 		if (c.type === "text") {
 			let x, y = c.y + scale;
 			for (let l of c.lines) {
 				x = c.x + scale;
 				for (let ch of l) {
-					let i = Font.chars.indexOf(ch),
+					let i = FONT.chars.indexOf(ch),
 						u = i % 16 * 8,
 						v = 8 * (Math.floor(i / 16) + 2);
 					if (c.text_shadow) {
@@ -134,7 +206,7 @@ export function Layer(l = {}) {
 						x, y,
 						6 * scale, 8 * scale,
 					);
-					x += ((Font.size[ch] ?? 5) + 1) * scale;
+					x += ((FONT.size[ch] ?? 5) + 1) * scale;
 				}
 				y += 9 * scale;
 			}
@@ -170,6 +242,7 @@ export function Layer(l = {}) {
 		}
 		return this;
 	};
+
 	this.erase = c => {
 		if (c) {
 			this.ctx.clearRect(
@@ -185,10 +258,25 @@ export function Layer(l = {}) {
 		return this;
 	};
 
-	for (let c of component_entries) {
+	// Initialize layer components
+	component_entries.forEach(c => {
 		c[1].name = c[0];
 		c[1].layer = this;
-	}
+	});
+
+	// Set canvas class
+	this.canvas.className = `layer ${this.name}`;
+
+	// Make the canvas take the full screen size
+	this.canvas.width = WINDOW.MAX_WIDTH;
+	this.canvas.height = WINDOW.MAX_HEIGHT;
+
+	// Remove canvas blur effect
+	this.ctx.imageSmoothingEnabled = false;
+
+	// Append the canvas to the layer parent
 	this.parent.appendChild(this.canvas);
+
+	// Set default canvas visibility
 	this.toggle(this.visible);
 }
