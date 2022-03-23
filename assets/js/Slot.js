@@ -23,12 +23,14 @@ export function Slot(s = {}) {
 }
 
 Slot.get_slot_at = (c, e) => {
+	let x = e.clientX,
+		y = e.clientY;
 	for (let s of c.slots) {
 		if (
-			e.clientX >= s.x && // From left side
-			e.clientX < s.x + s.w && // From right side
-			e.clientY > s.y && // From top side
-			e.clientY < s.y + s.h // From bottom side
+			x >= s.x && // From left side
+			x < s.x + s.w && // From right side
+			y > s.y && // From top side
+			y < s.y + s.h // From bottom side
 		) return s;
 	}
 
