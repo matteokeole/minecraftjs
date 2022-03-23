@@ -1,6 +1,7 @@
 import {Layer} from "./Layer.js";
 import {Component} from "./Component.js";
 import {Slot} from "./Slot.js";
+import {Item} from "./Item.js";
 
 export const
 	WINDOW = {
@@ -63,8 +64,12 @@ export const
 			navigator.platform === "Win64"
 		) ? 64 : 32;
 	},
-	resources = ["assets/font.json"],
 	UI = {},
+	resources = [
+		"assets/font.json",
+		"assets/items.json",
+	],
+	Font = {},
 	Keybind = {
 		escape: "Escape",
 		walk_forwards: "KeyW",
@@ -101,6 +106,7 @@ export const
 			case Keybind.toggle_hud:
 				if (!UI.inventory.visible && !UI.pause.visible && Player.permissions.toggle_hud) {
 					UI.hud.toggle();
+					UI.crosshair.toggle();
 					UI.debug.toggle(debug_visible && UI.hud.visible);
 				}
 				Player.permissions.toggle_hud = false;
@@ -108,7 +114,7 @@ export const
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
 				Player.permissions.open_inventory = false;
-				hovered_slot && UI.inventory.components.player_inventory.draw_slot(hovered_slot, "#8D8D8D");
+				hovered_slot && UI.inventory.components.player_inventory.draw_slot(hovered_slot);
 				break;
 			case Keybind.toggle_debug:
 				if (!UI.inventory.visible && !UI.pause.visible && Player.permissions.toggle_debug) {
@@ -169,19 +175,19 @@ export const
 		let inventory = UI.inventory.components.player_inventory;
 		hovered_slot = Slot.get_slot_at(inventory, e);
 		if (prev_hovered_slot) {
-			inventory.draw_slot(prev_hovered_slot, "#8d8d8d");
+			inventory.draw_slot(prev_hovered_slot);
 			prev_hovered_slot = false;
 		}
 		if (hovered_slot) {
 			if (typeof prev_hovered_slot !== "object" || hovered_slot.id !== prev_hovered_slot.id) {
 				prev_hovered_slot = hovered_slot;
-				inventory.draw_slot(hovered_slot, "#c5c5c5");
+				inventory.draw_slot(hovered_slot, true);
 			}
 		}
 	};
 
 export let
-	Font = {},
+	Items,
 	Color,
 	keys = [],
 	gui_scale = 2,
@@ -202,12 +208,14 @@ export let
 		.then(response => {
 			Font.chars = response[0].chars;
 			Font.size = response[0].size;
+			Items = response[1];
 			Color = response[0].color;
 
 			UI.hud = new Layer({
 				name: "hud",
 				components: {
 					hotbar: new Component({
+						type: "container",
 						origin: ["center", "bottom"],
 						offset: [0, 0],
 						size: [182, 22],
@@ -365,6 +373,21 @@ export let
 					}),
 				},
 			});
+
+			const
+				pumpkin_pie = new Item(960),
+				bread = new Item(737);
+			UI.inventory.components.player_inventory.slots[34].assign(pumpkin_pie);
+			UI.inventory.components.player_inventory.slots[35].assign(bread);
+
+			UI.hud.components.hotbar.clone_slots_of(
+				UI.inventory.components.player_inventory.slots.filter(s => s.type === "hotbar"),
+				(s, i) => {
+					s.origin = ["left", "top"];
+					s.offset = [-80 + 20 * i];
+				},
+				UI.inventory.components.player_inventory
+			);
 
 			document.body.appendChild(layer_set);
 
