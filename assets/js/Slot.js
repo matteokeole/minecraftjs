@@ -129,11 +129,14 @@ export const Slot = function(slot = {}) {
 	this.hover = () => {
 		this.hovered = true;
 
-		this.component.layer.ctx.fillStyle = "#fff";
-		this.component.layer.ctx.globalAlpha = .496;
+		// Lighten the slot
+		this.component.layer.ctx.fillStyle = "#ffffff";
+		this.component.layer.ctx.globalAlpha = .5; // #c5c5c5
 		this.component.layer.ctx.fillRect(
-			this.x + scale, this.y + scale,
-			this.w - 2 * scale, this.h - 2 * scale,
+			this.x + scale,
+			this.y + scale,
+			this.w - 2 * scale,
+			this.h - 2 * scale,
 		);
 
 		// Reset the alpha value for future drawings
@@ -146,21 +149,28 @@ export const Slot = function(slot = {}) {
 	 * Remove the slot hover effect.
 	 */
 	this.leave = () => {
-		this.hovered = false;
+		// Draw slot background color
 		this.component.layer.ctx.fillStyle = "#8d8d8d";
 		this.component.layer.ctx.fillRect(
-			this.x + scale, this.y + scale,
-			this.w - 2 * scale, this.h - 2 * scale,
+			this.x + scale,
+			this.y + scale,
+			this.w - 2 * scale,
+			this.h - 2 * scale,
 		);
 
+		// Draw slot item if there is one
 		let item = this.item || this.refer_to && this.refer_to.item;
 		if (item) {
 			this.component.layer.ctx.drawImage(
 				LOADED_TEXTURES[item.texture],
-				0, 0,
-				16, 16,
-				this.x + scale, this.y + scale,
-				this.w - 2 * scale, this.h - 2 * scale,
+				0,
+				0,
+				16,
+				16,
+				this.x + scale,
+				this.y + scale,
+				this.w - 2 * scale,
+				this.h - 2 * scale,
 			);
 		}
 
@@ -184,10 +194,11 @@ Slot.clear_background = s => {
 
 /**
  * Return the slot found at the event coordinates, or false if none is found.
- * @param	{object}	c	Parent component
- * @param	{object}	e	Event object
+ * @param	{object}	c							Parent component
+ * @param	{object}	e							Event object
+ * @param	{object}	[include_references=true]	Indicates whereas to include reference slots in the return
  */
-Slot.get_slot_at = (c, e) => {
+Slot.get_slot_at = (c, e, include_references = true) => {
 	let x = e.clientX,
 		y = e.clientY;
 
@@ -195,9 +206,12 @@ Slot.get_slot_at = (c, e) => {
 		if (
 			x >= s.x		&&	// Left side
 			x < s.x + s.w	&&	// Right side
-			y > s.y			&&	// Top side
-			y < s.y + s.h		// Bottom side
-		) return s;
+			y >= s.y		&&	// Top side
+			y <= s.y + s.h		// Bottom side
+		) {
+			if (include_references && s.refer_to) return s.refer_to;
+			else return s;
+		}
 	}
 
 	return false;

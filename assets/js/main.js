@@ -149,7 +149,7 @@ export const
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
 				Player.permissions.open_inventory = false;
-				hovered_slot && hovered_slot.render_item();
+				slot_hovered && slot_hovered.render_item();
 				break;
 			case Keybind.toggle_debug:
 				if (!UI.inventory.visible && !UI.pause.visible && Player.permissions.toggle_debug) {
@@ -216,8 +216,8 @@ export let
 	gui_scale = 2, // Preferred interface scale
 	scale = gui_scale, // Current interface scale
 	selected_slot = 0, // Index of the current hotbar slot
-	prev_hovered_slot = false, // Index of the previously selected hotbar slot
-	hovered_slot = false, // Hovered slot reference
+	slot_hovered_prev = false, // Index of the previously selected hotbar slot
+	slot_hovered = false, // Hovered slot reference
 	debug_visible = true, // Is debug menu visible
 	startTime = performance.now(), // For FPS counter
 	frame = 0; // For FPS counter
@@ -419,12 +419,9 @@ export let
 
 			load_textures(() => {
 				// Textures loaded
-				const
-					pumpkin_pie = new Item(960),
-					bread = new Item(737);
-
 				document.body.appendChild(LayerFragment);
 
+				let pumpkin_pie = new Item(960), bread = new Item(737);
 				ReferenceSlots.hotbar[7].assign(bread);
 				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 
@@ -444,6 +441,9 @@ export let
 					layer_values.forEach(l => update_scale(l));
 				});
 
+				// Right click event
+				addEventListener("contextmenu", e => e.preventDefault());
+
 				// Mouse wheel event
 				addEventListener("wheel", e => {
 					if (!UI.inventory.visible && !UI.pause.visible) {
@@ -455,44 +455,28 @@ export let
 
 				// Mouse move event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("mousemove", e => {
-					hovered_slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
+					slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
 
-					if (prev_hovered_slot) {
-						if (typeof hovered_slot !== "object" || prev_hovered_slot.id !== hovered_slot.id) {
-							prev_hovered_slot.leave();
-							prev_hovered_slot = false;
-						}
+					// Clear the previous hovered slot, if there is one
+					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
+						slot_hovered_prev.leave();
+						slot_hovered_prev = false;
 					}
 
-					if (hovered_slot) {
-						if (typeof prev_hovered_slot !== "object" || hovered_slot.id !== prev_hovered_slot.id) {
-							hovered_slot.hover();
-							prev_hovered_slot = hovered_slot;
-						}
+					// Hover the slot found at the cursor coordinates, if there is one
+					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
+						slot_hovered.hover();
+						slot_hovered_prev = slot_hovered;
 					}
 				});
 
-				// Mouse move event (only for the inventory layer)
+				// Left click event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("click", e => {
-					let slot_clicked = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-					if (slot_clicked) {
-						if (slot_clicked.refer_to) {
-							if (slot_clicked.refer_to.item) slot_clicked.refer_to.empty();
-							else {
-								slot_clicked.refer_to.assign(pumpkin_pie);
-							}
-						} else {
-							if (slot_clicked.item) slot_clicked.empty();
-							else {
-								slot_clicked.assign(pumpkin_pie);
-							}
-						}
-					}
-					// slot_clicked.hover();
-				});
+					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
 
-				// Right click event
-				addEventListener("contextmenu", e => e.preventDefault());
+					if (slot.item) slot.empty();
+					else if (slot) slot.assign(pumpkin_pie);
+				});
 			});
 		})
 		.catch(error => console.error(error));

@@ -204,6 +204,7 @@ export function Layer(layer = {}) {
 			if (c.type === "container") {
 				for (let s of c.slots) {
 					c.compute_slot(s);
+					s.hovered = false;
 					s.render_item();
 				}
 			}
