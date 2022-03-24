@@ -14,7 +14,7 @@ export const
 	},
 	LOADED_TEXTURES = {},
 	LayerFragment = document.createDocumentFragment(),
-	update_scale = l => {
+	calc_scale = () => {
 		WINDOW.WIDTH = innerWidth;
 		WINDOW.HEIGHT = innerHeight;
 		scale = gui_scale;
@@ -24,6 +24,8 @@ export const
 				WINDOW.HEIGHT < i * WINDOW.DEFAULT_HEIGHT
 			) scale = i - 1;
 		}
+	},
+	update_scale = l => {
 		if (l.components.display) l.components.display.text = `Display: ${WINDOW.WIDTH}x${WINDOW.HEIGHT}`;
 		l.resize().redraw();
 	},
@@ -220,6 +222,7 @@ export let
 			FONT.size = response[0].size;
 			Items = response[1];
 			Color = response[0].color;
+			calc_scale();
 
 
 
@@ -423,9 +426,6 @@ export let
 
 			document.body.appendChild(LayerFragment);
 
-			// Load layer textures, then scale the UI
-			layer_values.forEach(l => {l.load_textures(() => update_scale(l))});
-
 
 
 			/* Event listeners */
@@ -444,6 +444,7 @@ export let
 			// Window resize event
 			addEventListener("resize", () => {
 				// Update layers with the new scale
+				calc_scale();
 				layer_values.forEach(l => update_scale(l));
 			});
 

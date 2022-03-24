@@ -1,4 +1,4 @@
-import {WINDOW, LOADED_TEXTURES, FONT, LayerFragment, scale, visibilities} from "./main.js";
+import {WINDOW, LOADED_TEXTURES, FONT, LayerFragment, update_scale, scale, visibilities} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -131,39 +131,6 @@ export function Layer(layer = {}) {
 		return this;
 	};
 
-	this.load_textures = callback => {
-		// Get the list of component texture sources (no duplicate entries)
-		let sources = [...new Set(component_values.map(c => c.texture))],
-			length = sources.length,
-			j = 0;
-
-		for (let i of sources) {
-			if (i in LOADED_TEXTURES) {
-				LOADED_TEXTURES[i].addEventListener("load", () => {
-					// Run the callback function when all textures are loaded
-					callback && ++j === length && callback();
-				});
-			} else {
-				LOADED_TEXTURES[i] = new Image();
-				LOADED_TEXTURES[i].addEventListener("load", () => {
-					// Run the callback function when all textures are loaded
-					callback && ++j === length && callback();
-				});
-				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
-			}
-		}
-	};
-
-	/**
-	 * Reload the component textures and redraw all components on the canvas.
-	 * NOTE: This method reloads the component textures each time it is called.
-	 */
-	this.update = () => {
-		this.load_textures(this.redraw);
-
-		return this;
-	};
-
 	this.redraw = (...cs) => {
 		let redraw_single = true;
 		if (!cs.length) {
@@ -263,6 +230,27 @@ export function Layer(layer = {}) {
 		c[1].name = c[0];
 		c[1].layer = this;
 	});
+
+	// Load textures
+	let sources = [...new Set(component_values.map(c => c.texture))],
+		length = sources.length,
+		j = 0;
+
+	for (let i of sources) {
+		if (i in LOADED_TEXTURES) {
+			LOADED_TEXTURES[i].addEventListener("load", () => {
+				// Run the callback function when all textures are loaded
+				++j === length && update_scale(this);
+			});
+		} else {
+			LOADED_TEXTURES[i] = new Image();
+			LOADED_TEXTURES[i].addEventListener("load", () => {
+				// Run the callback function when all textures are loaded
+				++j === length && update_scale(this);
+			});
+			LOADED_TEXTURES[i].src = `assets/textures/${i}`;
+		}
+	}
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;
