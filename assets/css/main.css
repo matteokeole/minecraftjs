@@ -17,7 +17,7 @@ body {
 	pointer-events: none;
 }
 
-.layer.debug {
+.layer.debug, .layer.flowing-item {
 	pointer-events: none;
 }
 

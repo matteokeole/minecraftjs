@@ -1,9 +1,10 @@
+import {LOADED_TEXTURES, scale, Color} from "./main.js";
 import {Slot} from "./Slot.js";
 import {Item} from "./Item.js";
-import {LOADED_TEXTURES, scale, Color} from "./main.js";
+
 export function Component(c = {}) {
 	this.type = c.type ?? "default";
-	this.origin = c.origin;
+	this.origin = c.origin ?? ["left", "top"];
 	this.offset = c.offset;
 	this.size = c.size ?? [];
 	this.texture = c.texture;
@@ -29,6 +30,7 @@ export function Component(c = {}) {
 			s.y = this.y + o[1];
 			return this;
 		};
+
 		this.draw_slot = (s, hover = false) => {
 			if (s.refer_to) {
 				if (s.refer_to.item) {
@@ -49,6 +51,7 @@ export function Component(c = {}) {
 					s.w - 2 * scale, s.h - 2 * scale,
 				);
 			}
+
 			/*if (hover && !s.transparent) {
 				this.layer.ctx.fillStyle = "#fff";
 				this.layer.ctx.globalAlpha = .496;
@@ -75,20 +78,11 @@ export function Component(c = {}) {
 				}
 			}
 			this.layer.ctx.globalAlpha = 1;*/
+
 			return this;
 		};
+
 		this.empty_slot = s => {
-			this.layer.ctx.clearRect(
-				s.x + scale, s.y + scale,
-				s.w - 2 * scale, s.h - 2 * scale,
-			);
-			this.layer.ctx.drawImage(
-				LOADED_TEXTURES[s.component.texture],
-				s.offset[0], s.offset[1],
-				16, 16,
-				s.x, s.y,
-				s.w - scale, s.h - scale,
-			);
 		};
 	}
 }

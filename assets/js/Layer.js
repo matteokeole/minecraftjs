@@ -1,4 +1,4 @@
-import {WINDOW, LOADED_TEXTURES, FONT, LayerFragment, update_scale, scale, visibilities} from "./main.js";
+import {WINDOW, LOADED_TEXTURES, Font, LayerFragment, update_scale, scale, visibilities} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -36,10 +36,10 @@ export function Layer(layer = {}) {
 	/**
 	 * Set the layer size.
 	 * NOTE: The new size will be applied on the layer components after a canvas update.
-	 * @param	{number}	[w=innerWidth]	Width value
-	 * @param	{number}	[h=innerHeight]	Height value
+	 * @param	{number}	[w=WINDOW.WIDTH]	Width value
+	 * @param	{number}	[h=WINDOW.HEIGHT]	Height value
 	 */
-	this.resize = (w = innerWidth, h = innerHeight) => {
+	this.resize = (w = WINDOW.WIDTH, h = WINDOW.HEIGHT) => {
 		this.w = w;
 		this.h = h;
 
@@ -80,7 +80,7 @@ export function Layer(layer = {}) {
 			for (let l of c.lines) {
 				let w = 0;
 				for (let c of l) {
-					w += (FONT.size[c] ?? 5) + 1;
+					w += (Font.size[c] ?? 5) + 1;
 				}
 				widths.push(w);
 			}
@@ -150,7 +150,7 @@ export function Layer(layer = {}) {
 			for (let l of c.lines) {
 				x = c.x + scale;
 				for (let ch of l) {
-					let i = FONT.chars.indexOf(ch),
+					let i = Font.chars.indexOf(ch),
 						u = i % 16 * 8,
 						v = 8 * (Math.floor(i / 16) + 2);
 					if (c.text_shadow) {
@@ -171,7 +171,7 @@ export function Layer(layer = {}) {
 						x, y,
 						6 * scale, 8 * scale,
 					);
-					x += ((FONT.size[ch] ?? 5) + 1) * scale;
+					x += ((Font.size[ch] ?? 5) + 1) * scale;
 				}
 				y += 9 * scale;
 			}
@@ -192,16 +192,19 @@ export function Layer(layer = {}) {
 			}
 			this.ctx.globalCompositeOperation = "source-over";
 		} else {
-			this.ctx.drawImage(
-				LOADED_TEXTURES[c.texture],
-				c.uv[0], c.uv[1],
-				c.size[0], c.size[1],
-				c.x, c.y,
-				c.w, c.h,
-			);
+			if (c.texture) {
+				this.ctx.drawImage(
+					LOADED_TEXTURES[c.texture],
+					c.uv[0], c.uv[1],
+					c.size[0], c.size[1],
+					c.x, c.y,
+					c.w, c.h,
+				);
+			}
 			if (c.type === "container") {
 				for (let s of c.slots) {
-					c.compute_slot(s).draw_slot(s);
+					c.compute_slot(s);
+					s.render_item();
 				}
 			}
 		}

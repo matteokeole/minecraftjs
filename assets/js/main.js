@@ -20,7 +20,7 @@ export const
 			j = 0;
 
 		for (let l of layer_values) {
-			Object.values(l.components).map(c => sources_by_layer.push(c.texture));
+			Object.values(l.components).map(c => c.texture && sources_by_layer.push(c.texture));
 		}
 
 		sources = [...new Set(sources_by_layer)];
@@ -40,8 +40,8 @@ export const
 		}
 	},
 	calc_scale = () => {
-		WINDOW.WIDTH = innerWidth;
-		WINDOW.HEIGHT = innerHeight;
+		WINDOW.WIDTH = Math.ceil(innerWidth / 2) * 2;
+		WINDOW.HEIGHT = Math.ceil(innerHeight / 2) * 2;
 		scale = gui_scale;
 		for (let i = gui_scale + 1; i > 1; i--) {
 			if (
@@ -96,7 +96,7 @@ export const
 		"assets/font.json",
 		"assets/items.json",
 	],
-	FONT = {},
+	Font = {},
 	Keybind = {
 		escape: "Escape",
 		walk_forwards: "KeyW",
@@ -149,7 +149,7 @@ export const
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
 				Player.permissions.open_inventory = false;
-				hovered_slot && UI.inventory.components.player_inventory.draw_slot(hovered_slot);
+				hovered_slot && hovered_slot.render_item();
 				break;
 			case Keybind.toggle_debug:
 				if (!UI.inventory.visible && !UI.pause.visible && Player.permissions.toggle_debug) {
@@ -205,21 +205,7 @@ export const
 		);
 		s.offset[0] = -80 + 20 * n;
 		UI.hud.compute(s).draw(s);
-		h.slots.forEach(s => h.draw_slot(s));
-	},
-	hover_slot = e => {
-		let inventory = UI.inventory.components.player_inventory;
-		hovered_slot = Slot.get_slot_at(inventory, e);
-		if (prev_hovered_slot) {
-			inventory.draw_slot(prev_hovered_slot);
-			prev_hovered_slot = false;
-		}
-		if (hovered_slot) {
-			if (typeof prev_hovered_slot !== "object" || hovered_slot.id !== prev_hovered_slot.id) {
-				prev_hovered_slot = hovered_slot;
-				inventory.draw_slot(hovered_slot, true);
-			}
-		}
+		h.slots.forEach(s => s.render_item());
 	};
 
 export let
@@ -245,17 +231,11 @@ export let
 		.all(RESOURCES.map(r => fetch(r).then(response => response.json())))
 		.then(response => {
 			// Stock response
-			FONT.chars = response[0].chars;
-			FONT.size = response[0].size;
+			Font.chars = response[0].chars;
+			Font.size = response[0].size;
 			Items = response[1];
 			Color = response[0].color;
 			calc_scale();
-
-
-
-			/* Create interface layers */
-
-
 
 			// HUD layer
 			UI.hud = new Layer({
@@ -275,7 +255,6 @@ export let
 								2,
 							],
 							refer_to: ReferenceSlots.hotbar[i],
-							transparent: true,
 						})),
 					}),
 					selector: new Component({
@@ -309,57 +288,45 @@ export let
 				components: {
 					version: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 1],
-						text: "Minecraft JS (pre-alpha 220322)",
+						text: "Minecraft JS (pre-alpha 220324)",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					fps: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 10],
 						text: get_fps(),
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					xyz: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 28],
 						text: "XYZ: 0.000 / 0.00000 / 0.000",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					block: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 37],
 						text: "Block: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					chunk: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 46],
 						text: "Chunk: 0 0 0",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					facing: new Component({
 						type: "text",
-						origin: ["left", "top"],
 						offset: [1, 55],
 						text: "Facing: - (Towards - -) (0 / 0)",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					js: new Component({
 						type: "text",
@@ -368,7 +335,6 @@ export let
 						text: `JavaScript: ${get_js_version()} ${get_registry_size()}bit`,
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					cpu: new Component({
 						type: "text",
@@ -377,7 +343,6 @@ export let
 						text: `CPU: ${navigator.hardwareConcurrency}x`,
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 					display: new Component({
 						type: "text",
@@ -386,7 +351,6 @@ export let
 						text: "",
 						text_background: "#080400",
 						text_background_alpha: .21,
-						text_color: Color.white,
 					}),
 				},
 			});
@@ -423,6 +387,18 @@ export let
 				},
 			});
 
+			// Flowing item layer
+			UI.flowing_item = new Layer({
+				name: "flowing-item",
+				visible: 0,
+				components: {
+					item: new Component({
+						offset: [0, 0],
+						uv: [0, 0],
+					}),
+				},
+			});
+
 			// Pause menu layer
 			UI.pause = new Layer({
 				name: "pause",
@@ -433,13 +409,10 @@ export let
 						origin: ["center", "top"],
 						offset: [0, 9],
 						text: "Game Paused",
-						text_color: Color.white,
 						text_shadow: true,
 					}),
 				},
 			});
-
-
 
 			// Get UI content as an array
 			layer_values = Object.values(UI);
@@ -481,7 +454,23 @@ export let
 				});
 
 				// Mouse move event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("mousemove", e => hover_slot(e));
+				UI.inventory.canvas.addEventListener("mousemove", e => {
+					hovered_slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
+
+					if (prev_hovered_slot) {
+						if (typeof hovered_slot !== "object" || prev_hovered_slot.id !== hovered_slot.id) {
+							prev_hovered_slot.leave();
+							prev_hovered_slot = false;
+						}
+					}
+
+					if (hovered_slot) {
+						if (typeof prev_hovered_slot !== "object" || hovered_slot.id !== prev_hovered_slot.id) {
+							hovered_slot.hover();
+							prev_hovered_slot = hovered_slot;
+						}
+					}
+				});
 
 				// Mouse move event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("click", e => {
@@ -489,28 +478,21 @@ export let
 					if (slot_clicked) {
 						if (slot_clicked.refer_to) {
 							if (slot_clicked.refer_to.item) slot_clicked.refer_to.empty();
-							else slot_clicked.refer_to.assign(pumpkin_pie);
+							else {
+								slot_clicked.refer_to.assign(pumpkin_pie);
+							}
 						} else {
 							if (slot_clicked.item) slot_clicked.empty();
-							else slot_clicked.assign(pumpkin_pie);
+							else {
+								slot_clicked.assign(pumpkin_pie);
+							}
 						}
 					}
+					// slot_clicked.hover();
 				});
 
-				// lmao.
-				UI.inventory.canvas.addEventListener("contextmenu", e => {
-					e.preventDefault();
-					let slot_clicked = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-					if (slot_clicked) {
-						if (slot_clicked.refer_to) {
-							if (slot_clicked.refer_to.item) slot_clicked.refer_to.empty();
-							else slot_clicked.refer_to.assign(bread);
-						} else {
-							if (slot_clicked.item) slot_clicked.empty();
-							else slot_clicked.assign(bread);
-						}
-					}
-				});
+				// Right click event
+				addEventListener("contextmenu", e => e.preventDefault());
 			});
 		})
 		.catch(error => console.error(error));

@@ -1,9 +1,27 @@
 import {Items} from "./main.js";
-export function Item(id) {
-	let i = Items.find(i => i.id === id);
+
+/**
+ * Create a new game item.
+ *
+ * Param	Type		Name=Default	Description
+ * @param	{number}	id				Item ID
+ */
+export const Item = function(id) {
+	// Get the item from the fetched item list
+	let item = Items.find(i => i.id === id);
+
+	// ID
 	this.id = id;
-	this.display_name = i.displayName;
-	this.name = i.name;
+
+	// Display name
+	this.display_name = item.displayName;
+
+	// Code name
+	this.name = item.name;
+
+	// Parent slot
 	this.slot = null;
+
+	// Texture file path
 	this.texture = `item/${this.name}.png`;
 }
