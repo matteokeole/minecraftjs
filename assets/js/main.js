@@ -14,6 +14,31 @@ export const
 	},
 	LOADED_TEXTURES = {},
 	LayerFragment = document.createDocumentFragment(),
+	load_textures = callback => {
+		let sources_by_layer = [],
+			sources,
+			j = 0;
+
+		for (let l of layer_values) {
+			Object.values(l.components).map(c => sources_by_layer.push(c.texture));
+		}
+
+		sources = [...new Set(sources_by_layer)];
+
+		for (let i of sources) {
+			if (!(i in LOADED_TEXTURES)) {
+				LOADED_TEXTURES[i] = new Image();
+				LOADED_TEXTURES[i].addEventListener("load", () => {
+					// Run the callback function when all textures are loaded
+					if (++j === sources.length) {
+						layer_values.forEach(l => update_scale(l));
+						callback();
+					}
+				});
+				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
+			}
+		}
+	},
 	calc_scale = () => {
 		WINDOW.WIDTH = innerWidth;
 		WINDOW.HEIGHT = innerHeight;
@@ -101,7 +126,9 @@ export const
 			toggle_debug: true,
 			toggle_pause: true,
 		},
-		hotbar_slots: Array.from({length: 9}, (_, i) => {
+	},
+	ReferenceSlots = {
+		hotbar: Array.from({length: 9}, (_, i) => {
 			return new Slot({
 				type: "hotbar",
 			});
@@ -247,7 +274,7 @@ export let
 								2 + i * 20,
 								2,
 							],
-							refer_to: Player.hotbar_slots[i],
+							refer_to: ReferenceSlots.hotbar[i],
 							transparent: true,
 						})),
 					}),
@@ -389,7 +416,7 @@ export let
 									7 + i * 18,
 									141,
 								],
-								refer_to: Player.hotbar_slots[i],
+								refer_to: ReferenceSlots.hotbar[i],
 							})),
 						),
 					}),
@@ -417,48 +444,74 @@ export let
 			// Get UI content as an array
 			layer_values = Object.values(UI);
 
-			const
-				pumpkin_pie = new Item(960),
-				bread = new Item(737);
+			load_textures(() => {
+				// Textures loaded
+				const
+					pumpkin_pie = new Item(960),
+					bread = new Item(737);
 
-			Player.hotbar_slots[7].assign(bread);
-			Player.hotbar_slots[8].assign(pumpkin_pie);
+				document.body.appendChild(LayerFragment);
 
-			document.body.appendChild(LayerFragment);
+				ReferenceSlots.hotbar[7].assign(bread);
+				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 
+				// Keydown event
+				addEventListener("keydown", e => {
+					if (e.code === "F3" || e.code === "Tab" || e.code === "Digit4") e.preventDefault();
+					add_keybind(e);
+				});
 
+				// Keyup event
+				addEventListener("keyup", e => remove_keybind(e));
 
-			/* Event listeners */
+				// Window resize event
+				addEventListener("resize", () => {
+					// Update layers with the new scale
+					calc_scale();
+					layer_values.forEach(l => update_scale(l));
+				});
 
+				// Mouse wheel event
+				addEventListener("wheel", e => {
+					if (!UI.inventory.visible && !UI.pause.visible) {
+						let prev_slot = selected_slot;
+						selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
+						select_hotbar_slot(prev_slot, selected_slot);
+					}
+				});
 
+				// Mouse move event (only for the inventory layer)
+				UI.inventory.canvas.addEventListener("mousemove", e => hover_slot(e));
 
-			// Keydown event
-			addEventListener("keydown", e => {
-				if (e.code === "F3" || e.code === "Tab" || e.code === "Digit4") e.preventDefault();
-				add_keybind(e);
+				// Mouse move event (only for the inventory layer)
+				UI.inventory.canvas.addEventListener("click", e => {
+					let slot_clicked = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
+					if (slot_clicked) {
+						if (slot_clicked.refer_to) {
+							if (slot_clicked.refer_to.item) slot_clicked.refer_to.empty();
+							else slot_clicked.refer_to.assign(pumpkin_pie);
+						} else {
+							if (slot_clicked.item) slot_clicked.empty();
+							else slot_clicked.assign(pumpkin_pie);
+						}
+					}
+				});
+
+				// lmao.
+				UI.inventory.canvas.addEventListener("contextmenu", e => {
+					e.preventDefault();
+					let slot_clicked = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
+					if (slot_clicked) {
+						if (slot_clicked.refer_to) {
+							if (slot_clicked.refer_to.item) slot_clicked.refer_to.empty();
+							else slot_clicked.refer_to.assign(bread);
+						} else {
+							if (slot_clicked.item) slot_clicked.empty();
+							else slot_clicked.assign(bread);
+						}
+					}
+				});
 			});
-
-			// Keyup event
-			addEventListener("keyup", e => remove_keybind(e));
-
-			// Window resize event
-			addEventListener("resize", () => {
-				// Update layers with the new scale
-				calc_scale();
-				layer_values.forEach(l => update_scale(l));
-			});
-
-			// Mouse wheel event
-			addEventListener("wheel", e => {
-				if (!UI.inventory.visible && !UI.pause.visible) {
-					let prev_slot = selected_slot;
-					selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
-					select_hotbar_slot(prev_slot, selected_slot);
-				}
-			});
-
-			// Mouse move event (only for the inventory layer)
-			UI.inventory.canvas.addEventListener("mousemove", e => hover_slot(e));
 		})
 		.catch(error => console.error(error));
 })();

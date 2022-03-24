@@ -32,8 +32,6 @@ export function Layer(layer = {}) {
 
 	// Component list
 	this.components = layer.components ?? {};
-	let component_entries	= Object.entries(this.components),
-		component_values	= Object.values(this.components);
 
 	/**
 	 * Set the layer size.
@@ -135,7 +133,7 @@ export function Layer(layer = {}) {
 		let redraw_single = true;
 		if (!cs.length) {
 			redraw_single = false;
-			cs = component_values.map(c => c.name);
+			cs = Object.values(this.components).map(c => c.name);
 			this.erase();
 		}
 		for (let c of cs) {
@@ -226,31 +224,10 @@ export function Layer(layer = {}) {
 	};
 
 	// Initialize layer components
-	component_entries.forEach(c => {
+	Object.entries(this.components).forEach(c => {
 		c[1].name = c[0];
 		c[1].layer = this;
 	});
-
-	// Load textures
-	let sources = [...new Set(component_values.map(c => c.texture))],
-		length = sources.length,
-		j = 0;
-
-	for (let i of sources) {
-		if (i in LOADED_TEXTURES) {
-			LOADED_TEXTURES[i].addEventListener("load", () => {
-				// Run the callback function when all textures are loaded
-				++j === length && update_scale(this);
-			});
-		} else {
-			LOADED_TEXTURES[i] = new Image();
-			LOADED_TEXTURES[i].addEventListener("load", () => {
-				// Run the callback function when all textures are loaded
-				++j === length && update_scale(this);
-			});
-			LOADED_TEXTURES[i].src = `assets/textures/${i}`;
-		}
-	}
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;

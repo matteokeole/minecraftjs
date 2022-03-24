@@ -1,0 +1,26 @@
+<body>
+	<script>
+		let Layer = function() {},
+			Component = function() {},
+			Slot = function() {},
+			ReferenceSlots = {
+				hotbar: Array.from({length: 9}, (_, i) => new Slot()),
+			},
+			layer1 = new Layer({
+				name: "layer1",
+				components: {
+					hotbar: new Component({
+						//
+					}),
+				},
+			}),
+			layer2 = new Layer({
+				name: "layer2",
+				components: {
+					hotbar: new Component({
+						//
+					}),
+				},
+			});
+	</script>
+</body>

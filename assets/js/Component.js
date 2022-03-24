@@ -30,9 +30,26 @@ export function Component(c = {}) {
 			return this;
 		};
 		this.draw_slot = (s, hover = false) => {
-			this.layer.ctx.globalAlpha = 1;
-			if (s.refer_to && s.refer_to.item) this.draw_reference_slot(s);
-			if (hover && !s.transparent) {
+			if (s.refer_to) {
+				if (s.refer_to.item) {
+					this.layer.ctx.drawImage(
+						LOADED_TEXTURES[s.refer_to.item.texture],
+						0, 0,
+						16, 16,
+						s.x + scale, s.y + scale,
+						s.w - 2 * scale, s.h - 2 * scale,
+					);
+				}
+			} else if (s.item) {
+				this.layer.ctx.drawImage(
+					LOADED_TEXTURES[s.item.texture],
+					0, 0,
+					16, 16,
+					s.x + scale, s.y + scale,
+					s.w - 2 * scale, s.h - 2 * scale,
+				);
+			}
+			/*if (hover && !s.transparent) {
 				this.layer.ctx.fillStyle = "#fff";
 				this.layer.ctx.globalAlpha = .496;
 				this.layer.ctx.fillRect(
@@ -55,17 +72,22 @@ export function Component(c = {}) {
 						s.x + scale, s.y + scale,
 						s.w - 2 * scale, s.h - 2 * scale,
 					);
-				} else if (s.refer_to && s.refer_to.item) this.draw_reference_slot(s);
+				}
 			}
+			this.layer.ctx.globalAlpha = 1;*/
 			return this;
 		};
-		this.draw_reference_slot = s => {
-			this.layer.ctx.drawImage(
-				LOADED_TEXTURES[s.refer_to.item.texture],
-				0, 0,
-				16, 16,
+		this.empty_slot = s => {
+			this.layer.ctx.clearRect(
 				s.x + scale, s.y + scale,
 				s.w - 2 * scale, s.h - 2 * scale,
+			);
+			this.layer.ctx.drawImage(
+				LOADED_TEXTURES[s.component.texture],
+				s.offset[0], s.offset[1],
+				16, 16,
+				s.x, s.y,
+				s.w - scale, s.h - scale,
 			);
 		};
 	}
