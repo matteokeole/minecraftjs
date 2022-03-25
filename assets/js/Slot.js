@@ -189,10 +189,10 @@ Slot.clear_background = s => {
 	);
 	s.component.layer.ctx.drawImage(
 		LOADED_TEXTURES[s.component.texture],
-		s.offset[0], s.offset[1],
+		s.offset[0] + 1, s.offset[1] + 1,
 		16, 16,
-		s.x, s.y,
-		s.w - scale, s.h - scale,
+		s.x + scale, s.y + scale,
+		s.w - 2 * scale, s.h - 2 * scale,
 	);
 };
 

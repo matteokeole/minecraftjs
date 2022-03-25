@@ -135,7 +135,6 @@ export const
 		}),
 	},
 	visibilities = ["hidden", "visible"],
-	FlowingItem = document.querySelector("#flowing-item"),
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -383,18 +382,6 @@ export let
 				},
 			});
 
-			// Flowing item layer
-			UI.flowing_item = new Layer({
-				name: "flowing-item",
-				visible: 0,
-				parent: FlowingItem,
-				components: {
-					item: new Component({
-						size: [16, 16],
-					}),
-				},
-			});
-
 			// Pause menu layer
 			UI.pause = new Layer({
 				name: "pause",
@@ -467,25 +454,9 @@ export let
 				});
 
 				// Left click event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("click", e => {
+				/*UI.inventory.canvas.addEventListener("click", e => {
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-
-					if (slot.item) {
-						let item = slot.empty();
-						/*UI.flowing_item.components.item.texture = item.texture;
-						UI.flowing_item
-							.redraw("item")
-							.toggle(1);
-						FlowingItem.style.width = UI.flowing_item.components.item.w + "px";
-						FlowingItem.style.height = UI.flowing_item.components.item.h + "px";
-						UI.inventory.canvas.addEventListener("mousemove", flow_item);*/
-					}
-				});
-
-				function flow_item(e) {
-					FlowingItem.style.left = `${e.clientX}px`;
-					FlowingItem.style.top = `${e.clientY}px`;
-				}
+				});*/
 			});
 		})
 		.catch(error => console.error(error));
