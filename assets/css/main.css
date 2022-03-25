@@ -17,6 +17,11 @@ body {
 	pointer-events: none;
 }
 
+#flowing-item {
+	position: absolute;
+	z-index: 1;
+}
+
 .layer.debug, .layer.flowing-item {
 	pointer-events: none;
 }

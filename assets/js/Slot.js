@@ -82,9 +82,11 @@ export const Slot = function(slot = {}) {
 		};
 
 		/**
-		 * Remove the slot current item.
+		 * Remove the slot current item and return it.
 		 */
 		this.empty = () => {
+			let removed_item = this.item;
+
 			this.item = null;
 
 			if (this.reference_for) this.reference_for.forEach(s => {
@@ -95,6 +97,8 @@ export const Slot = function(slot = {}) {
 
 			// Hover the slot if it was hovered before the process
 			if (this.hovered) this.hover();
+
+			return removed_item;
 		};
 	}
 

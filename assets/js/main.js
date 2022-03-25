@@ -135,6 +135,7 @@ export const
 		}),
 	},
 	visibilities = ["hidden", "visible"],
+	FlowingItem = document.querySelector("#flowing-item"),
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -218,7 +219,7 @@ export let
 	selected_slot = 0, // Index of the current hotbar slot
 	slot_hovered_prev = false, // Index of the previously selected hotbar slot
 	slot_hovered = false, // Hovered slot reference
-	debug_visible = true, // Is debug menu visible
+	debug_visible = false, // Is debug menu visible
 	startTime = performance.now(), // For FPS counter
 	frame = 0; // For FPS counter
 
@@ -233,8 +234,8 @@ export let
 			// Stock response
 			Font.chars = response[0].chars;
 			Font.size = response[0].size;
-			Items = response[1];
 			Color = response[0].color;
+			Items = response[1];
 			calc_scale();
 
 			// HUD layer
@@ -244,10 +245,8 @@ export let
 					hotbar: new Component({
 						type: "container",
 						origin: ["center", "bottom"],
-						offset: [0, 0],
 						size: [182, 22],
 						texture: "gui/widgets.png",
-						uv: [0, 0],
 						slots: Array.from({length: 9}, (_, i) => new Slot({
 							type: "hotbar",
 							offset: [
@@ -273,7 +272,6 @@ export let
 				components: {
 					crosshair: new Component({
 						origin: ["center", "center"],
-						offset: [0, 0],
 						size: [9, 9],
 						texture: "gui/icons.png",
 						uv: [3, 3],
@@ -362,10 +360,8 @@ export let
 					player_inventory: new Component({
 						type: "container",
 						origin: ["center", "center"],
-						offset: [0, 0],
 						size: [176, 166],
 						texture: "gui/container/inventory.png",
-						uv: [0, 0],
 						slots: [].concat(
 							Array.from({length: 27}, (_, i) => new Slot({
 								type: "storage",
@@ -391,10 +387,10 @@ export let
 			UI.flowing_item = new Layer({
 				name: "flowing-item",
 				visible: 0,
+				parent: FlowingItem,
 				components: {
 					item: new Component({
-						offset: [0, 0],
-						uv: [0, 0],
+						size: [16, 16],
 					}),
 				},
 			});
@@ -474,9 +470,22 @@ export let
 				UI.inventory.canvas.addEventListener("click", e => {
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
 
-					if (slot.item) slot.empty();
-					else if (slot) slot.assign(pumpkin_pie);
+					if (slot.item) {
+						let item = slot.empty();
+						/*UI.flowing_item.components.item.texture = item.texture;
+						UI.flowing_item
+							.redraw("item")
+							.toggle(1);
+						FlowingItem.style.width = UI.flowing_item.components.item.w + "px";
+						FlowingItem.style.height = UI.flowing_item.components.item.h + "px";
+						UI.inventory.canvas.addEventListener("mousemove", flow_item);*/
+					}
 				});
+
+				function flow_item(e) {
+					FlowingItem.style.left = `${e.clientX}px`;
+					FlowingItem.style.top = `${e.clientY}px`;
+				}
 			});
 		})
 		.catch(error => console.error(error));

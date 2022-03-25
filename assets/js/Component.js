@@ -5,8 +5,8 @@ import {Item} from "./Item.js";
 export function Component(c = {}) {
 	this.type = c.type ?? "default";
 	this.origin = c.origin ?? ["left", "top"];
-	this.offset = c.offset;
-	this.size = c.size ?? [];
+	this.offset = c.offset ?? [0, 0];
+	this.size = c.size ?? [0, 0];
 	this.texture = c.texture;
 	this.uv = c.uv ?? [0, 0];
 	if (c.type === "text") {
