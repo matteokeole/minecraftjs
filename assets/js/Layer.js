@@ -1,4 +1,4 @@
-import {WINDOW, LOADED_TEXTURES, Font, LayerFragment, update_scale, scale, visibilities} from "./main.js";
+import {WINDOW, LOADED_TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -53,7 +53,8 @@ export function Layer(layer = {}) {
 	 */
 	this.toggle = (state = !this.visible) => {
 		this.visible = Number(state);
-		this.canvas.style.visibility = visibilities[this.visible];
+		this.canvas.style.visibility = Visibilities[this.visible];
+		if (this.parent !== LayerFragment) this.parent.style.visibility = Visibilities[this.visible];
 
 		return this;
 	};
@@ -129,101 +130,136 @@ export function Layer(layer = {}) {
 		return this;
 	};
 
+	/**
+	 * Redraw the specified component(s) on the canvas, or all if omitted (with a canvas clearing).
+	 * NOTE: This method doesn't reload the component textures.
+	 * @param	{...object}	[cs]	Component(s) to be redrawed
+	 */
 	this.redraw = (...cs) => {
-		let redraw_single = true;
+		let redraw_all = false;
+
 		if (!cs.length) {
-			redraw_single = false;
+			redraw_all = true;
 			cs = Object.values(this.components).map(c => c.name);
 			this.erase();
 		}
+
 		for (let c of cs) {
 			c = this.components[c];
-			redraw_single && this.erase(c);
+			!redraw_all && this.erase(c);
 			this.compute(c).draw(c);
 		}
+
 		return this;
 	};
 
+	/**
+	 * Draw a specified non-text component on the canvas.
+	 * @param	{object}	c	Component to be drawed
+	 */
 	this.draw = c => {
-		if (c.type === "text") {
-			let x, y = c.y + scale;
-			for (let l of c.lines) {
-				x = c.x + scale;
-				for (let ch of l) {
-					let i = Font.chars.indexOf(ch),
-						u = i % 16 * 8,
-						v = 8 * (Math.floor(i / 16) + 2);
-					if (c.text_shadow) {
-						this.ctx.globalAlpha = .245;
+		switch (c.type) {
+			case "text":
+				let x, y = c.y + scale;
+				for (let l of c.lines) {
+					x = c.x + scale;
+					for (let ch of l) {
+						let i = Font.chars.indexOf(ch),
+							u = i % 16 * 8,
+							v = 8 * (Math.floor(i / 16) + 2);
+						if (c.text_shadow) {
+							this.ctx.globalAlpha = .245;
+							this.ctx.drawImage(
+								LOADED_TEXTURES[c.texture],
+								u,
+								v,
+								6,
+								8,
+								x + scale,
+								y + scale,
+								6 * scale,
+								8 * scale,
+							);
+						}
+						this.ctx.globalAlpha = 1;
 						this.ctx.drawImage(
 							LOADED_TEXTURES[c.texture],
-							u, v,
-							6, 8,
-							x + scale, y + scale,
-							6 * scale, 8 * scale,
+							u,
+							v,
+							6,
+							8,
+							x,
+							y,
+							6 * scale,
+							8 * scale,
 						);
+						x += ((Font.size[ch] ?? 5) + 1) * scale;
 					}
-					this.ctx.globalAlpha = 1;
+					y += 9 * scale;
+				}
+				this.ctx.globalCompositeOperation = "source-atop";
+				this.ctx.fillStyle = c.color;
+				this.ctx.fillRect(
+					c.x,
+					c.y,
+					c.w,
+					c.h + (c.text_shadow ? scale : 0),
+				);
+				if (c.text_background) {
+					this.ctx.globalCompositeOperation = "destination-over";
+					this.ctx.fillStyle = c.text_background;
+					this.ctx.globalAlpha = c.text_background_alpha;
+					this.ctx.fillRect(
+						c.x,
+						c.y,
+						c.w,
+						c.h + (c.text_shadow ? scale : 0),
+					);
+				}
+				this.ctx.globalCompositeOperation = "source-over";
+
+				break;
+
+			default:
+				if (c.texture) {
 					this.ctx.drawImage(
 						LOADED_TEXTURES[c.texture],
-						u, v,
-						6, 8,
-						x, y,
-						6 * scale, 8 * scale,
+						c.uv[0],
+						c.uv[1],
+						c.size[0],
+						c.size[1],
+						c.x,
+						c.y,
+						c.w,
+						c.h,
 					);
-					x += ((Font.size[ch] ?? 5) + 1) * scale;
 				}
-				y += 9 * scale;
-			}
-			this.ctx.globalCompositeOperation = "source-atop";
-			this.ctx.fillStyle = c.color;
-			this.ctx.fillRect(
-				c.x, c.y,
-				c.w, c.h + (c.text_shadow ? scale : 0),
-			);
-			if (c.text_background) {
-				this.ctx.globalCompositeOperation = "destination-over";
-				this.ctx.fillStyle = c.text_background;
-				this.ctx.globalAlpha = c.text_background_alpha;
-				this.ctx.fillRect(
-					c.x, c.y,
-					c.w, c.h + (c.text_shadow ? scale : 0),
-				);
-			}
-			this.ctx.globalCompositeOperation = "source-over";
-		} else {
-			if (c.texture) {
-				this.ctx.drawImage(
-					LOADED_TEXTURES[c.texture],
-					c.uv[0], c.uv[1],
-					c.size[0], c.size[1],
-					c.x, c.y,
-					c.w, c.h,
-				);
-			}
-			if (c.type === "container") {
-				for (let s of c.slots) {
-					c.compute_slot(s);
-					s.hovered = false;
-					s.render_item();
+
+				if (c.type === "container") {
+					for (let s of c.slots) {
+						c.compute_slot(s);
+						s.hovered = false;
+						s.render_item();
+					}
 				}
-			}
+
+				break;
 		}
+
 		return this;
 	};
 
+	/**
+	 * Erase the specified component on the canvas, or the whole canvas if omitted.
+	 * @param	{object}	[c]	Component to be erased
+	 */
 	this.erase = c => {
 		if (c) {
-			this.ctx.clearRect(
-				c.x, c.y,
-				c.w, c.h,
-			);
-		} else {
-			this.ctx.clearRect(
-				0, 0,
-				WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT,
-			);
+			let h = c.h + (c.text_shadow ? scale : 0);
+			this.ctx.clearRect(c.x, c.y, c.w, h);
 		}
+		else this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
+
 		return this;
 	};
 

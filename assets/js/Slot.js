@@ -89,14 +89,13 @@ export const Slot = function(slot = {}) {
 
 			this.item = null;
 
-			if (this.reference_for) this.reference_for.forEach(s => {
+			let s = this.reference_for || this;
+			s.forEach(s => {
 				Slot.clear_background(s);
-				if (s.hovered) s.hover();
-			});
-			else Slot.clear_background(this);
 
-			// Hover the slot if it was hovered before the process
-			if (this.hovered) this.hover();
+				// Hover the slot if it was hovered before the process
+				if (s.hovered) s.hover();
+			})
 
 			return removed_item;
 		};
@@ -108,19 +107,27 @@ export const Slot = function(slot = {}) {
 			if (this.refer_to.item) {
 				this.component.layer.ctx.drawImage(
 					LOADED_TEXTURES[this.refer_to.item.texture],
-					0, 0,
-					16, 16,
-					this.x + scale, this.y + scale,
-					this.w - 2 * scale, this.h - 2 * scale,
+					0,
+					0,
+					16,
+					16,
+					this.x + scale,
+					this.y + scale,
+					this.w - 2 * scale,
+					this.h - 2 * scale,
 				);
 			}
 		} else if (this.item) {
 			this.component.layer.ctx.drawImage(
 				LOADED_TEXTURES[this.item.texture],
-				0, 0,
-				16, 16,
-				this.x + scale, this.y + scale,
-				this.w - 2 * scale, this.h - 2 * scale,
+				0,
+				0,
+				16,
+				16,
+				this.x + scale,
+				this.y + scale,
+				this.w - 2 * scale,
+				this.h - 2 * scale,
 			);
 		}
 
@@ -184,15 +191,21 @@ export const Slot = function(slot = {}) {
 
 Slot.clear_background = s => {
 	s.component.layer.ctx.clearRect(
-		s.x + scale, s.y + scale,
-		s.w - 2 * scale, s.h - 2 * scale,
+		s.x + scale,
+		s.y + scale,
+		s.w - 2 * scale,
+		s.h - 2 * scale,
 	);
 	s.component.layer.ctx.drawImage(
 		LOADED_TEXTURES[s.component.texture],
-		s.offset[0] + 1, s.offset[1] + 1,
-		16, 16,
-		s.x + scale, s.y + scale,
-		s.w - 2 * scale, s.h - 2 * scale,
+		s.offset[0] + 1,
+		s.offset[1] + 1,
+		16,
+		16,
+		s.x + scale,
+		s.y + scale,
+		s.w - 2 * scale,
+		s.h - 2 * scale,
 	);
 };
 

@@ -13,7 +13,11 @@ export const
 		MAX_HEIGHT:		screen.height,
 	},
 	LOADED_TEXTURES = {},
-	LayerFragment = document.createDocumentFragment(),
+	UI = {},
+	RESOURCES = [
+		"assets/font.json",
+		"assets/items.json",
+	],
 	load_textures = callback => {
 		let sources_by_layer = [],
 			sources,
@@ -51,6 +55,9 @@ export const
 		}
 	},
 	update_scale = l => {
+		// Update CSS scale variable
+		document.documentElement.style.setProperty("--scale", `${scale}px`);
+
 		if (l.components.display) l.components.display.text = `Display: ${WINDOW.WIDTH}x${WINDOW.HEIGHT}`;
 		l.resize().redraw();
 	},
@@ -91,50 +98,6 @@ export const
 			navigator.platform === "Win64"
 		) ? 64 : 32;
 	},
-	UI = {},
-	RESOURCES = [
-		"assets/font.json",
-		"assets/items.json",
-	],
-	Font = {},
-	Keybind = {
-		escape: "Escape",
-		walk_forwards: "KeyW",
-		walk_backwards: "KeyS",
-		strafe_left: "KeyA",
-		strafe_right: "KeyD",
-		jump: "Space",
-		toggle_hud: "F1",
-		toggle_debug: "F3",
-		open_inventory: "Tab",
-		hotbar_slots: [
-			"Digit1",
-			"Digit2",
-			"Digit3",
-			"Digit4",
-			"Digit5",
-			"Digit6",
-			"Digit7",
-			"Digit8",
-			"Digit9",
-		],
-	},
-	Player = {
-		permissions: {
-			open_inventory: true,
-			toggle_hud: true,
-			toggle_debug: true,
-			toggle_pause: true,
-		},
-	},
-	ReferenceSlots = {
-		hotbar: Array.from({length: 9}, (_, i) => {
-			return new Slot({
-				type: "hotbar",
-			});
-		}),
-	},
-	visibilities = ["hidden", "visible"],
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -159,7 +122,10 @@ export const
 				Player.permissions.toggle_debug = false;
 				break;
 			case Keybind.escape:
-				if (UI.inventory.visible) UI.inventory.toggle(0);
+				if (UI.inventory.visible) {
+					UI.inventory.toggle(0);
+					UI.tooltip.toggle(0);
+				}
 				else if (Player.permissions.toggle_pause) UI.pause.toggle();
 				Player.permissions.toggle_pause = false;
 				break;
@@ -206,7 +172,50 @@ export const
 		s.offset[0] = -80 + 20 * n;
 		UI.hud.compute(s).draw(s);
 		h.slots.forEach(s => s.render_item());
-	};
+	},
+	// DOM elements
+	LayerFragment = document.createDocumentFragment(),
+	Tooltip = document.createElement("div"),
+	// Data objects
+	Font = {},
+	Keybind = {
+		escape: "Escape",
+		walk_forwards: "KeyW",
+		walk_backwards: "KeyS",
+		strafe_left: "KeyA",
+		strafe_right: "KeyD",
+		jump: "Space",
+		toggle_hud: "F1",
+		toggle_debug: "F3",
+		open_inventory: "Tab",
+		hotbar_slots: [
+			"Digit1",
+			"Digit2",
+			"Digit3",
+			"Digit4",
+			"Digit5",
+			"Digit6",
+			"Digit7",
+			"Digit8",
+			"Digit9",
+		],
+	},
+	Player = {
+		permissions: {
+			open_inventory: true,
+			toggle_hud: true,
+			toggle_debug: true,
+			toggle_pause: true,
+		},
+	},
+	ReferenceSlots = {
+		hotbar: Array.from({length: 9}, (_, i) => {
+			return new Slot({
+				type: "hotbar",
+			});
+		}),
+	},
+	Visibilities = ["hidden", "visible"];
 
 export let
 	Items, // Fetched item list
@@ -345,7 +354,7 @@ export let
 						type: "text",
 						origin: ["right", "top"],
 						offset: [1, 37],
-						text: "",
+						text: "Display:",
 						text_background: "#080400",
 						text_background_alpha: .21,
 					}),
@@ -381,6 +390,29 @@ export let
 					}),
 				},
 			});
+
+			// Tooltip layer
+			UI.tooltip = new Layer({
+				name: "tooltip",
+				// visible: 0,
+				parent: Tooltip,
+				components: {
+					display_name: new Component({
+						type: "text",
+						text: "",
+						text_shadow: true,
+					}),
+					name: new Component({
+						type: "text",
+						offset: [0, 13],
+						text: "",
+						color: Color.dark_gray,
+						text_shadow: true,
+					}),
+				},
+			});
+			Tooltip.id = "tooltip";
+			LayerFragment.appendChild(Tooltip);
 
 			// Pause menu layer
 			UI.pause = new Layer({
@@ -437,26 +469,50 @@ export let
 				});
 
 				// Mouse move event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("mousemove", e => {
-					slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
+				addEventListener("mousemove", e => {
+					if (UI.inventory.visible) {
+						slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
 
-					// Clear the previous hovered slot, if there is one
-					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered_prev.leave();
-						slot_hovered_prev = false;
-					}
+						// Clear the previous hovered slot, if there is one
+						if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
+							slot_hovered_prev.leave();
+							slot_hovered_prev = false;
+						}
 
-					// Hover the slot found at the cursor coordinates, if there is one
-					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered.hover();
-						slot_hovered_prev = slot_hovered;
+						if (!slot_hovered || !slot_hovered.refer_to && !slot_hovered.item) UI.tooltip.toggle(0);
+
+						// Hover the slot found at the cursor coordinates, if there is one
+						if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
+							slot_hovered.hover();
+							slot_hovered_prev = slot_hovered;
+
+							
+							if (slot_hovered.refer_to) {
+								if (slot_hovered.refer_to.item) {
+									UI.tooltip.components.display_name.text = slot_hovered.refer_to.item.display_name;
+									UI.tooltip.redraw("display_name");
+									UI.tooltip.components.name.text = `minecraft:${slot_hovered.refer_to.item.name}`;
+									UI.tooltip.redraw("name");
+
+									Tooltip.style.width = `${UI.tooltip.components.name.w}px`;
+									Tooltip.style.height = `${UI.tooltip.components.display_name.h * 2 + 4 * scale}px`;
+
+									UI.tooltip.toggle(1);
+								} else UI.tooltip.toggle(0);
+							}
+						}
+
+						Tooltip.style.left = `${e.clientX + 9 * scale}px`;
+						Tooltip.style.top = `${e.clientY - 15 * scale}px`;
 					}
 				});
 
 				// Left click event (only for the inventory layer)
-				/*UI.inventory.canvas.addEventListener("click", e => {
+				UI.inventory.canvas.addEventListener("click", e => {
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-				});*/
+
+					slot && slot.reference_for && slot.empty();
+				});
 			});
 		})
 		.catch(error => console.error(error));
