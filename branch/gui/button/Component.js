@@ -1,6 +1,4 @@
-import {Slot} from "./Slot.js";
-import {Item} from "./Item.js";
-import {scale, Color} from "./main.js";
+import {Color} from "./main.js";
 
 /**
  * Construct a new layer component.
@@ -62,34 +60,27 @@ export function Component(c = {}) {
 
 			break;
 
-		case "container":
-			// Slot list
-			this.slots = c.slots ?? [];
+		case "button":
+			// Hover attribute
+			this.hovered = false;
 
-			// Assign each slot to this component
-			this.slots.forEach(s => s.component = this);
+			// Text size
+			this.text_size = [];
 
-			/**
-			 * Calculate the scaled offset/size and absolute position for the specified slot.
-			 * @param	{object}	s	Slot
-			 */
-			this.compute_slot = s => {
-				// Get scaled offset
-				let o = [
-					s.offset[0] * scale,
-					s.offset[1] * scale,
-				];
+			// Text value
+			this.text = c.text ?? "";
 
-				// Scale the size
-				s.w = s.size[0] * scale;
-				s.h = s.size[1] * scale;
+			// Text color
+			this.color = c.color ?? Color.white;
 
-				// Calculate absolute position
-				s.x = this.x + o[0];
-				s.y = this.y + o[1];
+			// Text shadow
+			this.text_shadow = c.text_shadow ?? false;
 
-				return this;
-			};
+			// Link
+			this.link = c.link ?? "";
+
+			// Second texture offset
+			this.uv2 = c.uv2 ?? this.uv;
 
 			break;
 	}

@@ -19,15 +19,14 @@ export const
 		"assets/items.json",
 	],
 	load_textures = callback => {
-		let sources_by_layer = [],
-			sources,
+		let sources = [],
 			j = 0;
 
 		for (let l of layer_values) {
-			Object.values(l.components).map(c => c.texture && sources_by_layer.push(c.texture));
+			Object.values(l.components).map(c => c.texture && sources.push(c.texture));
 		}
 
-		sources = [...new Set(sources_by_layer)];
+		sources = [...new Set(sources)];
 
 		for (let i of sources) {
 			if (!(i in LOADED_TEXTURES)) {
@@ -364,6 +363,7 @@ export let
 			// Inventory layer
 			UI.inventory = new Layer({
 				name: "inventory",
+				visible: 0,
 				components: {
 					player_inventory: new Component({
 						type: "container",
@@ -394,7 +394,7 @@ export let
 			// Tooltip layer
 			UI.tooltip = new Layer({
 				name: "tooltip",
-				// visible: 0,
+				visible: 0,
 				parent: Tooltip,
 				components: {
 					display_name: new Component({
@@ -417,7 +417,7 @@ export let
 			// Pause menu layer
 			UI.pause = new Layer({
 				name: "pause",
-				visible: 0,
+				// visible: 0,
 				components: {
 					title: new Component({
 						type: "text",
@@ -425,6 +425,14 @@ export let
 						offset: [0, 9],
 						text: "Game Paused",
 						text_shadow: true,
+					}),
+					github_link: new Component({
+						type: "button",
+						origin: ["center", "top"],
+						offset: [0, 40],
+						size: [200, 20],
+						texture: "gui/widgets.png",
+						uv: [0, 66],
 					}),
 				},
 			});

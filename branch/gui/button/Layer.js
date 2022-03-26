@@ -1,4 +1,4 @@
-import {WINDOW, LOADED_TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -71,7 +71,7 @@ export function Layer(layer = {}) {
 		];
 
 		// Text components don't have size values by default, we need to calculate them using line size
-		if (c.type === "text") {
+		if (c.type === "button") {
 			// Explode the text in lines
 			c.lines = c.text.split("\n");
 
@@ -87,10 +87,10 @@ export function Layer(layer = {}) {
 			}
 
 			// The width is the max line width found for this component
-			c.size[0] = Math.max(...widths) + 2;
+			c.text_size[0] = (Math.max(...widths) + 2) * scale;
 
 			// Multiply line number to get the height
-			c.size[1] = 9 * c.lines.length;
+			c.text_size[1] = 9 * c.lines.length * scale;
 		}
 
 		// Scale the size
@@ -145,7 +145,7 @@ export function Layer(layer = {}) {
 		}
 
 		for (let c of cs) {
-			c = this.components[c];
+			if (typeof c === "string") c = this.components[c];
 			!redraw_all && this.erase(c);
 			this.compute(c).draw(c);
 		}
@@ -159,18 +159,24 @@ export function Layer(layer = {}) {
 	 */
 	this.draw = c => {
 		switch (c.type) {
-			case "text":
-				let x, y = c.y + scale;
+			default:
+				let ox = c.x + (c.w - c.text_size[0]) / 2,
+					oy = c.y + (c.h - c.text_size[1]) / 2 + (scale / 2),
+					x,
+					y = oy;
+
 				for (let l of c.lines) {
-					x = c.x + scale;
+					x = ox;
+
 					for (let ch of l) {
 						let i = Font.chars.indexOf(ch),
 							u = i % 16 * 8,
 							v = 8 * (Math.floor(i / 16) + 2);
+
 						if (c.text_shadow) {
-							this.ctx.globalAlpha = .245;
+							this.ctx.globalAlpha = .8;
 							this.ctx.drawImage(
-								LOADED_TEXTURES[c.texture],
+								TEXTURES["font/ascii.png"],
 								u,
 								v,
 								6,
@@ -181,9 +187,36 @@ export function Layer(layer = {}) {
 								8 * scale,
 							);
 						}
+
+						x += ((Font.size[ch] ?? 5) + 1) * scale;
+					}
+
+					y += 9 * scale;
+				}
+
+				this.ctx.globalCompositeOperation = "source-atop";
+				this.ctx.fillStyle = c.color;
+				this.ctx.fillRect(
+					ox + scale,
+					oy + scale,
+					c.text_size[0],
+					c.text_size[1] + (c.text_shadow ? scale : 0),
+				);
+				this.ctx.globalAlpha = 1;
+				this.ctx.globalCompositeOperation = "source-over";
+
+				y = oy;
+				for (let l of c.lines) {
+					x = ox;
+
+					for (let ch of l) {
+						let i = Font.chars.indexOf(ch),
+							u = i % 16 * 8,
+							v = 8 * (Math.floor(i / 16) + 2);
+
 						this.ctx.globalAlpha = 1;
 						this.ctx.drawImage(
-							LOADED_TEXTURES[c.texture],
+							TEXTURES["font/ascii.png"],
 							u,
 							v,
 							6,
@@ -193,55 +226,37 @@ export function Layer(layer = {}) {
 							6 * scale,
 							8 * scale,
 						);
+
 						x += ((Font.size[ch] ?? 5) + 1) * scale;
 					}
+
 					y += 9 * scale;
 				}
-				this.ctx.globalCompositeOperation = "source-atop";
+
+				/*this.ctx.globalCompositeOperation = "source-atop";
 				this.ctx.fillStyle = c.color;
 				this.ctx.fillRect(
+					ox,
+					oy,
+					c.text_size[0],
+					c.text_size[1] + (c.text_shadow ? scale : 0),
+				);
+				this.ctx.globalAlpha = 1;*/
+
+				let uv = c.hovered ? c.uv2 : c.uv;
+				this.ctx.globalCompositeOperation = "destination-over";
+				this.ctx.drawImage(
+					TEXTURES[c.texture],
+					uv[0],
+					uv[1],
+					c.size[0],
+					c.size[1],
 					c.x,
 					c.y,
 					c.w,
-					c.h + (c.text_shadow ? scale : 0),
+					c.h,
 				);
-				if (c.text_background) {
-					this.ctx.globalCompositeOperation = "destination-over";
-					this.ctx.fillStyle = c.text_background;
-					this.ctx.globalAlpha = c.text_background_alpha;
-					this.ctx.fillRect(
-						c.x,
-						c.y,
-						c.w,
-						c.h + (c.text_shadow ? scale : 0),
-					);
-				}
 				this.ctx.globalCompositeOperation = "source-over";
-
-				break;
-
-			default:
-				if (c.texture) {
-					this.ctx.drawImage(
-						LOADED_TEXTURES[c.texture],
-						c.uv[0],
-						c.uv[1],
-						c.size[0],
-						c.size[1],
-						c.x,
-						c.y,
-						c.w,
-						c.h,
-					);
-				}
-
-				if (c.type === "container") {
-					for (let s of c.slots) {
-						c.compute_slot(s);
-						s.hovered = false;
-						s.render_item();
-					}
-				}
 
 				break;
 		}
