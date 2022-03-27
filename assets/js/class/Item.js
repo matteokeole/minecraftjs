@@ -1,4 +1,4 @@
-import {Items} from "./main.js";
+import {Items} from "../main.js";
 
 /**
  * Create a new game item.

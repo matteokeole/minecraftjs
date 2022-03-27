@@ -1,4 +1,5 @@
-import {scale, Color} from "./main.js";
+import {Color} from "../main.js";
+import {scale} from "../functions/update_scale.js";
 
 /**
  * Construct a new layer component.
@@ -59,7 +60,6 @@ export function Component(c = {}) {
 			this.text_background_alpha = c.text_background_alpha ?? 1;
 
 			break;
-
 		case "container":
 			// Slot list
 			this.slots = c.slots ?? [];

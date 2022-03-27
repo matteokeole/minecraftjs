@@ -1,4 +1,7 @@
-import {WINDOW, TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, LAYERS, Font, LayerFragment} from "../main.js";
+import {scale} from "../functions/update_scale.js";
+
+const Visibilities = ["hidden", "visible"];
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -18,8 +21,8 @@ export function Layer(layer = {}) {
 	this.parent = layer.parent ?? LayerFragment;
 
 	// Size
-	this.w = WINDOW.WIDTH;
-	this.h = WINDOW.HEIGHT;
+	this.w = WINDOW.W;
+	this.h = WINDOW.H;
 
 	// Visibility
 	this.visible = layer.visible ?? 1;
@@ -34,30 +37,37 @@ export function Layer(layer = {}) {
 	this.components = layer.components ?? {};
 
 	/**
-	 * Set the layer size.
-	 * NOTE: The new size will be applied on the layer components after a canvas update.
-	 * @param	{number}	[w=WINDOW.WIDTH]	Width value
-	 * @param	{number}	[h=WINDOW.HEIGHT]	Height value
+	 * Set the layer size and redraw its components.
+	 * @param	{number}	[w=WINDOW.W]	Width value
+	 * @param	{number}	[h=WINDOW.H]	Height value
 	 */
-	this.resize = (w = WINDOW.WIDTH, h = WINDOW.HEIGHT) => {
+	this.resize = (w = WINDOW.W, h = WINDOW.H) => {
 		this.w = w;
 		this.h = h;
+
+		this.redraw();
 
 		return this;
 	};
 
 	/**
-	 * Toggle layer visibility using a canvas CSS attribute.
-	 * If omitted, the state will be the opposite of the current visibility.
+	 * Toggle layer visibility using a canvas CSS attribute. If omitted, the state will be the opposite of the current visibility.
  	 * @param	{boolean}	[v=!this.visible]	New visibility value
 	 */
 	this.toggle = (state = !this.visible) => {
 		this.visible = Number(state);
+
 		this.canvas.style.visibility = Visibilities[this.visible];
-		if (this.parent !== LayerFragment) this.parent.style.visibility = Visibilities[this.visible];
+		this.parent !== LayerFragment && (this.parent.style.visibility = Visibilities[this.visible]);
 
 		return this;
 	};
+
+	/**
+	 * Find the first component which has the same name as the specified value and return it.
+ 	 * @param	{string}	c	Component name
+	 */
+	this.get = n => component_values.find(c => c.name === n);
 
 	/**
 	 * Calculate the scaled offset/size and absolute position for the specified component.
@@ -101,14 +111,15 @@ export function Layer(layer = {}) {
 		switch (c.origin[0]) {
 			case "left":
 				c.x = o[0];
-				break;
 
+				break;
 			case "right":
 				c.x = this.w - c.w - o[0];
-				break;
 
+				break;
 			case "center":
 				c.x = this.w / 2 - c.w / 2 + o[0];
+
 				break;
 		}
 
@@ -116,14 +127,15 @@ export function Layer(layer = {}) {
 		switch (c.origin[1]) {
 			case "top":
 				c.y = o[1];
-				break;
 
+				break;
 			case "bottom":
 				c.y = this.h - c.h - o[1];
-				break;
 
+				break;
 			case "center":
 				c.y = this.h / 2 - c.h / 2 + o[1];
+
 				break;
 		}
 
@@ -133,7 +145,7 @@ export function Layer(layer = {}) {
 	/**
 	 * Redraw the specified component(s) on the canvas, or all if omitted (with a canvas clearing).
 	 * NOTE: This method doesn't reload the component textures.
-	 * @param	{...object}	[cs]	Component(s) to be redrawed
+	 * @param	{...object|string}	[cs]	Component(s) to be redrawed
 	 */
 	this.redraw = (...cs) => {
 		let redraw_all = false;
@@ -145,7 +157,8 @@ export function Layer(layer = {}) {
 		}
 
 		for (let c of cs) {
-			c = this.components[c];
+			typeof c === "string" && (c = this.components[c]);
+
 			!redraw_all && this.erase(c);
 			this.compute(c).draw(c);
 		}
@@ -219,7 +232,6 @@ export function Layer(layer = {}) {
 				this.ctx.globalCompositeOperation = "source-over";
 
 				break;
-
 			default:
 				if (c.texture) {
 					this.ctx.drawImage(
@@ -257,23 +269,27 @@ export function Layer(layer = {}) {
 		if (c) {
 			let h = c.h + (c.text_shadow ? scale : 0);
 			this.ctx.clearRect(c.x, c.y, c.w, h);
-		} else this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
+		} else this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		return this;
 	};
+
+	// Add the layer to the layer array
+	LAYERS.push(this);
 
 	// Initialize layer components
 	Object.entries(this.components).forEach(c => {
 		c[1].name = c[0];
 		c[1].layer = this;
 	});
+	let component_values = Object.values(this.components);
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;
 
 	// Make the canvas take the full screen size
-	this.canvas.width = WINDOW.MAX_WIDTH;
-	this.canvas.height = WINDOW.MAX_HEIGHT;
+	this.canvas.width = WINDOW.MW;
+	this.canvas.height = WINDOW.MH;
 
 	// Remove canvas blur effect
 	this.ctx.imageSmoothingEnabled = false;

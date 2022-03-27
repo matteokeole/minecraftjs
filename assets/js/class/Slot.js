@@ -1,4 +1,5 @@
-import {TEXTURES, scale} from "./main.js";
+import {TEXTURES} from "../main.js";
+import {scale} from "../functions/update_scale.js";
 
 let i = 0;
 

@@ -1,103 +1,32 @@
-import {Layer} from "./Layer.js";
-import {Component} from "./Component.js";
-import {Slot} from "./Slot.js";
-import {Item} from "./Item.js";
+import {Layer} from "./class/Layer.js";
+import {Component} from "./class/Component.js";
+import {Slot} from "./class/Slot.js";
+import {Item} from "./class/Item.js";
+
+import {load_textures} from "./functions/load_textures.js";
+import {scale, update_scale} from "./functions/update_scale.js";
+import {get_fps} from "./functions/get_fps.js";
+import {get_js_version} from "./functions/get_js_version.js";
+import {get_registry_size} from "./functions/get_registry_size.js";
 
 export const
 	WINDOW = {
-		DEFAULT_WIDTH:	320,
-		DEFAULT_HEIGHT:	240,
-		WIDTH:			innerWidth,
-		HEIGHT:			innerHeight,
-		MAX_WIDTH:		screen.width,
-		MAX_HEIGHT:		screen.height,
+		DW: 320,
+		DH: 240,
+		W: innerWidth,
+		H: innerHeight,
+		MW: screen.width,
+		MH: screen.height,
 	},
-	TEXTURES = {},
-	UI = {},
 	RESOURCES = [
 		"assets/font.json",
 		"assets/items.json",
 	],
-	load_textures = callback => {
-		let sources = [],
-			j = 0;
-
-		for (let l of layer_values) {
-			Object.values(l.components).map(c => c.texture && sources.push(c.texture));
-		}
-
-		sources = [...new Set(sources)];
-
-		for (let i of sources) {
-			if (!(i in TEXTURES)) {
-				TEXTURES[i] = new Image();
-				TEXTURES[i].addEventListener("load", () => {
-					// Run the callback function when all textures are loaded
-					if (++j === sources.length) {
-						layer_values.forEach(l => update_scale(l));
-						callback();
-					}
-				});
-				TEXTURES[i].src = `assets/textures/${i}`;
-			}
-		}
-	},
-	calc_scale = () => {
-		WINDOW.WIDTH = Math.ceil(innerWidth / 2) * 2;
-		WINDOW.HEIGHT = Math.ceil(innerHeight / 2) * 2;
-		scale = gui_scale;
-
-		for (let i = gui_scale + 1; i > 1; i--) {
-			if (
-				WINDOW.WIDTH <= i * WINDOW.DEFAULT_WIDTH ||
-				WINDOW.HEIGHT < i * WINDOW.DEFAULT_HEIGHT
-			) scale = i - 1;
-		}
-	},
-	update_scale = l => {
-		// Update CSS scale variable
-		document.documentElement.style.setProperty("--scale", `${scale}px`);
-
-		if (l.components.display) l.components.display.text = `Display: ${WINDOW.WIDTH}x${WINDOW.HEIGHT}`;
-		l.resize().redraw();
-	},
-	get_fps = () => {
-		let now = performance.now();
-		fps_frames++;
-
-		if (now - fps_start_time > 1000) {
-			UI.debug.components.fps.text = `${(fps_frames / ((now - fps_start_time) / 1000)).toFixed(0)} fps`;
-			UI.debug.redraw("fps");
-
-			fps_start_time = now;
-			fps_frames = 0;
-		}
-
-		requestAnimationFrame(get_fps);
-	},
-	get_js_version = () => {
-		for (let i = 1; i <= 9; i++) {
-			// Create a new script
-			let script = document.createElement("script");
-
-			script.setAttribute("language", `javascript1.${i}`);
-			script.textContent = `js_version = 1.${i}`;
-
-			document.body.appendChild(script);
-
-			// Remove the script when the version is obtained
-			script.remove();
-		}
-
-		return js_version;
-	},
-	get_registry_size = () => {
-		return (
-			navigator.userAgent.indexOf("Win64") !== -1 ||
-			navigator.userAgent.indexOf("WOW64") !== -1 ||
-			navigator.platform === "Win64"
-		) ? 64 : 32;
-	},
+	TEXTURES = {},
+	UI = {},
+	LAYERS = [],
+	LayerFragment = document.createDocumentFragment(),
+	Tooltip = document.createElement("div"),
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -108,12 +37,14 @@ export const
 					UI.debug.toggle(debug_visible && UI.hud.visible);
 				}
 				Player.permissions.toggle_hud = false;
+
 				break;
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
 				if (!UI.inventory.visible) UI.tooltip.toggle(0);
 				Player.permissions.open_inventory = false;
 				slot_hovered && slot_hovered.render_item();
+
 				break;
 			case Keybind.toggle_debug:
 				if (!UI.inventory.visible && !UI.pause.visible && Player.permissions.toggle_debug) {
@@ -121,6 +52,7 @@ export const
 					UI.hud.visible && UI.debug.toggle();
 				}
 				Player.permissions.toggle_debug = false;
+
 				break;
 			case Keybind.escape:
 				if (UI.inventory.visible) {
@@ -129,19 +61,23 @@ export const
 				}
 				else if (Player.permissions.toggle_pause) UI.pause.toggle();
 				Player.permissions.toggle_pause = false;
+
 				break;
 			case Keybind.hotbar_slots[0]:
 				let prev_slot = selected_slot;
 				selected_slot = 0;
 				select_hotbar_slot(prev_slot, selected_slot);
+
 				break;
 		}
+
 		if (!UI.inventory.visible && !UI.pause.visible) {
 			for (let s in Keybind.hotbar_slots) {
 				if (k.code === Keybind.hotbar_slots[s]) {
 					let prev_slot = selected_slot;
 					selected_slot = s;
 					select_hotbar_slot(prev_slot, selected_slot);
+
 					break;
 				}
 			}
@@ -174,11 +110,6 @@ export const
 		UI.hud.compute(s).draw(s);
 		h.slots.forEach(s => s.render_item());
 	},
-	// DOM elements
-	LayerFragment = document.createDocumentFragment(),
-	Tooltip = document.createElement("div"),
-	// Data objects
-	Font = {},
 	Keybind = {
 		escape: "Escape",
 		walk_forwards: "KeyW",
@@ -215,22 +146,18 @@ export const
 				type: "hotbar",
 			});
 		}),
-	},
-	Visibilities = ["hidden", "visible"];
+	};
 
 export let
-	Items, // Fetched item list
-	Color, // Fetched color list
-	layer_values, // Array of layers
-	keys = [], // Current pressed keys
-	gui_scale = 2, // Preferred interface scale
-	scale = gui_scale, // Current interface scale
-	selected_slot = 0, // Index of the current hotbar slot
-	slot_hovered_prev = false, // Index of the previously selected hotbar slot
-	slot_hovered = false, // Hovered slot reference
-	debug_visible = false, // Is debug menu visible
-	fps_start_time = performance.now(), // For FPS counter
-	fps_frames = 0; // For FPS counter
+	Font = {},									// Fetched font data
+	Color,										// Fetched color list
+	Items,										// Fetched item list
+	keys = [],									// Current pressed keys
+	unwanted_keybinds = /^(Tab|Digit4|F1|F3)$/,	// Keys to prevent
+	selected_slot = 0,							// Index of the current hotbar slot
+	slot_hovered_prev = false,					// Index of the previously selected hotbar slot
+	slot_hovered = false,						// Hovered slot reference
+	debug_visible = true;						// Is debug menu visible
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -245,7 +172,6 @@ export let
 			Font.size = response[0].size;
 			Color = response[0].color;
 			Items = response[1];
-			calc_scale();
 
 			// HUD layer
 			UI.hud = new Layer({
@@ -414,7 +340,6 @@ export let
 				},
 			});
 			Tooltip.id = "tooltip";
-			LayerFragment.appendChild(Tooltip);
 
 			// Pause menu layer
 			UI.pause = new Layer({
@@ -431,37 +356,23 @@ export let
 				},
 			});
 
-			// Get UI content as an array
-			layer_values = Object.values(UI);
+			LayerFragment.appendChild(Tooltip);
+			document.body.appendChild(LayerFragment);
 
 			load_textures(() => {
-				// Textures loaded
-				document.body.appendChild(LayerFragment);
+				update_scale();
 
-				let pumpkin_pie = new Item(960), bread = new Item(737);
-				ReferenceSlots.hotbar[7].assign(bread);
-				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
+				// Window resize event
+				addEventListener("resize", update_scale);
 
 				// Keydown event
 				addEventListener("keydown", e => {
-					if (
-						e.code === "F1" ||
-						e.code === "F3" ||
-						e.code === "Tab" ||
-						e.code === "Digit4"
-					) e.preventDefault();
+					unwanted_keybinds.test(e.code) && e.preventDefault();
 					add_keybind(e);
 				});
 
 				// Keyup event
 				addEventListener("keyup", e => remove_keybind(e));
-
-				// Window resize event
-				addEventListener("resize", () => {
-					// Update layers with the new scale
-					calc_scale();
-					layer_values.forEach(l => update_scale(l));
-				});
 
 				// Right click event
 				addEventListener("contextmenu", e => e.preventDefault());
@@ -517,9 +428,12 @@ export let
 				// Left click event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("click", e => {
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-
 					slot && slot.reference_for && slot.empty();
 				});
+
+				let pumpkin_pie = new Item(960), bread = new Item(737);
+				ReferenceSlots.hotbar[7].assign(bread);
+				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 			});
 		})
 		.catch(error => console.error(error));

@@ -1,4 +1,4 @@
-import {WINDOW, TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, LAYERS, Font, Visibilities, LayerFragment, scale} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -18,8 +18,8 @@ export function Layer(layer = {}) {
 	this.parent = layer.parent ?? LayerFragment;
 
 	// Size
-	this.w = WINDOW.WIDTH;
-	this.h = WINDOW.HEIGHT;
+	this.w = WINDOW.W;
+	this.h = WINDOW.H;
 
 	// Visibility
 	this.visible = layer.visible ?? 1;
@@ -32,16 +32,18 @@ export function Layer(layer = {}) {
 
 	// Component list
 	this.components = layer.components ?? {};
+	this.buttons = [];
 
 	/**
-	 * Set the layer size.
-	 * NOTE: The new size will be applied on the layer components after a canvas update.
-	 * @param	{number}	[w=WINDOW.WIDTH]	Width value
-	 * @param	{number}	[h=WINDOW.HEIGHT]	Height value
+	 * Set the layer size and redraw its components.
+	 * @param	{number}	[w=WINDOW.W]	Width value
+	 * @param	{number}	[h=WINDOW.H]	Height value
 	 */
-	this.resize = (w = WINDOW.WIDTH, h = WINDOW.HEIGHT) => {
+	this.resize = (w = WINDOW.W, h = WINDOW.H) => {
 		this.w = w;
 		this.h = h;
+
+		this.redraw();
 
 		return this;
 	};
@@ -133,7 +135,7 @@ export function Layer(layer = {}) {
 	/**
 	 * Redraw the specified component(s) on the canvas, or all if omitted (with a canvas clearing).
 	 * NOTE: This method doesn't reload the component textures.
-	 * @param	{...object}	[cs]	Component(s) to be redrawed
+	 * @param	{...object|string}	[cs]	Component(s) to be redrawed
 	 */
 	this.redraw = (...cs) => {
 		let redraw_all = false;
@@ -145,7 +147,8 @@ export function Layer(layer = {}) {
 		}
 
 		for (let c of cs) {
-			if (typeof c === "string") c = this.components[c];
+			typeof c === "string" && (c = this.components[c]);
+
 			!redraw_all && this.erase(c);
 			this.compute(c).draw(c);
 		}
@@ -159,7 +162,7 @@ export function Layer(layer = {}) {
 	 */
 	this.draw = c => {
 		switch (c.type) {
-			default:
+			case "button":
 				let ox = c.x + (c.w - c.text_size[0]) / 2,
 					oy = c.y + (c.h - c.text_size[1]) / 2 + (scale / 2),
 					x,
@@ -272,23 +275,27 @@ export function Layer(layer = {}) {
 		if (c) {
 			let h = c.h + (c.text_shadow ? scale : 0);
 			this.ctx.clearRect(c.x, c.y, c.w, h);
-		} else this.ctx.clearRect(0, 0, WINDOW.MAX_WIDTH, WINDOW.MAX_HEIGHT);
+		} else this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		return this;
 	};
+
+	// Add the layer to the layer array
+	LAYERS.push(this);
 
 	// Initialize layer components
 	Object.entries(this.components).forEach(c => {
 		c[1].name = c[0];
 		c[1].layer = this;
+		c[1].type === "button" && this.buttons.push(c[1]);
 	});
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;
 
 	// Make the canvas take the full screen size
-	this.canvas.width = WINDOW.MAX_WIDTH;
-	this.canvas.height = WINDOW.MAX_HEIGHT;
+	this.canvas.width = WINDOW.MW;
+	this.canvas.height = WINDOW.MH;
 
 	// Remove canvas blur effect
 	this.ctx.imageSmoothingEnabled = false;
