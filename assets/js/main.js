@@ -66,7 +66,7 @@ export const
 			case Keybind.hotbar_slots[0]:
 				let prev_slot = selected_slot;
 				selected_slot = 0;
-				select_hotbar_slot(prev_slot, selected_slot);
+				update_hotbar_selector(prev_slot, selected_slot);
 
 				break;
 		}
@@ -76,7 +76,7 @@ export const
 				if (k.code === Keybind.hotbar_slots[s]) {
 					let prev_slot = selected_slot;
 					selected_slot = s;
-					select_hotbar_slot(prev_slot, selected_slot);
+					update_hotbar_selector(prev_slot, selected_slot);
 
 					break;
 				}
@@ -91,13 +91,17 @@ export const
 		Player.permissions.toggle_pause = true;
 		keys.splice(keys.indexOf(k.code), 1);
 	},
-	select_hotbar_slot = (p, n) => {
+	update_hotbar_selector = (prev, next) => {
 		let h = UI.hud.components.hotbar,
 			s = UI.hud.components.selector;
-		UI.hud.erase(UI.hud.components.selector);
+
+		// Clear the previous selected slot
+		UI.hud.erase(s);
+
+		// Redraw the part of the hotbar where the selector was
 		UI.hud.ctx.drawImage(
 			TEXTURES[h.texture],
-			h.uv[0] + (p * 20) - 1,
+			h.uv[0] + (prev * 20) - 1,
 			h.uv[1],
 			s.size[0],
 			h.size[1],
@@ -106,9 +110,15 @@ export const
 			s.w,
 			s.h - scale * 2,
 		);
-		s.offset[0] = -80 + 20 * n;
+
+		// Update the selector X offset
+		s.offset[0] = 20 * (next - 4);
+
+		// Compute and draw the selector on the new hotbar slot
 		UI.hud.compute(s).draw(s);
-		h.slots.forEach(s => s.render_item());
+
+		// Render hotbar items after the selector update
+		for (let s of h.slots) {s.render_item()}
 	},
 	Keybind = {
 		escape: "Escape",
@@ -193,7 +203,7 @@ export let
 					}),
 					selector: new Component({
 						origin: ["center", "bottom"],
-						offset: [-80 + selected_slot * 20, -1],
+						offset: [20 * (selected_slot - 4), -1],
 						size: [24, 24],
 						texture: "gui/widgets.png",
 						uv: [0, 22],
@@ -222,7 +232,7 @@ export let
 					version: new Component({
 						type: "text",
 						offset: [1, 1],
-						text: "Minecraft JS (pre-alpha 220324)",
+						text: "Minecraft JS (pre-alpha 220327)",
 						text_background: "#080400",
 						text_background_alpha: .21,
 					}),
@@ -301,17 +311,11 @@ export let
 						slots: [].concat(
 							Array.from({length: 27}, (_, i) => new Slot({
 								type: "storage",
-								offset: [
-									7 + (i % 9) * 18,
-									83 + Math.floor(i / 9) * 18,
-								],
+								offset: [7 + 18 * (i % 9), 83 + 18 * Math.floor(i / 9)],
 							})),
 							Array.from({length: 9}, (_, i) => new Slot({
 								type: "hotbar",
-								offset: [
-									7 + i * 18,
-									141,
-								],
+								offset: [7 + 18 * i, 141],
 								refer_to: ReferenceSlots.hotbar[i],
 							})),
 						),
@@ -362,7 +366,7 @@ export let
 			load_textures(() => {
 				update_scale();
 
-				// Window resize event
+				// Window resizing event
 				addEventListener("resize", update_scale);
 
 				// Keydown event
@@ -382,57 +386,56 @@ export let
 					if (!UI.inventory.visible && !UI.pause.visible) {
 						let prev_slot = selected_slot;
 						selected_slot = e.deltaY > 0 ? (selected_slot < 8 ? ++selected_slot : 0) : (selected_slot > 0 ? --selected_slot : 8);
-						select_hotbar_slot(prev_slot, selected_slot);
+
+						update_hotbar_selector(prev_slot, selected_slot);
 					}
 				});
 
 				// Mouse move event (only for the inventory layer)
-				addEventListener("mousemove", e => {
-					if (UI.inventory.visible) {
-						slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
+				UI.inventory.canvas.addEventListener("mousemove", e => {
+					slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
 
-						// Clear the previous hovered slot, if there is one
-						if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
-							slot_hovered_prev.leave();
-							slot_hovered_prev = false;
-						}
-
-						if (!slot_hovered || !slot_hovered.refer_to && !slot_hovered.item) UI.tooltip.toggle(0);
-
-						// Hover the slot found at the cursor coordinates, if there is one
-						if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
-							slot_hovered.hover();
-							slot_hovered_prev = slot_hovered;
-
-							if (slot_hovered.refer_to) {
-								if (slot_hovered.refer_to.item) {
-									UI.tooltip.components.display_name.text = slot_hovered.refer_to.item.display_name;
-									UI.tooltip.redraw("display_name");
-									UI.tooltip.components.name.text = `minecraft:${slot_hovered.refer_to.item.name}`;
-									UI.tooltip.redraw("name");
-
-									let max_width = Object.values(UI.tooltip.components).map(c => c.w);
-									Tooltip.style.width = `${Math.max(...max_width)}px`;
-									Tooltip.style.height = `${20 * scale}px`;
-
-									UI.tooltip.toggle(1);
-								} else UI.tooltip.toggle(0);
-							}
-						}
-
-						Tooltip.style.left = `${e.clientX + 9 * scale}px`;
-						Tooltip.style.top = `${e.clientY - 15 * scale}px`;
+					// Clear the previous hovered slot if there is one
+					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
+						slot_hovered_prev.leave();
+						slot_hovered_prev = false;
 					}
+
+					!slot_hovered && UI.tooltip.toggle(0);
+
+					// Hover the slot found at the cursor coordinates if there is one
+					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
+						slot_hovered.hover();
+						slot_hovered_prev = slot_hovered;
+
+						// If the slot has an item, show the tooltip
+						let s = slot_hovered.refer_to || slot_hovered;
+						if (s.item) {
+							UI.tooltip.components.display_name.text = s.item.display_name;
+							UI.tooltip.redraw("display_name");
+							UI.tooltip.components.name.text = `minecraft:${s.item.name}`;
+							UI.tooltip.redraw("name");
+
+							let max_width = Object.values(UI.tooltip.components).map(c => c.w);
+							Tooltip.style.width = `${Math.max(...max_width)}px`;
+							Tooltip.style.height = `${20 * scale}px`;
+
+							UI.tooltip.toggle(1);
+						} else UI.tooltip.toggle(0);
+					}
+
+					Tooltip.style.left = `${e.clientX + 9 * scale}px`;
+					Tooltip.style.top = `${e.clientY - 15 * scale}px`;
 				});
 
 				// Left click event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("click", e => {
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
-					slot && slot.reference_for && slot.empty();
+					if (slot) slot.item && slot.empty();
 				});
 
 				let pumpkin_pie = new Item(960), bread = new Item(737);
-				ReferenceSlots.hotbar[7].assign(bread);
+				UI.inventory.components.player_inventory.slots[26].assign(bread);
 				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 			});
 		})

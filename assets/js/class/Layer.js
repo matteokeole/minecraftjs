@@ -54,8 +54,8 @@ export function Layer(layer = {}) {
 	 * Toggle layer visibility using a canvas CSS attribute. If omitted, the state will be the opposite of the current visibility.
  	 * @param	{boolean}	[v=!this.visible]	New visibility value
 	 */
-	this.toggle = (state = !this.visible) => {
-		this.visible = Number(state);
+	this.toggle = (v = !this.visible) => {
+		this.visible = Number(v);
 
 		this.canvas.style.visibility = Visibilities[this.visible];
 		this.parent !== LayerFragment && (this.parent.style.visibility = Visibilities[this.visible]);
@@ -96,10 +96,10 @@ export function Layer(layer = {}) {
 				widths.push(w);
 			}
 
-			// The width is the max line width found for this component
+			// The width is the longest calculated line width
 			c.size[0] = Math.max(...widths) + 2;
 
-			// Multiply line number to get the height
+			// Multiply the line count to get the component height
 			c.size[1] = 9 * c.lines.length;
 		}
 
@@ -118,7 +118,7 @@ export function Layer(layer = {}) {
 
 				break;
 			case "center":
-				c.x = this.w / 2 - c.w / 2 + o[0];
+				c.x = .5 * (this.w - c.w) + o[0];
 
 				break;
 		}
@@ -134,7 +134,7 @@ export function Layer(layer = {}) {
 
 				break;
 			case "center":
-				c.y = this.h / 2 - c.h / 2 + o[1];
+				c.y = .5 * (this.h - c.h) + o[1];
 
 				break;
 		}
@@ -174,12 +174,15 @@ export function Layer(layer = {}) {
 		switch (c.type) {
 			case "text":
 				let x, y = c.y + scale;
+
 				for (let l of c.lines) {
 					x = c.x + scale;
+
 					for (let ch of l) {
 						let i = Font.chars.indexOf(ch),
 							u = i % 16 * 8,
 							v = 8 * (Math.floor(i / 16) + 2);
+
 						if (c.text_shadow) {
 							this.ctx.globalAlpha = .245;
 							this.ctx.drawImage(
@@ -193,8 +196,9 @@ export function Layer(layer = {}) {
 								6 * scale,
 								8 * scale,
 							);
+							this.ctx.globalAlpha = 1;
 						}
-						this.ctx.globalAlpha = 1;
+
 						this.ctx.drawImage(
 							TEXTURES[c.texture],
 							u,
@@ -205,11 +209,14 @@ export function Layer(layer = {}) {
 							y,
 							6 * scale,
 							8 * scale,
-						);
+						);						
+
 						x += ((Font.size[ch] ?? 5) + 1) * scale;
 					}
+
 					y += 9 * scale;
 				}
+
 				this.ctx.globalCompositeOperation = "source-atop";
 				this.ctx.fillStyle = c.color;
 				this.ctx.fillRect(
@@ -218,6 +225,7 @@ export function Layer(layer = {}) {
 					c.w,
 					c.h + (c.text_shadow ? scale : 0),
 				);
+
 				if (c.text_background) {
 					this.ctx.globalCompositeOperation = "destination-over";
 					this.ctx.fillStyle = c.text_background;
@@ -228,7 +236,10 @@ export function Layer(layer = {}) {
 						c.w,
 						c.h + (c.text_shadow ? scale : 0),
 					);
+					this.ctx.globalAlpha = 1;
 				}
+
+				// Reset the composite operation for next drawings
 				this.ctx.globalCompositeOperation = "source-over";
 
 				break;

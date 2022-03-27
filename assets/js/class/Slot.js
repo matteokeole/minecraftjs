@@ -36,7 +36,7 @@ export const Slot = function(slot = {}) {
 		let reference = slot.refer_to;
 
 		// Create an array of refering slots for the reference slot if it hasn't been initialized yet
-		if (!reference.reference_for) reference.reference_for = [];
+		reference.reference_for ??= [];
 
 		// Link the reference slot with this slot
 		reference.reference_for.push(this);
@@ -54,29 +54,23 @@ export const Slot = function(slot = {}) {
 		 */
 		this.assign = i => {
 			// Stock the previous item during the swap
-			let prev_item = this.item;
-
-			// Check if the item texture is already loaded, and load it in this case
-			if (!(i.texture in TEXTURES)) {
-				TEXTURES[i.texture] = new Image();
-				TEXTURES[i.texture].addEventListener("load", () => {
+			let prev_item = this.item,
+				render = () => {
 					// Append the item to the slot
 					i.slot = this;
 					this.item = i;
 
 					// Render updated slot
-					for (let s of this.reference_for) {s.render_item()}
-				});
-				TEXTURES[i.texture].src = `assets/textures/${i.texture}`;
-			} else {
-				// The texture is already loaded, append the item to the slot
-				i.slot = this;
-				this.item = i;
+					let ss = this.reference_for || [this];
+					for (let s of ss) {s.render_item()}
+				};
 
-				// Render updated slot
-				let ss = this.reference_for || this;
-				for (let s of ss) {s.render_item()}
-			}
+			// Check if the item texture is already loaded, and load it in this case
+			if (!(i.texture in TEXTURES)) {
+				TEXTURES[i.texture] = new Image();
+				TEXTURES[i.texture].addEventListener("load", render);
+				TEXTURES[i.texture].src = `assets/textures/${i.texture}`;
+			} else render();
 
 			return prev_item;
 		};
@@ -87,12 +81,29 @@ export const Slot = function(slot = {}) {
 		this.empty = () => {
 			this.item = null;
 
-			let ss = this.reference_for || this;
+			let ss = this.reference_for || [this];
 			for (let s of ss) {
-				Slot.clear_background(s);
+				s.component.layer.ctx.clearRect(
+					s.x + scale,
+					s.y + scale,
+					s.w - 2 * scale,
+					s.h - 2 * scale,
+				);
+
+				s.component.layer.ctx.drawImage(
+					TEXTURES[s.component.texture],
+					s.offset[0] + 1,
+					s.offset[1] + 1,
+					16,
+					16,
+					s.x + scale,
+					s.y + scale,
+					s.w - 2 * scale,
+					s.h - 2 * scale,
+				);
 
 				// Hover the slot if it was hovered before the process
-				if (s.hovered) s.hover();
+				s.hovered && s.hover();
 			}
 
 			return this;
@@ -100,10 +111,21 @@ export const Slot = function(slot = {}) {
 	}
 
 	this.render_item = () => {
-		Slot.clear_background(this);
-		Slot.try_draw_item(this);
-
-		this.hovered && this.hover();
+		// Draw slot item if there is one
+		let item = this.refer_to ? this.refer_to.item : this.item;
+		if (item) {
+			this.component.layer.ctx.drawImage(
+				TEXTURES[item.texture],
+				0,
+				0,
+				16,
+				16,
+				this.x + scale,
+				this.y + scale,
+				this.w - 2 * scale,
+				this.h - 2 * scale,
+			);
+		}
 	};
 
 	/**
@@ -140,54 +162,15 @@ export const Slot = function(slot = {}) {
 		);
 
 		// Draw the slot item if there is one
-		Slot.try_draw_item(this);
+		this.render_item();
 
 		return this;
 	};
 }
 
-Slot.clear_background = s => {
-	s.component.layer.ctx.clearRect(
-		s.x + scale,
-		s.y + scale,
-		s.w - 2 * scale,
-		s.h - 2 * scale,
-	);
-
-	s.component.layer.ctx.drawImage(
-		TEXTURES[s.component.texture],
-		s.offset[0] + 1,
-		s.offset[1] + 1,
-		16,
-		16,
-		s.x + scale,
-		s.y + scale,
-		s.w - 2 * scale,
-		s.h - 2 * scale,
-	);
-};
-
-Slot.try_draw_item = s => {
-	// Draw slot item if there is one
-	let item = s.refer_to ? s.refer_to.item : s.item;
-	if (item) {
-		s.component.layer.ctx.drawImage(
-			TEXTURES[item.texture],
-			0,
-			0,
-			16,
-			16,
-			s.x + scale,
-			s.y + scale,
-			s.w - 2 * scale,
-			s.h - 2 * scale,
-		);
-	}
-};
-
 /**
  * Return the slot found at the event coordinates, or false if none is found.
- * @param	{object}	c							Parent component
+ * @param	{object}	c							Parent component (where to get the slot list)
  * @param	{object}	e							Event object
  * @param	{object}	[include_references=true]	Indicate whether to include reference slots in the return
  */
