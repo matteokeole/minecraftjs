@@ -67,9 +67,6 @@ export const
 			document.documentElement.style.setProperty("--scale", `${scale}px`);
 		}
 
-		// Update display information in the debug menu
-		UI.debug.components.display.text = `Display: ${WINDOW.W}x${WINDOW.H}`;
-
 		// Redraw layers
 		for (let l of LAYERS) {l.resize()}
 	},
