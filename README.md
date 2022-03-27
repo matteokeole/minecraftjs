@@ -5,8 +5,7 @@ The 3D is built with the library THREE.js.
 
 **Links:**
 - Main branch: <https://matteoo34.github.io/minecraftjs>
-- New GUI demo: <https://matteoo34.github.io/minecraftjs/gui.html>
-- GUI old demo: <https://matteoo34.github.io/minecraftjs/branch/gui>
+- GUI demo: <https://matteoo34.github.io/minecraftjs/gui.html>
 - Button demo: <https://matteoo34.github.io/minecraftjs/branch/gui/button>	
 
 **Features:**
