@@ -1,5 +1,5 @@
-import {TEXTURES} from "../main.js";
 import {scale} from "../functions/update_scale.js";
+import {TEXTURES} from "../main.js";
 
 let i = 0;
 
@@ -31,7 +31,6 @@ export const Slot = function(slot = {}) {
 	// Hover attribute
 	this.hovered = false;
 
-	// Attributes that depend on the slot reference
 	if (slot.refer_to) {
 		// This slot is refering to another slot
 		let reference = slot.refer_to;
@@ -45,18 +44,17 @@ export const Slot = function(slot = {}) {
 		// Make a backlink on the refering slot
 		this.refer_to = reference;
 	} else {
-		// This slot is not refering to another slot; it can be a single slot or a reference slot
-		// Allow the slot to get an item
+		// This slot is not refering to another slot; it can be either a single slot or a reference slot
 		this.item = null;
 
 		/**
 		 * Assign an item to the slot and return the previous one if it exists.
-		 * This also loads the item texture once.
+		 * NOTE: This method loads the item texture if it has not been loaded already.
 		 * @param	{object}	i	The item to be assigned
 		 */
 		this.assign = i => {
 			// Stock the previous item during the swap
-			const prev_item = this.item;
+			let prev_item = this.item;
 
 			// Check if the item texture is already loaded, and load it in this case
 			if (!(i.texture in TEXTURES)) {
@@ -67,7 +65,7 @@ export const Slot = function(slot = {}) {
 					this.item = i;
 
 					// Render updated slot
-					this.reference_for && this.reference_for.forEach(s => s.render_item());
+					for (let s of this.reference_for) {s.render_item()}
 				});
 				TEXTURES[i.texture].src = `assets/textures/${i.texture}`;
 			} else {
@@ -76,51 +74,36 @@ export const Slot = function(slot = {}) {
 				this.item = i;
 
 				// Render updated slot
-				this.reference_for ? this.reference_for.forEach(s => s.render_item()) : this.render_item();
+				let ss = this.reference_for || this;
+				for (let s of ss) {s.render_item()}
 			}
 
 			return prev_item;
 		};
 
 		/**
-		 * Remove the slot current item and return it.
+		 * Remove the slot item.
 		 */
 		this.empty = () => {
-			let removed_item = this.item;
-
 			this.item = null;
 
-			let s = this.reference_for || this;
-			s.forEach(s => {
+			let ss = this.reference_for || this;
+			for (let s of ss) {
 				Slot.clear_background(s);
 
 				// Hover the slot if it was hovered before the process
 				if (s.hovered) s.hover();
-			})
+			}
 
-			return removed_item;
+			return this;
 		};
 	}
 
 	this.render_item = () => {
 		Slot.clear_background(this);
+		Slot.try_draw_item(this);
 
-		let t = this.refer_to ? this.refer_to.item : this.item;
-		if (t) {
-			this.component.layer.ctx.drawImage(
-				TEXTURES[t.texture],
-				0,
-				0,
-				16,
-				16,
-				this.x + scale,
-				this.y + scale,
-				this.w - 2 * scale,
-				this.h - 2 * scale,
-			);
-		}
-
-		if (this.hovered) this.hover();
+		this.hovered && this.hover();
 	};
 
 	/**
@@ -130,17 +113,13 @@ export const Slot = function(slot = {}) {
 		this.hovered = true;
 
 		// Lighten the slot
-		this.component.layer.ctx.fillStyle = "#ffffff";
-		this.component.layer.ctx.globalAlpha = .5; // #c5c5c5
+		this.component.layer.ctx.fillStyle = "#ffffff80";
 		this.component.layer.ctx.fillRect(
 			this.x + scale,
 			this.y + scale,
 			this.w - 2 * scale,
 			this.h - 2 * scale,
 		);
-
-		// Reset the alpha value for future drawings
-		this.component.layer.ctx.globalAlpha = 1;
 
 		return this;
 	};
@@ -149,8 +128,10 @@ export const Slot = function(slot = {}) {
 	 * Remove the slot hover effect.
 	 */
 	this.leave = () => {
-		// Draw slot background color
-		this.component.layer.ctx.fillStyle = "#8d8d8d";
+		this.hovered = false;
+
+		// Darken the slot
+		this.component.layer.ctx.fillStyle = "#8b8b8b";
 		this.component.layer.ctx.fillRect(
 			this.x + scale,
 			this.y + scale,
@@ -158,21 +139,8 @@ export const Slot = function(slot = {}) {
 			this.h - 2 * scale,
 		);
 
-		// Draw slot item if there is one
-		let item = this.item || this.refer_to && this.refer_to.item;
-		if (item) {
-			this.component.layer.ctx.drawImage(
-				TEXTURES[item.texture],
-				0,
-				0,
-				16,
-				16,
-				this.x + scale,
-				this.y + scale,
-				this.w - 2 * scale,
-				this.h - 2 * scale,
-			);
-		}
+		// Draw the slot item if there is one
+		Slot.try_draw_item(this);
 
 		return this;
 	};
@@ -185,6 +153,7 @@ Slot.clear_background = s => {
 		s.w - 2 * scale,
 		s.h - 2 * scale,
 	);
+
 	s.component.layer.ctx.drawImage(
 		TEXTURES[s.component.texture],
 		s.offset[0] + 1,
@@ -198,15 +167,32 @@ Slot.clear_background = s => {
 	);
 };
 
+Slot.try_draw_item = s => {
+	// Draw slot item if there is one
+	let item = s.refer_to ? s.refer_to.item : s.item;
+	if (item) {
+		s.component.layer.ctx.drawImage(
+			TEXTURES[item.texture],
+			0,
+			0,
+			16,
+			16,
+			s.x + scale,
+			s.y + scale,
+			s.w - 2 * scale,
+			s.h - 2 * scale,
+		);
+	}
+};
+
 /**
  * Return the slot found at the event coordinates, or false if none is found.
  * @param	{object}	c							Parent component
  * @param	{object}	e							Event object
- * @param	{object}	[include_references=true]	Indicates whereas to include reference slots in the return
+ * @param	{object}	[include_references=true]	Indicate whether to include reference slots in the return
  */
 Slot.get_slot_at = (c, e, include_references = true) => {
-	let x = e.clientX,
-		y = e.clientY;
+	let x = e.clientX, y = e.clientY;
 
 	for (let s of c.slots) {
 		if (
@@ -214,10 +200,7 @@ Slot.get_slot_at = (c, e, include_references = true) => {
 			x < s.x + s.w	&&	// Right side
 			y >= s.y		&&	// Top side
 			y <= s.y + s.h		// Bottom side
-		) {
-			if (include_references && s.refer_to) return s.refer_to;
-			else return s;
-		}
+		) return include_references && s.refer_to ? s.refer_to : s;
 	}
 
 	return false;

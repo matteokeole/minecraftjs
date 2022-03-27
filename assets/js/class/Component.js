@@ -1,5 +1,5 @@
-import {Color} from "../main.js";
 import {scale} from "../functions/update_scale.js";
+import {Color} from "../main.js";
 
 /**
  * Construct a new layer component.

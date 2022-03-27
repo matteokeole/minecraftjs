@@ -157,7 +157,7 @@ export let
 	selected_slot = 0,							// Index of the current hotbar slot
 	slot_hovered_prev = false,					// Index of the previously selected hotbar slot
 	slot_hovered = false,						// Hovered slot reference
-	debug_visible = true;						// Is debug menu visible
+	debug_visible = false;						// Is debug menu visible
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -291,7 +291,7 @@ export let
 			// Inventory layer
 			UI.inventory = new Layer({
 				name: "inventory",
-				visible: 0,
+				// visible: 0,
 				components: {
 					player_inventory: new Component({
 						type: "container",

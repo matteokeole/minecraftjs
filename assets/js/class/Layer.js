@@ -1,5 +1,5 @@
-import {WINDOW, TEXTURES, LAYERS, Font, LayerFragment} from "../main.js";
 import {scale} from "../functions/update_scale.js";
+import {WINDOW, TEXTURES, LAYERS, Font, LayerFragment} from "../main.js";
 
 const Visibilities = ["hidden", "visible"];
 
