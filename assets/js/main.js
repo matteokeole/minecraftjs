@@ -12,7 +12,7 @@ export const
 		MAX_WIDTH:		screen.width,
 		MAX_HEIGHT:		screen.height,
 	},
-	LOADED_TEXTURES = {},
+	TEXTURES = {},
 	UI = {},
 	RESOURCES = [
 		"assets/font.json",
@@ -29,16 +29,16 @@ export const
 		sources = [...new Set(sources)];
 
 		for (let i of sources) {
-			if (!(i in LOADED_TEXTURES)) {
-				LOADED_TEXTURES[i] = new Image();
-				LOADED_TEXTURES[i].addEventListener("load", () => {
+			if (!(i in TEXTURES)) {
+				TEXTURES[i] = new Image();
+				TEXTURES[i].addEventListener("load", () => {
 					// Run the callback function when all textures are loaded
 					if (++j === sources.length) {
 						layer_values.forEach(l => update_scale(l));
 						callback();
 					}
 				});
-				LOADED_TEXTURES[i].src = `assets/textures/${i}`;
+				TEXTURES[i].src = `assets/textures/${i}`;
 			}
 		}
 	},
@@ -46,6 +46,7 @@ export const
 		WINDOW.WIDTH = Math.ceil(innerWidth / 2) * 2;
 		WINDOW.HEIGHT = Math.ceil(innerHeight / 2) * 2;
 		scale = gui_scale;
+
 		for (let i = gui_scale + 1; i > 1; i--) {
 			if (
 				WINDOW.WIDTH <= i * WINDOW.DEFAULT_WIDTH ||
@@ -62,14 +63,14 @@ export const
 	},
 	get_fps = () => {
 		let now = performance.now();
-		frame++;
+		fps_frames++;
 
-		if (now - startTime > 1000) {
-			UI.debug.components.fps.text = `${(frame / ((now - startTime) / 1000)).toFixed(0)} fps`;
+		if (now - fps_start_time > 1000) {
+			UI.debug.components.fps.text = `${(fps_frames / ((now - fps_start_time) / 1000)).toFixed(0)} fps`;
 			UI.debug.redraw("fps");
 
-			startTime = now;
-			frame = 0;
+			fps_start_time = now;
+			fps_frames = 0;
 		}
 
 		requestAnimationFrame(get_fps);
@@ -110,6 +111,7 @@ export const
 				break;
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
+				if (!UI.inventory.visible) UI.tooltip.toggle(0);
 				Player.permissions.open_inventory = false;
 				slot_hovered && slot_hovered.render_item();
 				break;
@@ -158,7 +160,7 @@ export const
 			s = UI.hud.components.selector;
 		UI.hud.erase(UI.hud.components.selector);
 		UI.hud.ctx.drawImage(
-			LOADED_TEXTURES[h.texture],
+			TEXTURES[h.texture],
 			h.uv[0] + (p * 20) - 1,
 			h.uv[1],
 			s.size[0],
@@ -227,8 +229,8 @@ export let
 	slot_hovered_prev = false, // Index of the previously selected hotbar slot
 	slot_hovered = false, // Hovered slot reference
 	debug_visible = false, // Is debug menu visible
-	startTime = performance.now(), // For FPS counter
-	frame = 0; // For FPS counter
+	fps_start_time = performance.now(), // For FPS counter
+	fps_frames = 0; // For FPS counter
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -283,7 +285,7 @@ export let
 						texture: "gui/icons.png",
 						uv: [3, 3],
 					}),
-				}
+				},
 			});
 
 			// Debug menu layer
@@ -404,7 +406,7 @@ export let
 					}),
 					name: new Component({
 						type: "text",
-						offset: [0, 13],
+						offset: [0, 12],
 						text: "",
 						color: Color.dark_gray,
 						text_shadow: true,
@@ -417,7 +419,7 @@ export let
 			// Pause menu layer
 			UI.pause = new Layer({
 				name: "pause",
-				// visible: 0,
+				visible: 0,
 				components: {
 					title: new Component({
 						type: "text",
@@ -425,14 +427,6 @@ export let
 						offset: [0, 9],
 						text: "Game Paused",
 						text_shadow: true,
-					}),
-					github_link: new Component({
-						type: "button",
-						origin: ["center", "top"],
-						offset: [0, 40],
-						size: [200, 20],
-						texture: "gui/widgets.png",
-						uv: [0, 66],
 					}),
 				},
 			});
@@ -450,7 +444,12 @@ export let
 
 				// Keydown event
 				addEventListener("keydown", e => {
-					if (e.code === "F3" || e.code === "Tab" || e.code === "Digit4") e.preventDefault();
+					if (
+						e.code === "F1" ||
+						e.code === "F3" ||
+						e.code === "Tab" ||
+						e.code === "Digit4"
+					) e.preventDefault();
 					add_keybind(e);
 				});
 
@@ -494,7 +493,6 @@ export let
 							slot_hovered.hover();
 							slot_hovered_prev = slot_hovered;
 
-							
 							if (slot_hovered.refer_to) {
 								if (slot_hovered.refer_to.item) {
 									UI.tooltip.components.display_name.text = slot_hovered.refer_to.item.display_name;
@@ -502,8 +500,9 @@ export let
 									UI.tooltip.components.name.text = `minecraft:${slot_hovered.refer_to.item.name}`;
 									UI.tooltip.redraw("name");
 
-									Tooltip.style.width = `${UI.tooltip.components.name.w}px`;
-									Tooltip.style.height = `${UI.tooltip.components.display_name.h * 2 + 4 * scale}px`;
+									let max_width = Object.values(UI.tooltip.components).map(c => c.w);
+									Tooltip.style.width = `${Math.max(...max_width)}px`;
+									Tooltip.style.height = `${20 * scale}px`;
 
 									UI.tooltip.toggle(1);
 								} else UI.tooltip.toggle(0);

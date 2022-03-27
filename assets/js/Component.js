@@ -1,5 +1,3 @@
-import {Slot} from "./Slot.js";
-import {Item} from "./Item.js";
 import {scale, Color} from "./main.js";
 
 /**

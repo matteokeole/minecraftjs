@@ -1,4 +1,4 @@
-import {WINDOW, LOADED_TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, Font, Visibilities, LayerFragment, scale} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -170,7 +170,7 @@ export function Layer(layer = {}) {
 						if (c.text_shadow) {
 							this.ctx.globalAlpha = .245;
 							this.ctx.drawImage(
-								LOADED_TEXTURES[c.texture],
+								TEXTURES[c.texture],
 								u,
 								v,
 								6,
@@ -183,7 +183,7 @@ export function Layer(layer = {}) {
 						}
 						this.ctx.globalAlpha = 1;
 						this.ctx.drawImage(
-							LOADED_TEXTURES[c.texture],
+							TEXTURES[c.texture],
 							u,
 							v,
 							6,
@@ -223,7 +223,7 @@ export function Layer(layer = {}) {
 			default:
 				if (c.texture) {
 					this.ctx.drawImage(
-						LOADED_TEXTURES[c.texture],
+						TEXTURES[c.texture],
 						c.uv[0],
 						c.uv[1],
 						c.size[0],

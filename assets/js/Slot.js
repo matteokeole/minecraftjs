@@ -1,4 +1,4 @@
-import {LOADED_TEXTURES, scale} from "./main.js";
+import {TEXTURES, scale} from "./main.js";
 
 let i = 0;
 
@@ -58,9 +58,9 @@ export const Slot = function(slot = {}) {
 			const prev_item = this.item;
 
 			// Check if the item texture is already loaded, and load it in this case
-			if (!(i.texture in LOADED_TEXTURES)) {
-				LOADED_TEXTURES[i.texture] = new Image();
-				LOADED_TEXTURES[i.texture].addEventListener("load", () => {
+			if (!(i.texture in TEXTURES)) {
+				TEXTURES[i.texture] = new Image();
+				TEXTURES[i.texture].addEventListener("load", () => {
 					// Append the item to the slot
 					i.slot = this;
 					this.item = i;
@@ -68,7 +68,7 @@ export const Slot = function(slot = {}) {
 					// Render updated slot
 					this.reference_for && this.reference_for.forEach(s => s.render_item());
 				});
-				LOADED_TEXTURES[i.texture].src = `assets/textures/${i.texture}`;
+				TEXTURES[i.texture].src = `assets/textures/${i.texture}`;
 			} else {
 				// The texture is already loaded, append the item to the slot
 				i.slot = this;
@@ -103,23 +103,11 @@ export const Slot = function(slot = {}) {
 
 	this.render_item = () => {
 		Slot.clear_background(this);
-		if (this.refer_to) {
-			if (this.refer_to.item) {
-				this.component.layer.ctx.drawImage(
-					LOADED_TEXTURES[this.refer_to.item.texture],
-					0,
-					0,
-					16,
-					16,
-					this.x + scale,
-					this.y + scale,
-					this.w - 2 * scale,
-					this.h - 2 * scale,
-				);
-			}
-		} else if (this.item) {
+
+		let t = this.refer_to ? this.refer_to.item : this.item;
+		if (t) {
 			this.component.layer.ctx.drawImage(
-				LOADED_TEXTURES[this.item.texture],
+				TEXTURES[t.texture],
 				0,
 				0,
 				16,
@@ -173,7 +161,7 @@ export const Slot = function(slot = {}) {
 		let item = this.item || this.refer_to && this.refer_to.item;
 		if (item) {
 			this.component.layer.ctx.drawImage(
-				LOADED_TEXTURES[item.texture],
+				TEXTURES[item.texture],
 				0,
 				0,
 				16,
@@ -197,7 +185,7 @@ Slot.clear_background = s => {
 		s.h - 2 * scale,
 	);
 	s.component.layer.ctx.drawImage(
-		LOADED_TEXTURES[s.component.texture],
+		TEXTURES[s.component.texture],
 		s.offset[0] + 1,
 		s.offset[1] + 1,
 		16,

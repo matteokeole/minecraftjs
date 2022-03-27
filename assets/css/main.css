@@ -32,7 +32,7 @@ body {
 #tooltip {
 	margin: auto;
 	padding: var(--scale);
-	padding-bottom: calc(2 * var(--scale));
+	padding-bottom: calc(3 * var(--scale));
 	position: absolute;
 	border: var(--scale) solid;
 	border-image-slice: 1;
