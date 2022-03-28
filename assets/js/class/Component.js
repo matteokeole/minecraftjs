@@ -38,6 +38,12 @@ export function Component(c = {}) {
 	// Texture offset
 	this.uv = c.uv ?? [0, 0];
 
+	// Tooltip attribute
+	this.tooltip = c.tooltip;
+
+	// Hovered attribute
+	this.hovered = false;
+
 	// Attributes that depend on component type
 	switch (c.type) {
 		case "text":

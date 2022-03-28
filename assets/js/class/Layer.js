@@ -1,4 +1,5 @@
 import {scale} from "../functions/update_scale.js";
+import {Tooltip} from "../class/Tooltip.js";
 import {WINDOW, TEXTURES, LAYERS, Font, LayerFragment} from "../main.js";
 
 const Visibilities = ["hidden", "visible"];
@@ -58,7 +59,8 @@ export function Layer(layer = {}) {
 		this.visible = Number(v);
 
 		this.canvas.style.visibility = Visibilities[this.visible];
-		this.parent !== LayerFragment && (this.parent.style.visibility = Visibilities[this.visible]);
+
+		this.visible ? Tooltip.render(this, WINDOW.X, WINDOW.Y) : Tooltip.toggle(0);
 
 		return this;
 	};
@@ -68,6 +70,19 @@ export function Layer(layer = {}) {
  	 * @param	{string}	c	Component name
 	 */
 	this.get = n => component_values.find(c => c.name === n);
+
+	this.get_component_at = (x, y) => {
+		for (let c of Object.values(this.components)) {
+			if (
+				x >= c.x		&&	// Left side
+				x < c.x + c.w	&&	// Right side
+				y >= c.y		&&	// Top side
+				y <= c.y + c.h		// Bottom side
+			) return c;
+		}
+
+		return false;
+	};
 
 	/**
 	 * Calculate the scaled offset/size and absolute position for the specified component.

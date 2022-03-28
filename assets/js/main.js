@@ -2,6 +2,7 @@ import {Layer} from "./class/Layer.js";
 import {Component} from "./class/Component.js";
 import {Slot} from "./class/Slot.js";
 import {Item} from "./class/Item.js";
+import {Tooltip} from "./class/Tooltip.js";
 
 import {load_textures} from "./functions/load_textures.js";
 import {scale, update_scale} from "./functions/update_scale.js";
@@ -17,6 +18,8 @@ export const
 		H: innerHeight,
 		MW: screen.width,
 		MH: screen.height,
+		X: 0,
+		Y: 0,
 	},
 	RESOURCES = [
 		"assets/font.json",
@@ -26,7 +29,6 @@ export const
 	UI = {},
 	LAYERS = [],
 	LayerFragment = document.createDocumentFragment(),
-	Tooltip = document.createElement("div"),
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -41,7 +43,6 @@ export const
 				break;
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
-				if (!UI.inventory.visible) UI.tooltip.toggle(0);
 				Player.permissions.open_inventory = false;
 				slot_hovered && slot_hovered.render_item();
 
@@ -57,7 +58,6 @@ export const
 			case Keybind.escape:
 				if (UI.inventory.visible) {
 					UI.inventory.toggle(0);
-					UI.tooltip.toggle(0);
 				}
 				else if (Player.permissions.toggle_pause) UI.pause.toggle();
 				Player.permissions.toggle_pause = false;
@@ -319,15 +319,15 @@ export let
 								refer_to: ReferenceSlots.hotbar[i],
 							})),
 						),
+						tooltip: "BRO",
 					}),
 				},
 			});
 
 			// Tooltip layer
-			UI.tooltip = new Layer({
+			/*UI.tooltip = new Layer({
 				name: "tooltip",
 				visible: 0,
-				parent: Tooltip,
 				components: {
 					display_name: new Component({
 						type: "text",
@@ -342,8 +342,7 @@ export let
 						text_shadow: true,
 					}),
 				},
-			});
-			Tooltip.id = "tooltip";
+			});*/
 
 			// Pause menu layer
 			UI.pause = new Layer({
@@ -356,6 +355,7 @@ export let
 						offset: [0, 9],
 						text: "Game Paused",
 						text_shadow: true,
+						tooltip: "OKAY",
 					}),
 				},
 			});
@@ -392,7 +392,10 @@ export let
 				});
 
 				// Mouse move event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("mousemove", e => {
+				addEventListener("mousemove", e => {
+					WINDOW.X = e.clientX;
+					WINDOW.Y = e.clientY;
+
 					slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
 
 					// Clear the previous hovered slot if there is one
@@ -401,7 +404,7 @@ export let
 						slot_hovered_prev = false;
 					}
 
-					!slot_hovered && UI.tooltip.toggle(0);
+					// !slot_hovered && UI.tooltip.toggle(0);
 
 					// Hover the slot found at the cursor coordinates if there is one
 					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
@@ -409,7 +412,7 @@ export let
 						slot_hovered_prev = slot_hovered;
 
 						// If the slot has an item, show the tooltip
-						let s = slot_hovered.refer_to || slot_hovered;
+						/*let s = slot_hovered.refer_to || slot_hovered;
 						if (s.item) {
 							UI.tooltip.components.display_name.text = s.item.display_name;
 							UI.tooltip.redraw("display_name");
@@ -421,11 +424,8 @@ export let
 							Tooltip.style.height = `${20 * scale}px`;
 
 							UI.tooltip.toggle(1);
-						} else UI.tooltip.toggle(0);
+						} else UI.tooltip.toggle(0);*/
 					}
-
-					Tooltip.style.left = `${e.clientX + 9 * scale}px`;
-					Tooltip.style.top = `${e.clientY - 15 * scale}px`;
 				});
 
 				// Left click event (only for the inventory layer)
@@ -433,6 +433,9 @@ export let
 					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
 					if (slot) slot.item && slot.empty();
 				});
+
+				// Initialize tooltips
+				Tooltip.init();
 
 				let pumpkin_pie = new Item(960), bread = new Item(737);
 				UI.inventory.components.player_inventory.slots[26].assign(bread);
