@@ -1,5 +1,5 @@
 import {scale} from "../functions/update_scale.js";
-import {TEXTURES} from "../main.js";
+import {TEXTURES, slot_hovered} from "../main.js";
 
 let i = 0;
 
@@ -62,7 +62,11 @@ export const Slot = function(slot = {}) {
 
 					// Render updated slot
 					let ss = this.reference_for || [this];
-					for (let s of ss) {s.render_item()}
+					for (let s of ss) {
+						s.hovered && s.leave();
+						s.draw_item();
+						slot_hovered.id === s.id && s.hover();
+					}
 				};
 
 			// Check if the item texture is already loaded, and load it in this case
@@ -110,7 +114,7 @@ export const Slot = function(slot = {}) {
 		};
 	}
 
-	this.render_item = () => {
+	this.draw_item = () => {
 		// Draw slot item if there is one
 		let item = this.refer_to ? this.refer_to.item : this.item;
 		if (item) {
@@ -162,29 +166,8 @@ export const Slot = function(slot = {}) {
 		);
 
 		// Draw the slot item if there is one
-		this.render_item();
+		this.draw_item();
 
 		return this;
 	};
 }
-
-/**
- * Return the slot found at the event coordinates, or false if none is found.
- * @param	{object}	c							Parent component (where to get the slot list)
- * @param	{object}	e							Event object
- * @param	{object}	[include_references=true]	Indicate whether to include reference slots in the return
- */
-Slot.get_slot_at = (c, e, include_references = true) => {
-	let x = e.clientX, y = e.clientY;
-
-	for (let s of c.slots) {
-		if (
-			x >= s.x		&&	// Left side
-			x < s.x + s.w	&&	// Right side
-			y >= s.y		&&	// Top side
-			y <= s.y + s.h		// Bottom side
-		) return include_references && s.refer_to ? s.refer_to : s;
-	}
-
-	return false;
-};

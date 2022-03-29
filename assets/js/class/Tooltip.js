@@ -16,15 +16,15 @@ Tooltip.toggle = (v = !Tooltip.visible) => {
 Tooltip.init = () => {
 	// For each layer, get the list of components which use a tooltip
 	for (let l of LAYERS) {
-		let ts = Object.values(l.components).filter(c => c.tooltip);
-		// At least one tooltip-component in this layer
-		ts.length && l.canvas.addEventListener("mousemove", e => Tooltip.render(l, WINDOW.X, WINDOW.Y));
+		let test = Object.values(l.components).some(c => c.tooltip || c.type === "container");
+		// At least one tooltip-component or container type component in this layer
+		test && l.canvas.addEventListener("mousemove", e => Tooltip.render(l, WINDOW.X, WINDOW.Y));
 	}
 };
 Tooltip.render = (l, x, y) => {
 	let c = l.get_component_at(x, y);
 
-	if (c) {
+	if (c && c.tooltip) {
 		// TODO: Draw tooltip text
 		//
 

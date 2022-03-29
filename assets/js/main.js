@@ -44,7 +44,7 @@ export const
 			case Keybind.open_inventory:
 				if (!UI.pause.visible && Player.permissions.open_inventory) UI.inventory.toggle();
 				Player.permissions.open_inventory = false;
-				slot_hovered && slot_hovered.render_item();
+				slot_hovered && slot_hovered.draw_item();
 
 				break;
 			case Keybind.toggle_debug:
@@ -61,12 +61,6 @@ export const
 				}
 				else if (Player.permissions.toggle_pause) UI.pause.toggle();
 				Player.permissions.toggle_pause = false;
-
-				break;
-			case Keybind.hotbar_slots[0]:
-				let prev_slot = selected_slot;
-				selected_slot = 0;
-				update_hotbar_selector(prev_slot, selected_slot);
 
 				break;
 		}
@@ -118,7 +112,7 @@ export const
 		UI.hud.compute(s).draw(s);
 
 		// Render hotbar items after the selector update
-		for (let s of h.slots) {s.render_item()}
+		for (let s of h.slots) {s.draw_item()}
 	},
 	Keybind = {
 		escape: "Escape",
@@ -319,7 +313,6 @@ export let
 								refer_to: ReferenceSlots.hotbar[i],
 							})),
 						),
-						tooltip: "BRO",
 					}),
 				},
 			});
@@ -366,6 +359,8 @@ export let
 			load_textures(() => {
 				update_scale();
 
+				let pumpkin_pie = new Item(960), bread = new Item(737);
+
 				// Window resizing event
 				addEventListener("resize", update_scale);
 
@@ -373,6 +368,7 @@ export let
 				addEventListener("keydown", e => {
 					unwanted_keybinds.test(e.code) && e.preventDefault();
 					add_keybind(e);
+					ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 				});
 
 				// Keyup event
@@ -396,15 +392,13 @@ export let
 					WINDOW.X = e.clientX;
 					WINDOW.Y = e.clientY;
 
-					slot_hovered = Slot.get_slot_at(UI.inventory.components.player_inventory, e, false);
+					slot_hovered = UI.inventory.components.player_inventory.get_slot_at(e, false);
 
 					// Clear the previous hovered slot if there is one
 					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
 						slot_hovered_prev.leave();
 						slot_hovered_prev = false;
 					}
-
-					// !slot_hovered && UI.tooltip.toggle(0);
 
 					// Hover the slot found at the cursor coordinates if there is one
 					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
@@ -430,14 +424,13 @@ export let
 
 				// Left click event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("click", e => {
-					let slot = Slot.get_slot_at(UI.inventory.components.player_inventory, e);
+					let slot = UI.inventory.components.player_inventory.get_slot_at(e);
 					if (slot) slot.item && slot.empty();
 				});
 
 				// Initialize tooltips
 				Tooltip.init();
 
-				let pumpkin_pie = new Item(960), bread = new Item(737);
 				UI.inventory.components.player_inventory.slots[26].assign(bread);
 				ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 			});
