@@ -79,10 +79,9 @@ export const
 	},
 	remove_keybind = k => {
 		// Reset permissions
-		Player.permissions.open_inventory = true;
-		Player.permissions.toggle_hud = true;
-		Player.permissions.toggle_debug = true;
-		Player.permissions.toggle_pause = true;
+		for (let p in Player.permissions) {Player.permissions[p] = true}
+
+		// Clear the key list
 		keys.splice(keys.indexOf(k.code), 1);
 	},
 	update_hotbar_selector = (prev, next) => {
@@ -113,6 +112,26 @@ export const
 
 		// Render hotbar items after the selector update
 		for (let s of h.slots) {s.draw_item()}
+	},
+	take_item = s => {
+		flowing_item = s.item;
+		s.empty();
+		UI.flowing_item.components.item.texture = flowing_item.texture;
+		UI.flowing_item.redraw("item");
+		UI.flowing_item.toggle(1);
+	},
+	place_item = s => {
+		if (s.item) {
+			let flowing_item_memory = flowing_item;
+			take_item(s);
+			s.assign(flowing_item_memory);
+		} else {
+			s.assign(flowing_item);
+			flowing_item = null;
+			UI.flowing_item.components.item.texture = null;
+			UI.flowing_item.erase(UI.flowing_item.components.item);
+			UI.flowing_item.toggle(0);
+		}
 	},
 	Keybind = {
 		escape: "Escape",
@@ -161,6 +180,7 @@ export let
 	selected_slot = 0,							// Index of the current hotbar slot
 	slot_hovered_prev = false,					// Index of the previously selected hotbar slot
 	slot_hovered = false,						// Hovered slot reference
+	flowing_item,								// Current flowing item data
 	debug_visible = false;						// Is debug menu visible
 
 (() => {
@@ -353,6 +373,18 @@ export let
 				},
 			});
 
+			// Flowing item layer
+			UI.flowing_item = new Layer({
+				name: "flowing_item",
+				components: {
+					item: new Component({
+						origin: ["left", "top"],
+						offset: [0, 0],
+						size: [16, 16],
+					}),
+				},
+			});
+
 			LayerFragment.appendChild(Tooltip);
 			document.body.appendChild(LayerFragment);
 
@@ -368,7 +400,6 @@ export let
 				addEventListener("keydown", e => {
 					unwanted_keybinds.test(e.code) && e.preventDefault();
 					add_keybind(e);
-					ReferenceSlots.hotbar[8].assign(pumpkin_pie);
 				});
 
 				// Keyup event
@@ -420,12 +451,20 @@ export let
 							UI.tooltip.toggle(1);
 						} else UI.tooltip.toggle(0);*/
 					}
+
+					if (UI.flowing_item.visible) {
+						UI.flowing_item.canvas.style.left = `${WINDOW.X - 8 * scale}px`;
+						UI.flowing_item.canvas.style.top = `${WINDOW.Y - 8 * scale}px`;
+					}
 				});
 
 				// Left click event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("click", e => {
+				UI.inventory.canvas.addEventListener("mousedown", e => {
 					let slot = UI.inventory.components.player_inventory.get_slot_at(e);
-					if (slot) slot.item && slot.empty();
+					if (slot) {
+						if (flowing_item) place_item(slot);
+						else if (slot.item) take_item(slot);
+					}
 				});
 
 				// Initialize tooltips

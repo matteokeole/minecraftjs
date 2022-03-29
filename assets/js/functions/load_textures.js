@@ -4,7 +4,7 @@ export const load_textures = callback => {
 		// Get the texture sources list
 		let sources = [];
 		for (let l of LAYERS) {
-			Object.values(l.components).map(c => sources.push(c.texture));
+			Object.values(l.components).map(c => c.texture && sources.push(c.texture));
 		}
 
 		// Get rid of duplicate sources

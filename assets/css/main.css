@@ -12,18 +12,9 @@ body {
 	image-rendering: crisp-edges;
 }
 
-.layer.crosshair {
-	mix-blend-mode: difference;
-	pointer-events: none;
-}
-
-.layer.debug, .layer.tooltip {
-	pointer-events: none;
-}
-
-.layer.inventory, .layer.pause {
-	background-color: #000000C2;
-}
+.layer.crosshair, .layer.debug, .layer.tooltip, .layer.flowing_item {pointer-events: none}
+.layer.crosshair {mix-blend-mode: difference}
+.layer.inventory, .layer.pause {background-color: #000000C2}
 
 :root {
 	--scale: 2px;
