@@ -97,12 +97,11 @@ export function Component(c = {}) {
 
 			/**
 			 * Return the slot found at the event coordinates, or false if none is found.
-			 * @param	{object}	e							Event object
-			 * @param	{object}	[include_references=true]	Indicate whether to include reference slots in the return
+			 * @param	{number}	x							X coordinate
+			 * @param	{number}	y							Y coordinate
+			 * @param	{boolean}	[include_references=true]	Indicate whether to include reference slots in the return
 			 */
-			this.get_slot_at = (e, include_references = true) => {
-				let x = e.clientX, y = e.clientY;
-
+			this.get_slot_at = (x, y, include_references = true) => {
 				for (let s of this.slots) {
 					if (
 						x >= s.x		&&	// Left side

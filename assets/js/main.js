@@ -2,7 +2,7 @@ import {Layer} from "./class/Layer.js";
 import {Component} from "./class/Component.js";
 import {Slot} from "./class/Slot.js";
 import {Item} from "./class/Item.js";
-import {Tooltip} from "./class/Tooltip.js";
+// import {Tooltip} from "./class/Tooltip.js";
 
 import {load_textures} from "./functions/load_textures.js";
 import {scale, update_scale} from "./functions/update_scale.js";
@@ -113,9 +113,26 @@ export const
 		// Render hotbar items after the selector update
 		for (let s of h.slots) {s.draw_item()}
 	},
+	hover_slots = () => {
+		slot_hovered = UI.inventory.components.player_inventory.get_slot_at(WINDOW.X, WINDOW.Y, false);
+
+		// Clear the previous hovered slot if there is one
+		if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
+			slot_hovered_prev.leave();
+			slot_hovered_prev = false;
+		}
+
+		// Hover the slot found at the cursor coordinates if there is one
+		if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
+			slot_hovered.hover();
+			slot_hovered_prev = slot_hovered;
+		}
+	},
 	take_item = s => {
 		flowing_item = s.item;
 		s.empty();
+		UI.flowing_item.canvas.style.left = `${WINDOW.X - 8 * scale}px`;
+		UI.flowing_item.canvas.style.top = `${WINDOW.Y - 8 * scale}px`;
 		UI.flowing_item.components.item.texture = flowing_item.texture;
 		UI.flowing_item.redraw("item");
 		UI.flowing_item.toggle(1);
@@ -181,6 +198,7 @@ export let
 	slot_hovered_prev = false,					// Index of the previously selected hotbar slot
 	slot_hovered = false,						// Hovered slot reference
 	flowing_item,								// Current flowing item data
+	held_item = 0,
 	debug_visible = false;						// Is debug menu visible
 
 (() => {
@@ -385,7 +403,7 @@ export let
 				},
 			});
 
-			LayerFragment.appendChild(Tooltip);
+			// LayerFragment.appendChild(Tooltip);
 			document.body.appendChild(LayerFragment);
 
 			load_textures(() => {
@@ -423,34 +441,7 @@ export let
 					WINDOW.X = e.clientX;
 					WINDOW.Y = e.clientY;
 
-					slot_hovered = UI.inventory.components.player_inventory.get_slot_at(e, false);
-
-					// Clear the previous hovered slot if there is one
-					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered_prev.leave();
-						slot_hovered_prev = false;
-					}
-
-					// Hover the slot found at the cursor coordinates if there is one
-					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered.hover();
-						slot_hovered_prev = slot_hovered;
-
-						// If the slot has an item, show the tooltip
-						/*let s = slot_hovered.refer_to || slot_hovered;
-						if (s.item) {
-							UI.tooltip.components.display_name.text = s.item.display_name;
-							UI.tooltip.redraw("display_name");
-							UI.tooltip.components.name.text = `minecraft:${s.item.name}`;
-							UI.tooltip.redraw("name");
-
-							let max_width = Object.values(UI.tooltip.components).map(c => c.w);
-							Tooltip.style.width = `${Math.max(...max_width)}px`;
-							Tooltip.style.height = `${20 * scale}px`;
-
-							UI.tooltip.toggle(1);
-						} else UI.tooltip.toggle(0);*/
-					}
+					hover_slots();
 
 					if (UI.flowing_item.visible) {
 						UI.flowing_item.canvas.style.left = `${WINDOW.X - 8 * scale}px`;
@@ -459,16 +450,27 @@ export let
 				});
 
 				// Left click event (only for the inventory layer)
-				UI.inventory.canvas.addEventListener("mousedown", e => {
-					let slot = UI.inventory.components.player_inventory.get_slot_at(e);
+				UI.inventory.canvas.addEventListener("mousedown", () => {
+					let slot = UI.inventory.components.player_inventory.get_slot_at(WINDOW.X, WINDOW.Y);
 					if (slot) {
-						if (flowing_item) place_item(slot);
-						else if (slot.item) take_item(slot);
+						if (slot.item) {
+							console.log("held_item")
+							held_item++;
+							!flowing_item && take_item(slot);
+						}
 					}
 				});
 
-				// Initialize tooltips
-				Tooltip.init();
+				UI.inventory.canvas.addEventListener("click", () => {
+					let slot = UI.inventory.components.player_inventory.get_slot_at(WINDOW.X, WINDOW.Y);
+					if (slot) {
+						held_item++;
+						if (flowing_item && held_item >= 3) {
+							place_item(slot);
+							slot.item && (held_item = 0);
+						}
+					}
+				});
 
 				UI.inventory.components.player_inventory.slots[26].assign(bread);
 				ReferenceSlots.hotbar[8].assign(pumpkin_pie);

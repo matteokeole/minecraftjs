@@ -1,5 +1,5 @@
 import {scale} from "../functions/update_scale.js";
-import {TEXTURES, slot_hovered} from "../main.js";
+import {TEXTURES, Font, slot_hovered} from "../main.js";
 
 let i = 0;
 
@@ -129,6 +129,32 @@ export const Slot = function(slot = {}) {
 				this.w - 2 * scale,
 				this.h - 2 * scale,
 			);
+
+			/*if (item.stack_count !== 1) {
+				let stack_count = String(item.stack_count),
+					x = this.x + scale,
+					y = this.y + scale;
+
+				for (let c of stack_count) {
+					let i = Font.chars.indexOf(c),
+						u = i % 16 * 8,
+						v = 8 * (Math.floor(i / 16) + 2);
+
+					this.component.layer.ctx.drawImage(
+						TEXTURES["font/ascii.png"],
+						u,
+						v,
+						6,
+						8,
+						x,
+						y,
+						6 * scale,
+						8 * scale,
+					);
+
+					x += ((Font.size[c] ?? 5) + 1) * scale;
+				}
+			}*/
 		}
 	};
 
@@ -136,7 +162,7 @@ export const Slot = function(slot = {}) {
 	 * Apply an hover effect to the slot.
 	 */
 	this.hover = () => {
-		this.hovered = true;
+		/*this.hovered = true;
 
 		// Lighten the slot
 		this.component.layer.ctx.fillStyle = "#ffffff80";
@@ -145,7 +171,7 @@ export const Slot = function(slot = {}) {
 			this.y + scale,
 			this.w - 2 * scale,
 			this.h - 2 * scale,
-		);
+		);*/
 
 		return this;
 	};
@@ -154,7 +180,7 @@ export const Slot = function(slot = {}) {
 	 * Remove the slot hover effect.
 	 */
 	this.leave = () => {
-		this.hovered = false;
+		/*this.hovered = false;
 
 		// Darken the slot
 		this.component.layer.ctx.fillStyle = "#8b8b8b";
@@ -166,7 +192,7 @@ export const Slot = function(slot = {}) {
 		);
 
 		// Draw the slot item if there is one
-		this.draw_item();
+		this.draw_item();*/
 
 		return this;
 	};
