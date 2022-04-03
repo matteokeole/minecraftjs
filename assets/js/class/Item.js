@@ -24,4 +24,7 @@ export const Item = function(id) {
 
 	// Texture file path
 	this.texture = `item/${this.name}.png`;
+
+	// Count
+	this.stack_count = 17;
 }

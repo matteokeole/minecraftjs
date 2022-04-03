@@ -1,5 +1,5 @@
 import {scale} from "../functions/update_scale.js";
-import {TEXTURES, slot_hovered} from "../main.js";
+import {TEXTURES, Font, slot_hovered} from "../main.js";
 
 let i = 0;
 
@@ -122,6 +122,32 @@ export const Slot = function(slot = {}) {
 				this.w - 2 * scale,
 				this.h - 2 * scale,
 			);
+
+			/*if (item.stack_count !== 1) {
+				let stack_count = String(item.stack_count),
+					x = this.x + scale,
+					y = this.y + scale;
+
+				for (let c of stack_count) {
+					let i = Font.chars.indexOf(c),
+						u = i % 16 * 8,
+						v = 8 * (Math.floor(i / 16) + 2);
+
+					this.component.layer.ctx.drawImage(
+						TEXTURES["font/ascii.png"],
+						u,
+						v,
+						6,
+						8,
+						x,
+						y,
+						6 * scale,
+						8 * scale,
+					);
+
+					x += ((Font.size[c] ?? 5) + 1) * scale;
+				}
+			}*/
 		}
 	};
 }

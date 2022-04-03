@@ -2,7 +2,7 @@ import {Layer} from "./class/Layer.js";
 import {Component} from "./class/Component.js";
 import {Slot} from "./class/Slot.js";
 import {Item} from "./class/Item.js";
-import {Tooltip} from "./class/Tooltip.js";
+// import {Tooltip} from "./class/Tooltip.js";
 
 import {load_textures} from "./functions/load_textures.js";
 import {scale, update_scale} from "./functions/update_scale.js";
@@ -117,6 +117,8 @@ export const
 	take_item = s => {
 		flowing_item = s.item;
 		s.empty();
+		UI.flowing_item.canvas.style.left = `${WINDOW.X - 8 * scale}px`;
+		UI.flowing_item.canvas.style.top = `${WINDOW.Y - 8 * scale}px`;
 		UI.flowing_item.components.item.texture = flowing_item.texture;
 		UI.flowing_item.redraw("item");
 		UI.flowing_item.toggle(1);
@@ -182,6 +184,7 @@ export let
 	previous_slot_hovered = false,				// Index of the previously selected hotbar slot
 	slot_hovered = false,						// Hovered slot reference
 	flowing_item,								// Current flowing item data
+	held_item = 0,
 	debug_visible = false;						// Is debug menu visible
 
 (() => {
@@ -377,6 +380,7 @@ export let
 			// Flowing item layer
 			UI.flowing_item = new Layer({
 				name: "flowing_item",
+				// visible: 0,
 				components: {
 					item: new Component({
 						origin: ["left", "top"],
@@ -386,7 +390,7 @@ export let
 				},
 			});
 
-			LayerFragment.appendChild(Tooltip);
+			// LayerFragment.appendChild(Tooltip);
 			document.body.appendChild(LayerFragment);
 
 			Hover.className = "hover";
@@ -427,9 +431,10 @@ export let
 					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
 					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
 
-					slot_hovered = UI.inventory.components.player_inventory.get_slot_at(e, false);
+					slot_hovered = UI.inventory.components.player_inventory.get_slot_at(WINDOW.X, WINDOW.Y, false);
 
 					if (slot_hovered) {
+						console.log("ok")
 						if (slot_hovered.id !== previous_slot_hovered.id) {
 							Hover.style.left = `${slot_hovered.x + scale}px`;
 							Hover.style.top = `${slot_hovered.y + scale}px`;
@@ -451,7 +456,7 @@ export let
 
 				// Left click event (only for the inventory layer)
 				UI.inventory.canvas.addEventListener("mousedown", e => {
-					let slot = UI.inventory.components.player_inventory.get_slot_at(e);
+					let slot = UI.inventory.components.player_inventory.get_slot_at(WINDOW.X, WINDOW.Y);
 					if (slot) {
 						if (flowing_item) place_item(slot);
 						else if (slot.item) take_item(slot);
