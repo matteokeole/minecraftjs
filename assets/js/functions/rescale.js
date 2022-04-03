@@ -1,4 +1,4 @@
-import {WINDOW, LAYERS} from "../main.js";
+import {WINDOW, LAYERS, LAYER_VALUES} from "../main.js";
 
 export let
 	default_scale = 2, // Default GUI scale
@@ -7,7 +7,7 @@ export let
 	/**
 	 * Resize the layers according to the window size and update the CSS --scale variable with the new scale.
 	 */
-	update_scale = () => {
+	rescale = () => {
 		// Store the new window dimensions
 		WINDOW.W = Math.ceil(innerWidth / 2) * 2;
 		WINDOW.H = Math.ceil(innerHeight / 2) * 2;
@@ -30,8 +30,8 @@ export let
 		}
 
 		// Update display information in the debug menu
-		LAYERS[2].components.display.text = `Display: ${WINDOW.W}x${WINDOW.H}`;
+		LAYERS.debug.components.display.text = `Display: ${WINDOW.W}x${WINDOW.H}`;
 
 		// Redraw layers
-		for (let l of LAYERS) {l.resize()}
+		for (let l of LAYER_VALUES) {l.resize()}
 	};

@@ -1,5 +1,6 @@
-import {scale} from "../functions/update_scale.js";
-import {TEXTURES, Font, slot_hovered} from "../main.js";
+import {scale} from "../functions/rescale.js";
+import {Font, slot_hovered} from "../main.js";
+import {TEXTURES} from "../functions/load_textures.js";
 
 let i = 0;
 

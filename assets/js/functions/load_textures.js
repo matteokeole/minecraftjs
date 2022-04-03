@@ -1,19 +1,18 @@
-import {LAYERS, TEXTURES} from "../main.js";
+import {LAYERS, SOURCES} from "../main.js";
 
-export const load_textures = callback => {
-		// Get the texture sources list
-		let sources = [];
-		for (let l of LAYERS) {
-			Object.values(l.components).map(c => c.texture && sources.push(c.texture));
-		}
-
+export const
+	TEXTURES = {},
+	/**
+	 * Load each texture into an image using the source array and store it into the texture list.
+	 * @param	{function}	callback	The function to be called when all textures are loaded
+	 */
+	load_textures = callback => {
 		// Get rid of duplicate sources
-		sources = [...new Set(sources)];
-
-		let sources_length = sources.length,
+		let sources = [...new Set(SOURCES)],
+			sources_length = sources.length,
 			i = 0;
 
-		// If the texture isn't in the list, load it into an image
+		// Load once each texture into an image
 		for (let s of sources) {
 			if (!(s in TEXTURES)) {
 				TEXTURES[s] = new Image();

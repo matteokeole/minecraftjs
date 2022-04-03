@@ -1,4 +1,4 @@
-import {scale} from "../functions/update_scale.js";
+import {scale} from "../functions/rescale.js";
 import {WINDOW, LAYERS} from "../main.js";
 
 export let Tooltip = document.createElement("div");

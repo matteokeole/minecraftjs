@@ -1,6 +1,8 @@
-import {scale} from "../functions/update_scale.js";
-import {Tooltip} from "../class/Tooltip.js";
-import {WINDOW, TEXTURES, LAYERS, Font, LayerFragment} from "../main.js";
+import {scale} from "../functions/rescale.js";
+import {Component} from "./Component.js";
+import {Tooltip} from "./Tooltip.js";
+import {WINDOW, LAYERS, Font, LayerFragment} from "../main.js";
+import {TEXTURES} from "../functions/load_textures.js";
 
 const Visibilities = ["hidden", "visible"];
 
@@ -35,7 +37,12 @@ export function Layer(layer = {}) {
 	this.ctx = this.canvas.getContext("2d");
 
 	// Component list
-	this.components = layer.components ?? {};
+	this.components = {};
+	for (let c of layer.components) {
+		this.components[c.name] = new Component(c);
+		this.components[c.name].layer = this;
+	}
+	this.component_values = Object.values(this.components);
 
 	/**
 	 * Set the layer size and redraw its components.
@@ -67,12 +74,12 @@ export function Layer(layer = {}) {
 
 	/**
 	 * Find the first component which has the same name as the specified value and return it.
- 	 * @param	{string}	c	Component name
+ 	 * @param	{string}	n	Component name
 	 */
-	this.get = n => component_values.find(c => c.name === n);
+	this.get = n => this.component_values.find(c => c.name === n);
 
 	this.get_component_at = (x, y) => {
-		for (let c of Object.values(this.components)) {
+		for (let c of this.component_values) {
 			if (
 				x >= c.x		&&	// Left side
 				x < c.x + c.w	&&	// Right side
@@ -167,7 +174,7 @@ export function Layer(layer = {}) {
 
 		if (!cs.length) {
 			redraw_all = true;
-			cs = Object.values(this.components).map(c => c.name);
+			cs = this.component_values.map(c => c.name);
 			this.erase();
 		}
 
@@ -302,13 +309,6 @@ export function Layer(layer = {}) {
 
 	// Add the layer to the layer array
 	LAYERS.push(this);
-
-	// Initialize layer components
-	Object.entries(this.components).forEach(c => {
-		c[1].name = c[0];
-		c[1].layer = this;
-	});
-	let component_values = Object.values(this.components);
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;

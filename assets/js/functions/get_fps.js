@@ -1,4 +1,4 @@
-import {UI} from "../main.js";
+import {LAYERS} from "../main.js";
 
 export let
 	start = performance.now(), // Start time
@@ -16,8 +16,8 @@ export let
 
 		if (difference > delay) {
 			// Update the FPS counter each second
-			UI.debug.get("fps").text = `${frames} fps`;
-			UI.debug.redraw("fps");
+			LAYERS.debug.components.fps.text = `${frames} fps`;
+			LAYERS.debug.redraw("fps");
 
 			// Reset start value and frame count
 			start = now;

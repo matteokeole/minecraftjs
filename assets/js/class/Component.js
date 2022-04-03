@@ -1,5 +1,5 @@
-import {scale} from "../functions/update_scale.js";
-import {Color} from "../main.js";
+import {scale} from "../functions/rescale.js";
+import {SOURCES, Color} from "../main.js";
 
 /**
  * Construct a new layer component.
@@ -20,6 +20,9 @@ import {Color} from "../main.js";
  * @param	{boolean}	[component.text_shadow=false]		Component text shadow
  */
 export function Component(c = {}) {
+	// Name
+	this.name = c.name;
+
 	// Type
 	this.type = c.type ?? "default";
 
@@ -116,4 +119,7 @@ export function Component(c = {}) {
 
 			break;
 	}
+
+	// Add the texture path to the source list
+	this.texture && SOURCES.push(this.texture);
 }
