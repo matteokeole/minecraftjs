@@ -62,11 +62,7 @@ export const Slot = function(slot = {}) {
 
 					// Render updated slot
 					let ss = this.reference_for || [this];
-					for (let s of ss) {
-						s.hovered && s.leave();
-						s.draw_item();
-						slot_hovered.id === s.id && s.hover();
-					}
+					for (let s of ss) {s.draw_item()}
 				};
 
 			// Check if the item texture is already loaded, and load it in this case
@@ -105,9 +101,6 @@ export const Slot = function(slot = {}) {
 					s.w - 2 * scale,
 					s.h - 2 * scale,
 				);
-
-				// Hover the slot if it was hovered before the process
-				s.hovered && s.hover();
 			}
 
 			return this;
@@ -130,44 +123,5 @@ export const Slot = function(slot = {}) {
 				this.h - 2 * scale,
 			);
 		}
-	};
-
-	/**
-	 * Apply an hover effect to the slot.
-	 */
-	this.hover = () => {
-		this.hovered = true;
-
-		// Lighten the slot
-		this.component.layer.ctx.fillStyle = "#ffffff80";
-		this.component.layer.ctx.fillRect(
-			this.x + scale,
-			this.y + scale,
-			this.w - 2 * scale,
-			this.h - 2 * scale,
-		);
-
-		return this;
-	};
-
-	/**
-	 * Remove the slot hover effect.
-	 */
-	this.leave = () => {
-		this.hovered = false;
-
-		// Darken the slot
-		this.component.layer.ctx.fillStyle = "#8b8b8b";
-		this.component.layer.ctx.fillRect(
-			this.x + scale,
-			this.y + scale,
-			this.w - 2 * scale,
-			this.h - 2 * scale,
-		);
-
-		// Draw the slot item if there is one
-		this.draw_item();
-
-		return this;
 	};
 }

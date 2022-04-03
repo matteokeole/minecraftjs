@@ -29,6 +29,7 @@ export const
 	UI = {},
 	LAYERS = [],
 	LayerFragment = document.createDocumentFragment(),
+	Hover = document.createElement("div"),
 	add_keybind = k => {
 		keys.indexOf(k.code) === -1 && keys.push(k.code);
 		switch (k.code) {
@@ -178,7 +179,7 @@ export let
 	keys = [],									// Current pressed keys
 	unwanted_keybinds = /^(Tab|Digit4|F1|F3)$/,	// Keys to prevent
 	selected_slot = 0,							// Index of the current hotbar slot
-	slot_hovered_prev = false,					// Index of the previously selected hotbar slot
+	previous_slot_hovered = false,				// Index of the previously selected hotbar slot
 	slot_hovered = false,						// Hovered slot reference
 	flowing_item,								// Current flowing item data
 	debug_visible = false;						// Is debug menu visible
@@ -388,6 +389,9 @@ export let
 			LayerFragment.appendChild(Tooltip);
 			document.body.appendChild(LayerFragment);
 
+			Hover.className = "hover";
+			document.body.appendChild(Hover);
+
 			load_textures(() => {
 				update_scale();
 
@@ -420,36 +424,23 @@ export let
 
 				// Mouse move event (only for the inventory layer)
 				addEventListener("mousemove", e => {
-					WINDOW.X = e.clientX;
-					WINDOW.Y = e.clientY;
+					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
+					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
 
 					slot_hovered = UI.inventory.components.player_inventory.get_slot_at(e, false);
 
-					// Clear the previous hovered slot if there is one
-					if (slot_hovered_prev && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered_prev.leave();
-						slot_hovered_prev = false;
-					}
+					if (slot_hovered) {
+						if (slot_hovered.id !== previous_slot_hovered.id) {
+							Hover.style.left = `${slot_hovered.x + scale}px`;
+							Hover.style.top = `${slot_hovered.y + scale}px`;
+							Hover.style.visibility !== "visible" && (Hover.style.visibility = "visible");
 
-					// Hover the slot found at the cursor coordinates if there is one
-					if (slot_hovered && slot_hovered.id !== slot_hovered_prev.id) {
-						slot_hovered.hover();
-						slot_hovered_prev = slot_hovered;
+							previous_slot_hovered = slot_hovered;
+						}
+					} else if (Hover.style.visibility === "visible") {
+						Hover.style.visibility = "hidden";
 
-						// If the slot has an item, show the tooltip
-						/*let s = slot_hovered.refer_to || slot_hovered;
-						if (s.item) {
-							UI.tooltip.components.display_name.text = s.item.display_name;
-							UI.tooltip.redraw("display_name");
-							UI.tooltip.components.name.text = `minecraft:${s.item.name}`;
-							UI.tooltip.redraw("name");
-
-							let max_width = Object.values(UI.tooltip.components).map(c => c.w);
-							Tooltip.style.width = `${Math.max(...max_width)}px`;
-							Tooltip.style.height = `${20 * scale}px`;
-
-							UI.tooltip.toggle(1);
-						} else UI.tooltip.toggle(0);*/
+						previous_slot_hovered = false;
 					}
 
 					if (UI.flowing_item.visible) {
@@ -468,7 +459,7 @@ export let
 				});
 
 				// Initialize tooltips
-				Tooltip.init();
+				// Tooltip.init();
 
 				UI.inventory.components.player_inventory.slots[26].assign(bread);
 				ReferenceSlots.hotbar[8].assign(pumpkin_pie);

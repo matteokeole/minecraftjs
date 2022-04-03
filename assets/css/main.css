@@ -16,6 +16,8 @@ body {
 .layer.crosshair {mix-blend-mode: difference}
 .layer.inventory, .layer.pause {background-color: #000000C2}
 
+.layer.flowing_item {z-index: 1}
+
 :root {
 	--scale: 2px;
 }
@@ -54,4 +56,13 @@ body {
 	background-size:
 		calc(100% - (2 * var(--scale))),
 		100% calc(100% - (2 * var(--scale)));
+}
+
+.hover {
+	visibility: hidden;
+	width: calc(16 * var(--scale));
+	height: calc(16 * var(--scale));
+	position: absolute;
+	background-color: rgba(255, 255, 255, .5);
+	pointer-events: none;
 }
