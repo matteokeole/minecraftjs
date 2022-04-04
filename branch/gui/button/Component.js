@@ -1,5 +1,3 @@
-import {SOURCES} from "./main.js";
-
 /**
  * Construct a new layer component.
  *
@@ -26,7 +24,6 @@ export const Component = function(c) {
 
 	// Texture file path
 	this.texture = c.texture;
-	this.texture && SOURCES.push(this.texture);
 
 	// Texture offset
 	this.uv = c.uv ?? [0, 0];

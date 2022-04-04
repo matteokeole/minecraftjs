@@ -1,4 +1,4 @@
-import {WINDOW, TEXTURES, LAYERS, Font, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, LAYERS, Font, Color, Visibilities, LayerFragment, scale} from "./main.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -177,7 +177,7 @@ export function Layer(layer = {}) {
 							v = 8 * (Math.floor(i / 16) + 2);
 
 						if (c.text_shadow) {
-							this.ctx.globalAlpha = .8;
+							this.ctx.globalAlpha = .43;
 							this.ctx.drawImage(
 								TEXTURES["font/ascii.png"],
 								u,
@@ -190,32 +190,6 @@ export function Layer(layer = {}) {
 								8 * scale,
 							);
 						}
-
-						x += ((Font.size[ch] ?? 5) + 1) * scale;
-					}
-
-					y += 9 * scale;
-				}
-
-				this.ctx.globalCompositeOperation = "source-atop";
-				this.ctx.fillStyle = c.color;
-				this.ctx.fillRect(
-					ox + scale,
-					oy + scale,
-					c.text_size[0],
-					c.text_size[1] + (c.text_shadow ? scale : 0),
-				);
-				this.ctx.globalAlpha = 1;
-				this.ctx.globalCompositeOperation = "source-over";
-
-				y = oy;
-				for (let l of c.lines) {
-					x = ox;
-
-					for (let ch of l) {
-						let i = Font.chars.indexOf(ch),
-							u = i % 16 * 8,
-							v = 8 * (Math.floor(i / 16) + 2);
 
 						this.ctx.globalAlpha = 1;
 						this.ctx.drawImage(
@@ -234,6 +208,46 @@ export function Layer(layer = {}) {
 					}
 
 					y += 9 * scale;
+				}
+
+				this.ctx.globalCompositeOperation = "source-atop";
+				this.ctx.fillStyle = c.disabled ? c.color : Color.black;
+				this.ctx.fillRect(
+					ox,
+					oy,
+					c.text_size[0],
+					c.text_size[1] + (c.text_shadow ? scale : 0),
+				);
+				this.ctx.globalAlpha = 1;
+				this.ctx.globalCompositeOperation = "source-over";
+
+				if (!c.disabled) {
+					y = oy;
+					for (let l of c.lines) {
+						x = ox;
+
+						for (let ch of l) {
+							let i = Font.chars.indexOf(ch),
+								u = i % 16 * 8,
+								v = 8 * (Math.floor(i / 16) + 2);
+
+							this.ctx.drawImage(
+								TEXTURES["font/ascii.png"],
+								u,
+								v,
+								6,
+								8,
+								x,
+								y,
+								6 * scale,
+								8 * scale,
+							);
+
+							x += ((Font.size[ch] ?? 5) + 1) * scale;
+						}
+
+						y += 9 * scale;
+					}
 				}
 
 				let uv = c.hovered ? c.uv_hover : c.uv;

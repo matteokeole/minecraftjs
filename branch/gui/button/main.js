@@ -72,7 +72,8 @@ export const
 				x >= b.x		&&	// Left side
 				x < b.x + b.w	&&	// Right side
 				y >= b.y		&&	// Top side
-				y <= b.y + b.h		// Bottom side
+				y <= b.y + b.h	&&	// Bottom side
+				!b.disabled			// Disabled buttons can't be hovered
 			) {
 				// Hover the button
 				if (!b.hovered) {
@@ -88,9 +89,9 @@ export const
 			}
 		}
 	},
-	button_action = (l, e) => {
+	button_action = l => {
 		for (let b of l.buttons) {
-			if (b.hovered) b.action();
+			b.hovered && b.action();
 		}
 	};
 
@@ -118,18 +119,26 @@ export let
 			LAYERS.push(new Layer({
 				name: "pause",
 				components: {
-					github_link: new Button({
+					button1: new Button({
 						origin: ["center", "center"],
 						offset: [0, 0],
 						size: [200, 20],
-						texture: "gui/widgets.png",
-						uv: [0, 66],
-						uv_hover: [0, 86],
+						text: "Enabled Button",
+					}),
+					button2: new Button({
+						origin: ["center", "center"],
+						offset: [0, 24],
+						size: [200, 20],
+						text: "Disabled Button",
+						disabled: true,
+					}),
+					button3: new Button({
+						origin: ["center", "bottom"],
+						offset: [0, 9],
+						size: [200, 20],
 						text: "View GitHub Repository...",
-						color: Color.black,
-						text_shadow: true,
+						disabled: false,
 						action: () => open("https://github.com/matteoo34/minecraftjs"),
-						// TO-DO: Disabled attribute
 					}),
 				},
 			}));
@@ -150,7 +159,7 @@ export let
 
 				// Left click event
 				LAYERS[0].canvas.addEventListener("mousedown", e => {
-					e.which === 1 && button_action(LAYERS[0], e);
+					e.which === 1 && button_action(LAYERS[0]);
 				});
 			});
 		})
