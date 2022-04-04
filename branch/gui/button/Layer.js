@@ -236,17 +236,7 @@ export function Layer(layer = {}) {
 					y += 9 * scale;
 				}
 
-				/*this.ctx.globalCompositeOperation = "source-atop";
-				this.ctx.fillStyle = c.color;
-				this.ctx.fillRect(
-					ox,
-					oy,
-					c.text_size[0],
-					c.text_size[1] + (c.text_shadow ? scale : 0),
-				);
-				this.ctx.globalAlpha = 1;*/
-
-				let uv = c.hovered ? c.uv2 : c.uv;
+				let uv = c.hovered ? c.uv_hover : c.uv;
 				this.ctx.globalCompositeOperation = "destination-over";
 				this.ctx.drawImage(
 					TEXTURES[c.texture],

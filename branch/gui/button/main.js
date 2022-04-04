@@ -1,5 +1,6 @@
 import {Layer} from "./Layer.js";
 import {Component} from "./Component.js";
+import {Button} from "./Button.js";
 
 export const
 	WINDOW = {
@@ -10,8 +11,8 @@ export const
 		MW: screen.width,
 		MH: screen.height,
 	},
+	SOURCES = ["font/ascii.png"],
 	TEXTURES = {},
-	UI = {},
 	RESOURCES = [
 		"../../../assets/font.json",
 	],
@@ -19,27 +20,20 @@ export const
 	LayerFragment = document.createDocumentFragment(),
 	Visibilities = ["hidden", "visible"],
 	load_textures = callback => {
-		// Get the texture sources list
-		let sources = [];
-		for (let l of LAYERS) {
-			Object.values(l.components).map(c => sources.push(c.texture));
-		}
-
 		// Get rid of duplicate sources
-		sources = [...new Set(sources)];
+		let sources = [...new Set(SOURCES)],
+			sources_length = sources.length,
+			i = 0;
 
-		let sources_length = sources.length,
-			j = 0;
-
-		// If the texture isn't in the list, load it into an image
-		for (let i of sources) {
-			if (!(i in TEXTURES)) {
-				TEXTURES[i] = new Image();
-				TEXTURES[i].addEventListener("load", () => {
+		// Load once each texture into an image
+		for (let s of sources) {
+			if (!(s in TEXTURES)) {
+				TEXTURES[s] = new Image();
+				TEXTURES[s].addEventListener("load", () => {
 					// Run the callback function when all textures are loaded
-					++j === sources_length && callback();
+					++i === sources_length && callback();
 				});
-				TEXTURES[i].src = `../../../assets/textures/${i}`;
+				TEXTURES[s].src = `../../../assets/textures/${s}`;
 			}
 		}
 	},
@@ -96,7 +90,7 @@ export const
 	},
 	button_action = (l, e) => {
 		for (let b of l.buttons) {
-			if (b.hovered) open(b.link);
+			if (b.hovered) b.action();
 		}
 	};
 
@@ -121,28 +115,24 @@ export let
 			Color = response[0].color;
 
 			// Pause menu layer
-			UI.pause = new Layer({
+			LAYERS.push(new Layer({
 				name: "pause",
 				components: {
-					loader: new Component({
-						type: "button",
-						texture: "font/ascii.png",
-					}),
-					github_link: new Component({
-						type: "button",
+					github_link: new Button({
 						origin: ["center", "center"],
 						offset: [0, 0],
 						size: [200, 20],
 						texture: "gui/widgets.png",
 						uv: [0, 66],
-						uv2: [0, 86],
+						uv_hover: [0, 86],
 						text: "View GitHub Repository...",
 						color: Color.black,
 						text_shadow: true,
-						link: "https://github.com/matteoo34/minecraftjs",
+						action: () => open("https://github.com/matteoo34/minecraftjs"),
+						// TO-DO: Disabled attribute
 					}),
 				},
-			});
+			}));
 
 			document.body.appendChild(LayerFragment);
 
@@ -156,11 +146,11 @@ export let
 				addEventListener("contextmenu", e => e.preventDefault());
 
 				// Moving mouse event
-				UI.pause.canvas.addEventListener("mousemove", e => button_hovering(UI.pause, e));
+				LAYERS[0].canvas.addEventListener("mousemove", e => button_hovering(LAYERS[0], e));
 
 				// Left click event
-				UI.pause.canvas.addEventListener("mousedown", e => {
-					e.which === 1 && button_action(UI.pause, e);
+				LAYERS[0].canvas.addEventListener("mousedown", e => {
+					e.which === 1 && button_action(LAYERS[0], e);
 				});
 			});
 		})
