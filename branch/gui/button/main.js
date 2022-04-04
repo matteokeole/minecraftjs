@@ -1,6 +1,8 @@
 import {Layer} from "./Layer.js";
 import {Component} from "./Component.js";
+import {Text} from "./Text.js";
 import {Button} from "./Button.js";
+import {Tooltip, tooltip_elements} from "./Tooltip.js";
 
 export const
 	WINDOW = {
@@ -19,6 +21,14 @@ export const
 	LAYERS = [],
 	LayerFragment = document.createDocumentFragment(),
 	Visibilities = ["hidden", "visible"],
+	sort_components = () => {
+		for (let l of LAYERS) {
+			for (let c of Object.values(l.components)) {
+				c.texture && SOURCES.push(c.texture);
+				c.tooltip_text && tooltip_elements.push(c);
+			}
+		}
+	},
 	load_textures = callback => {
 		// Get rid of duplicate sources
 		let sources = [...new Set(SOURCES)],
@@ -90,9 +100,7 @@ export const
 		}
 	},
 	button_action = l => {
-		for (let b of l.buttons) {
-			b.hovered && b.action();
-		}
+		for (let b of l.buttons) {b.hovered && b.action()}
 	};
 
 export let
@@ -119,34 +127,72 @@ export let
 			LAYERS.push(new Layer({
 				name: "pause",
 				components: {
-					button1: new Button({
-						origin: ["center", "center"],
-						offset: [0, 0],
-						size: [200, 20],
-						text: "Enabled Button",
+					minecraft1: new Component({
+						origin: ["center", "top"],
+						offset: [-59, 30],
+						size: [156, 44],
+						texture: "gui/title/minecraft.png",
+						uv: [0, 0],
 					}),
-					button2: new Button({
+					minecraft2: new Component({
+						origin: ["center", "top"],
+						offset: [78, 30],
+						size: [120, 44],
+						texture: "gui/title/minecraft.png",
+						uv: [0, 45],
+					}),
+					singleplayer: new Button({
 						origin: ["center", "center"],
-						offset: [0, 24],
+						offset: [0, -77],
 						size: [200, 20],
-						text: "Disabled Button",
+						text: "Singleplayer",
+					}),
+					multiplayer: new Button({
+						origin: ["center", "center"],
+						offset: [0, -53],
+						size: [200, 20],
+						text: "Multiplayer",
 						disabled: true,
+						tooltip_text: "This is not implemented yet!",
 					}),
-					button3: new Button({
-						origin: ["center", "bottom"],
-						offset: [0, 9],
+					repository: new Button({
+						origin: ["center", "center"],
+						offset: [0, -29],
 						size: [200, 20],
-						text: "View GitHub Repository...",
+						text: "Open GitHub Repository...",
 						disabled: false,
 						action: () => open("https://github.com/matteoo34/minecraftjs"),
+					}),
+					options: new Button({
+						origin: ["center", "center"],
+						offset: [-51, 7],
+						size: [98, 20],
+						text: "Options...",
+					}),
+					quit: new Button({
+						origin: ["center", "center"],
+						offset: [51, 7],
+						size: [98, 20],
+						text: "Quit Game",
+						disabled: true,
+					}),
+					version: new Text({
+						origin: ["center", "bottom"],
+						offset: [0, 2],
+						text: "Minecraft JS (pre-alpha 220404)",
+						color: Color.white,
+						// text_shadow: true,
 					}),
 				},
 			}));
 
 			document.body.appendChild(LayerFragment);
 
+			sort_components();
+
 			load_textures(() => {
 				update_scale();
+				Tooltip.init();
 
 				// Window resizing event
 				addEventListener("resize", update_scale);

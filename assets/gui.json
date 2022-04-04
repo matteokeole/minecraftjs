@@ -33,7 +33,7 @@
 				"type": "text",
 				"origin": ["left", "top"],
 				"offset": [1, 1],
-				"text": "Minecraft JS (pre-alpha 220403)",
+				"text": "Minecraft JS (pre-alpha 220404)",
 				"text_background": "#080400",
 				"text_background_alpha": 0.21
 			}, {

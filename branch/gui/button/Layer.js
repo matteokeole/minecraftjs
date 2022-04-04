@@ -1,28 +1,30 @@
-import {WINDOW, TEXTURES, LAYERS, Font, Color, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, TEXTURES, Font, Color, Visibilities, LayerFragment, scale} from "./main.js";
+import {Button} from "./Button.js";
+import {Text} from "./Text.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
  *
- * Param	Type		Name=Default					Description
- * @param	{object}	[layer={}]						Layer data object
- * @param	{string}	layer.name						Name (used as canvas ID)
- * @param	{object}	[layer.parent=LayerFragment]	DOM parent
- * @param	{boolean}	[layer.visible=1]				Visibility state
- * @param	{object}	[layer.components={}]			Layer component list
+ * Param	Type		Name=Default				Description
+ * @param	{object}	[l={}]						Layer data object
+ * @param	{string}	l.name						Name (used as canvas ID)
+ * @param	{object}	[l.parent=LayerFragment]	DOM parent
+ * @param	{boolean}	[l.visible=1]				Visibility state
+ * @param	{object}	[l.components={}]			Layer component list
  */
-export function Layer(layer = {}) {
+export function Layer(l = {}) {
 	// Name
-	this.name = layer.name;
+	this.name = l.name;
 
 	// DOM parent
-	this.parent = layer.parent ?? LayerFragment;
+	this.parent = l.parent ?? LayerFragment;
 
 	// Size
 	this.w = WINDOW.W;
 	this.h = WINDOW.H;
 
 	// Visibility
-	this.visible = layer.visible ?? 1;
+	this.visible = l.visible ?? 1;
 
 	// Canvas
 	this.canvas = document.createElement("canvas");
@@ -31,7 +33,7 @@ export function Layer(layer = {}) {
 	this.ctx = this.canvas.getContext("2d");
 
 	// Component list
-	this.components = layer.components ?? {};
+	this.components = l.components ?? {};
 	this.buttons = [];
 
 	/**
@@ -61,6 +63,19 @@ export function Layer(layer = {}) {
 		return this;
 	};
 
+	this.get_component_at = (x, y) => {
+		for (let c of this.component_values) {
+			if (
+				x >= c.x		&&	// Left side
+				x < c.x + c.w	&&	// Right side
+				y >= c.y		&&	// Top side
+				y <= c.y + c.h		// Bottom side
+			) return c;
+		}
+
+		return false;
+	};
+
 	/**
 	 * Calculate the scaled offset/size and absolute position for the specified component.
  	 * @param	{object}	c	Component
@@ -73,7 +88,7 @@ export function Layer(layer = {}) {
 		];
 
 		// Text components don't have size values by default, we need to calculate them using line size
-		if (c.type === "button") {
+		if (c.type === "text") {
 			// Explode the text in lines
 			c.lines = c.text.split("\n");
 
@@ -89,10 +104,21 @@ export function Layer(layer = {}) {
 			}
 
 			// The width is the max line width found for this component
-			c.text_size[0] = (Math.max(...widths) + 2) * scale;
+			c.size[0] = Math.max(...widths) + 2;
 
 			// Multiply line number to get the height
-			c.text_size[1] = 9 * c.lines.length * scale;
+			c.size[1] = 9 * c.lines.length;
+		}
+
+		if (c.type === "button") {
+			let w = 0;
+			for (let char of c.text) {w += (Font.size[char] ?? 5) + 1}
+
+			// The width is the max line width found for this component
+			c.text_size[0] = w * scale;
+
+			// Multiply line number to get the height
+			c.text_size[1] = 9 * scale;
 		}
 
 		// Scale the size
@@ -163,99 +189,20 @@ export function Layer(layer = {}) {
 	this.draw = c => {
 		switch (c.type) {
 			case "button":
-				let ox = c.x + (c.w - c.text_size[0]) / 2,
-					oy = c.y + (c.h - c.text_size[1]) / 2 + (scale / 2),
-					x,
-					y = oy;
+				Button.render(c);
 
-				for (let l of c.lines) {
-					x = ox;
+				break;
 
-					for (let ch of l) {
-						let i = Font.chars.indexOf(ch),
-							u = i % 16 * 8,
-							v = 8 * (Math.floor(i / 16) + 2);
+			case "text":
+				Text.render(c);
 
-						if (c.text_shadow) {
-							this.ctx.globalAlpha = .43;
-							this.ctx.drawImage(
-								TEXTURES["font/ascii.png"],
-								u,
-								v,
-								6,
-								8,
-								x + scale,
-								y + scale,
-								6 * scale,
-								8 * scale,
-							);
-						}
+				break;
 
-						this.ctx.globalAlpha = 1;
-						this.ctx.drawImage(
-							TEXTURES["font/ascii.png"],
-							u,
-							v,
-							6,
-							8,
-							x,
-							y,
-							6 * scale,
-							8 * scale,
-						);
-
-						x += ((Font.size[ch] ?? 5) + 1) * scale;
-					}
-
-					y += 9 * scale;
-				}
-
-				this.ctx.globalCompositeOperation = "source-atop";
-				this.ctx.fillStyle = c.disabled ? c.color : Color.black;
-				this.ctx.fillRect(
-					ox,
-					oy,
-					c.text_size[0],
-					c.text_size[1] + (c.text_shadow ? scale : 0),
-				);
-				this.ctx.globalAlpha = 1;
-				this.ctx.globalCompositeOperation = "source-over";
-
-				if (!c.disabled) {
-					y = oy;
-					for (let l of c.lines) {
-						x = ox;
-
-						for (let ch of l) {
-							let i = Font.chars.indexOf(ch),
-								u = i % 16 * 8,
-								v = 8 * (Math.floor(i / 16) + 2);
-
-							this.ctx.drawImage(
-								TEXTURES["font/ascii.png"],
-								u,
-								v,
-								6,
-								8,
-								x,
-								y,
-								6 * scale,
-								8 * scale,
-							);
-
-							x += ((Font.size[ch] ?? 5) + 1) * scale;
-						}
-
-						y += 9 * scale;
-					}
-				}
-
-				let uv = c.hovered ? c.uv_hover : c.uv;
-				this.ctx.globalCompositeOperation = "destination-over";
+			case "default":
 				this.ctx.drawImage(
 					TEXTURES[c.texture],
-					uv[0],
-					uv[1],
+					c.uv[0],
+					c.uv[1],
 					c.size[0],
 					c.size[1],
 					c.x,
@@ -263,7 +210,6 @@ export function Layer(layer = {}) {
 					c.w,
 					c.h,
 				);
-				this.ctx.globalCompositeOperation = "source-over";
 
 				break;
 		}
@@ -284,15 +230,13 @@ export function Layer(layer = {}) {
 		return this;
 	};
 
-	// Add the layer to the layer array
-	LAYERS.push(this);
-
 	// Initialize layer components
 	Object.entries(this.components).forEach(c => {
 		c[1].name = c[0];
 		c[1].layer = this;
 		c[1].type === "button" && this.buttons.push(c[1]);
 	});
+	this.component_values = Object.values(this.components);
 
 	// Set canvas class
 	this.canvas.className = `layer ${this.name}`;
