@@ -127,7 +127,7 @@ export let
 			LAYERS.push(new Layer({
 				name: "pause",
 				components: {
-					minecraft1: new Component({
+					/*minecraft1: new Component({
 						origin: ["center", "top"],
 						offset: [-59, 30],
 						size: [156, 44],
@@ -140,7 +140,7 @@ export let
 						size: [120, 44],
 						texture: "gui/title/minecraft.png",
 						uv: [0, 45],
-					}),
+					}),*/
 					singleplayer: new Button({
 						origin: ["center", "center"],
 						offset: [0, -77],
@@ -181,7 +181,7 @@ export let
 						offset: [0, 2],
 						text: "Minecraft JS (pre-alpha 220404)",
 						color: Color.white,
-						// text_shadow: true,
+						text_shadow: true,
 					}),
 				},
 			}));

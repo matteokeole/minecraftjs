@@ -3,62 +3,22 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="author" content="Mattéo Legagneux">
 		<link rel="icon" href="data:;base64,=">
 		<style>
 			body {
-				display: flex;
-				justify-content: center;
-				align-items: center;
 				height: 100vh;
 				margin: 0;
-				background-color: #000;
+				box-shadow: inset 0 0 0 200px #000000c0;
+				background-color: #a0a0a0;
 			}
 
-			canvas {
-				background-color: #8b8b8b;
-				image-rendering: -moz-crisp-edges;
-				image-rendering: -webkit-crisp-edges;
-				image-rendering: pixelated;
-				image-rendering: crisp-edges;
-			}
+			/*
+				Base: #fff (text)
+				Drop-shadow: #000000c0
+				Result: #3f3f3f (text shadow)
+			*/
 		</style>
-		<title>Minecraft</title>
 	</head>
 
-	<body>
-		<canvas></canvas>
-		<script>
-			let canvas = document.querySelector("canvas"),
-				ctx = canvas.getContext("2d"),
-				img = new Image();
-
-			canvas.width = 64;
-			canvas.height = 64;
-
-			ctx.imageSmoothingEnabled = false;
-			img.addEventListener("load", () => {
-				ctx.drawImage(img, 0, 0, 16, 16, 0, 0, 64, 64);
-
-				// Mouse enter event
-				canvas.addEventListener("mouseover", () => {
-					console.info("Mouse in");
-
-					ctx.fillStyle = "#ffffff80";
-					ctx.fillRect(0, 0, 64, 64);
-				});
-
-				// Mouse leave event
-				canvas.addEventListener("mouseleave", () => {
-					console.info("Mouse out");
-
-					ctx.fillStyle = "#8b8b8b";
-					ctx.fillRect(0, 0, 64, 64);
-					true && ctx.drawImage(img, 0, 0, 16, 16, 0, 0, 64, 64);
-				});
-			});
-			img.src = "assets/textures/item/pumpkin_pie.png";
-		</script>
-	</body>
+	<body></body>
 </html>

@@ -146,3 +146,35 @@ Button.render = b => {
 	);
 	l.ctx.globalCompositeOperation = "source-over";
 };
+
+
+/*
+
+Enabled buttons:
+- color: #ffffff
+- text shadow: #3f3f3f (opaque)
+
+Disabled buttons:
+- color: #a0a0a0
+- text shadow: #282828 or #272727 (opaque)
+
+For disabled buttons:
+- draw text shadow
+- "source-atop"
+- fillColor = text shadow color
+- fill text shadow
+- "source-over"
+- draw text
+- "destination-over"
+- draw button left background
+- draw button right background
+- "source-over"
+
+
+
+
+
+-> The color modifier must set the color for the text shadow AND the text value in the same time
+-> text shadow with darker color and text value with lighter color, color modifier with transparent color?
+
+*/

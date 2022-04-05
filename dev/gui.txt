@@ -76,3 +76,11 @@ Components toggled with F1:
 
 Module scripts
 Load textures in a single object!
+
+Fetch all resources from the resource list as JSON, then:
+	Init the layers got from gui.json
+
+	Append the fragment LayerFragment to the page
+
+	Load textures, then:
+		Add event listeners
