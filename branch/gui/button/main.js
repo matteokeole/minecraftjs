@@ -12,6 +12,8 @@ export const
 		H: innerHeight,
 		MW: screen.width,
 		MH: screen.height,
+		X: 0,
+		Y: 0,
 	},
 	SOURCES = ["font/ascii.png"],
 	TEXTURES = {},
@@ -74,33 +76,33 @@ export const
 		// Redraw layers
 		for (let l of LAYERS) {l.resize()}
 	},
-	button_hovering = (l, e) => {
-		let x = e.clientX, y = e.clientY;
+	button_hovering = l => {
+		let button = Button.locate(l, WINDOW.X, WINDOW.Y);
 
-		for (let b of l.buttons) {
-			if (
-				x >= b.x		&&	// Left side
-				x < b.x + b.w	&&	// Right side
-				y >= b.y		&&	// Top side
-				y <= b.y + b.h	&&	// Bottom side
-				!b.disabled			// Disabled buttons can't be hovered
-			) {
-				// Hover the button
-				if (!b.hovered) {
-					b.hovered = true;
-					l.erase(b).draw(b); // Avoid re-computing the component
+		if (button) {
+			if (!button.disabled) {
+				if (!button.hovered) {
+					// Hover the button
+					button.hovered = true;
+
+					l.erase(button).draw(button); // Avoid component recomputing
 				}
-			} else {
-				// Leave the button
+			}
+		} else {
+			for (let b of l.buttons) {
 				if (b.hovered) {
+					// Leave the button
 					b.hovered = false;
-					l.erase(b).draw(b); // Avoid re-computing the component
+
+					l.erase(b).draw(b); // Avoid component recomputing
 				}
 			}
 		}
 	},
 	button_action = l => {
-		for (let b of l.buttons) {b.hovered && b.action()}
+		let button = Button.locate(l, WINDOW.X, WINDOW.Y);
+
+		if (button) !button.disabled && button.action();
 	};
 
 export let
@@ -123,7 +125,7 @@ export let
 			Font.size = response[0].size;
 			Color = response[0].color;
 
-			// Pause menu layer
+			// Main menu layer
 			LAYERS.push(new Layer({
 				name: "pause",
 				components: {
@@ -201,10 +203,18 @@ export let
 				addEventListener("contextmenu", e => e.preventDefault());
 
 				// Moving mouse event
-				LAYERS[0].canvas.addEventListener("mousemove", e => button_hovering(LAYERS[0], e));
+				addEventListener("mousemove", e => {
+					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
+					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
+
+					button_hovering(LAYERS[0]);
+				});
 
 				// Left click event
 				LAYERS[0].canvas.addEventListener("mousedown", e => {
+					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
+					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
+
 					e.which === 1 && button_action(LAYERS[0]);
 				});
 			});

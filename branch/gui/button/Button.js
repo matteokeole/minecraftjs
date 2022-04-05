@@ -41,88 +41,119 @@ export const Button = function(b) {
 	this.tooltip_text = b.tooltip_text;
 };
 
-Button.render = b => {
-	let l = b.layer,
-		ox = b.x + (b.w - b.text_size[0]) / 2,
-		oy = b.y + (b.h - b.text_size[1]) / 2 + (scale / 2),
-		x = ox,
-		y = oy;
+/**
+ * Search for a button at the specified coordinates on the layer and render the button if it is found, false otherwise.
+ * @param	{object}	l	The layer where to search
+ * @param	{number}	x	The X position
+ * @param	{number}	y	The Y position
+ */
+Button.locate = (l, x, y) => {
+	for (let b of l.buttons) {
+		if (
+			x >= b.x		&&	// Left side
+			x < b.x + b.w	&&	// Right side
+			y >= b.y		&&	// Top side
+			y <= b.y + b.h		// Bottom side
+		) return b;
+	}
 
-	for (let ch of b.text) {
-		let i = Font.chars.indexOf(ch),
+	return false;
+};
+
+/**
+ * Draw a button.
+ * @param	{object}	b	The button to be drawed
+ */
+Button.render = b => {
+	let ctx = b.layer.ctx,
+		ox = b.x + (b.w - b.text_size[0]) / 2,
+		x = ox,
+		y = b.y + (b.h - b.text_size[1]) / 2 + (scale / 2);
+
+	// Clear old text data
+	b.char_data = [];
+
+	for (let c of b.text) {
+		let i = Font.chars.indexOf(c),
 			u = i % 16 * 8,
 			v = 8 * (Math.floor(i / 16) + 2);
 
-		if (b.text_shadow) {
-			l.ctx.globalAlpha = .43;
-			l.ctx.drawImage(
-				TEXTURES["font/ascii.png"],
-				u,
-				v,
-				6,
-				8,
-				x + scale,
-				oy + scale,
-				6 * scale,
-				8 * scale,
-			);
-		}
+		b.char_data.push({
+			x: x,
+			u: u,
+			v: v,
+		});
 
-		l.ctx.globalAlpha = 1;
-		l.ctx.drawImage(
+		x += ((Font.size[c] ?? 5) + 1) * scale;
+	}
+
+	// Reset X position
+	x = ox;
+
+	// Draw text shadow (disabled buttons also have it)
+	for (let c of b.char_data) {
+		ctx.drawImage(
 			TEXTURES["font/ascii.png"],
-			u,
-			v,
+			c.u,
+			c.v,
 			6,
 			8,
-			x,
-			oy,
+			c.x + scale, // Slight text shadow offset
+			y + scale, // Slight text shadow offset
 			6 * scale,
 			8 * scale,
 		);
-
-		x += ((Font.size[ch] ?? 5) + 1) * scale;
 	}
 
-	l.ctx.globalCompositeOperation = "source-atop";
-	l.ctx.fillStyle = b.disabled ? b.color : Color.black;
-	l.ctx.fillRect(
-		ox,
-		oy,
+	ctx.globalCompositeOperation = "source-atop";
+
+	// Change text shadow color
+	ctx.fillStyle = "#000000c0";
+	ctx.fillRect(
+		x,
+		y,
 		b.text_size[0],
-		b.text_size[1] + (b.text_shadow ? scale : 0),
+		b.text_size[1] + scale,
 	);
-	l.ctx.globalAlpha = 1;
-	l.ctx.globalCompositeOperation = "source-over";
 
-	if (!b.disabled) {
-		x = ox;
-		for (let ch of b.text) {
-			let i = Font.chars.indexOf(ch),
-				u = i % 16 * 8,
-				v = 8 * (Math.floor(i / 16) + 2);
+	ctx.globalCompositeOperation = "source-over";
 
-			l.ctx.drawImage(
-				TEXTURES["font/ascii.png"],
-				u,
-				v,
-				6,
-				8,
-				x,
-				y,
-				6 * scale,
-				8 * scale,
-			);
-
-			x += ((Font.size[ch] ?? 5) + 1) * scale;
-		}
+	// Draw text value
+	for (let c of b.char_data) {
+		ctx.drawImage(
+			TEXTURES["font/ascii.png"],
+			c.u,
+			c.v,
+			6,
+			8,
+			c.x,
+			y,
+			6 * scale,
+			8 * scale,
+		);
 	}
 
-	// The button is drawn in 2 parts, depending on its width
+	// Darken the text color and shadow for disabled buttons
+	if (b.disabled) {
+		ctx.globalCompositeOperation = "source-atop";
+
+		ctx.fillStyle = "#0000005f";
+		ctx.fillRect(
+			x,
+			y,
+			b.text_size[0],
+			b.text_size[1],
+		);
+	}
+
 	let uv = b.hovered ? b.uv_hover : b.uv,
-		w2 = b.size[0] / 2;
-	l.ctx.globalCompositeOperation = "destination-over";
-	l.ctx.drawImage(
+		w2 = b.size[0] / 2,
+		w2_scaled = b.w / 2;
+
+	ctx.globalCompositeOperation = "destination-over";
+
+	// Draw background left part
+	ctx.drawImage(
 		TEXTURES[b.texture],
 		uv[0],
 		uv[1],
@@ -130,51 +161,23 @@ Button.render = b => {
 		b.size[1],
 		b.x,
 		b.y,
-		b.w / 2,
+		w2_scaled,
 		b.h,
 	);
-	l.ctx.drawImage(
+
+	// Draw background right part
+	ctx.drawImage(
 		TEXTURES[b.texture],
 		uv[0] + (200 - w2),
 		uv[1],
 		w2,
 		b.size[1],
-		b.x + (b.w / 2),
+		b.x + w2_scaled,
 		b.y,
-		b.w / 2,
+		w2_scaled,
 		b.h,
 	);
-	l.ctx.globalCompositeOperation = "source-over";
+
+	// Reset global composite operation for future drawings
+	ctx.globalCompositeOperation = "source-over";
 };
-
-
-/*
-
-Enabled buttons:
-- color: #ffffff
-- text shadow: #3f3f3f (opaque)
-
-Disabled buttons:
-- color: #a0a0a0
-- text shadow: #282828 or #272727 (opaque)
-
-For disabled buttons:
-- draw text shadow
-- "source-atop"
-- fillColor = text shadow color
-- fill text shadow
-- "source-over"
-- draw text
-- "destination-over"
-- draw button left background
-- draw button right background
-- "source-over"
-
-
-
-
-
--> The color modifier must set the color for the text shadow AND the text value in the same time
--> text shadow with darker color and text value with lighter color, color modifier with transparent color?
-
-*/
