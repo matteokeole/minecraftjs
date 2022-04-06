@@ -79,30 +79,26 @@ export const
 	button_hovering = l => {
 		let button = Button.locate(l, WINDOW.X, WINDOW.Y);
 
-		if (button) {
-			if (!button.disabled) {
-				if (!button.hovered) {
-					// Hover the button
-					button.hovered = true;
+		for (let b of l.buttons) {
+			if (b.hovered) {
+				// Leave the button
+				b.hovered = false;
 
-					l.erase(button).draw(button); // Avoid component recomputing
-				}
+				l.erase(b).draw(b); // Avoid component recomputing
 			}
-		} else {
-			for (let b of l.buttons) {
-				if (b.hovered) {
-					// Leave the button
-					b.hovered = false;
+		}
 
-					l.erase(b).draw(b); // Avoid component recomputing
-				}
+		if (button) {
+			if (!button.disabled && !button.hovered) {
+				// Hover the button
+				button.hovered = true;
+
+				l.erase(button).draw(button); // Avoid component recomputing
 			}
 		}
 	},
 	button_action = l => {
-		let button = Button.locate(l, WINDOW.X, WINDOW.Y);
-
-		if (button) !button.disabled && button.action();
+		for (let b of l.buttons) {b.hovered && b.action()}
 	};
 
 export let
