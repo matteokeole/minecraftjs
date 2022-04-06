@@ -107,7 +107,7 @@ export let
 	Color,						// Color list
 	default_scale = 2,			// Default GUI scale
 	scale = default_scale,		// Current GUI scale
-	old_scale = default_scale;	// Previous GUI scale
+	old_scale;					// Previous GUI scale
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -152,7 +152,7 @@ export let
 						size: [200, 20],
 						text: "Multiplayer",
 						disabled: true,
-						tooltip_text: "This is not implemented yet!",
+						tooltip_text: "Not implemented yet!",
 					}),
 					repository: new Button({
 						origin: ["center", "center"],
@@ -208,7 +208,7 @@ export let
 				});
 
 				// Left click event
-				LAYERS[0].canvas.addEventListener("mousedown", e => {
+				addEventListener("mousedown", e => {
 					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
 					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
 

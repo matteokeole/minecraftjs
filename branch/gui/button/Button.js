@@ -139,7 +139,7 @@ Button.render = b => {
 		);
 	}
 
-	// Darken the text color and shadow for disabled buttons
+	// Darken the text color
 	if (b.disabled) {
 		ctx.globalCompositeOperation = "source-atop";
 
