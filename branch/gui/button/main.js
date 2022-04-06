@@ -102,6 +102,7 @@ export const
 	};
 
 export let
+	debug_enabled = true,
 	Font = {},					// Font data
 	Color,						// Color list
 	default_scale = 2,			// Default GUI scale
@@ -177,7 +178,7 @@ export let
 					version: new Text({
 						origin: ["center", "bottom"],
 						offset: [0, 2],
-						text: "Minecraft JS (pre-alpha 220404)",
+						text: "Minecraft JS (220406)",
 						color: Color.white,
 						text_shadow: true,
 					}),

@@ -1,48 +1,52 @@
 import {Component} from "./Component.js";
-import {TEXTURES, Font, Color, scale} from "./main.js";
+import {TEXTURES, Font, scale} from "./main.js";
 
+/**
+ * Construct a new button. The Component constructor is called first.
+ *
+ * Param	Type		Name=Default		Description
+ * @param	{object}	b					Button data object
+ * @param	{boolean}	[b.disabled=false]	Button disabled attribute
+ * @param	{string}	b.text				Button text value (one line)
+ * @param	{function}	[b.action=Function]	Button action callback
+ * @param	{string}	[b.tooltip_text]	Button tooltip text (this will enable the tooltip for this component)
+ */
 export const Button = function(b) {
 	Component.call(this, b);
 
 	// Type
 	this.type = "button";
 
-	// Hover attribute
-	this.hovered = false;
-
-	// Text size
-	this.text_size = [];
-
-	// Text value
-	this.text = b.text ?? "";
-
 	// Disabled attribute
 	this.disabled = b.disabled ?? false;
 
-	// Text color
-	this.color = this.disabled ? "#a0a0a0" : Color.black;
+	// Hover attribute
+	this.hovered = false;
 
-	// Text shadow
-	this.text_shadow = !this.disabled;
-
-	// Action callback
-	this.action = b.action ?? new Function();
+	// Texture file
+	this.texture = "gui/widgets.png";
 
 	// Default texture offset
 	this.uv = this.disabled ? [0, 46] : [0, 66];
 
 	// Second texture offset
-	this.uv_hover = this.disabled ? [0, 46] : [0, 86];
+	this.uv_hover = [0, 86];
 
-	// Texture file
-	this.texture = "gui/widgets.png";
+	// Text value
+	this.text = b.text;
+
+	// Text size
+	this.text_size = [];
+
+	// Action callback
+	this.action = b.action ?? Function;
 
 	// Tooltip text value
 	this.tooltip_text = b.tooltip_text;
 };
 
 /**
- * Search for a button at the specified coordinates on the layer and render the button if it is found, false otherwise.
+ * Search for a button at the specified coordinates on the layer and render the found button or false.
  * @param	{object}	l	The layer where to search
  * @param	{number}	x	The X position
  * @param	{number}	y	The Y position
@@ -61,14 +65,16 @@ Button.locate = (l, x, y) => {
 };
 
 /**
- * Draw a button.
- * @param	{object}	b	The button to be drawed
+ * Draw a button component.
+ * @param	{object}	b	The button to be rendered
  */
 Button.render = b => {
 	let ctx = b.layer.ctx,
-		ox = b.x + (b.w - b.text_size[0]) / 2,
-		x = ox,
-		y = b.y + (b.h - b.text_size[1]) / 2 + (scale / 2);
+		x0 = b.x + (b.w - b.text_size[0]) / 2,
+		x = x0,
+		y = b.y + (b.h - b.text_size[1] + scale) / 2,
+		char_w = 6 * scale,
+		char_h = 8 * scale;
 
 	// Clear old text data
 	b.char_data = [];
@@ -88,7 +94,7 @@ Button.render = b => {
 	}
 
 	// Reset X position
-	x = ox;
+	x = x0;
 
 	// Draw text shadow (disabled buttons also have it)
 	for (let c of b.char_data) {
@@ -98,10 +104,10 @@ Button.render = b => {
 			c.v,
 			6,
 			8,
-			c.x + scale, // Slight text shadow offset
-			y + scale, // Slight text shadow offset
-			6 * scale,
-			8 * scale,
+			c.x + scale, // Text shadow offset
+			y + scale, // Text shadow offset
+			char_w,
+			char_h,
 		);
 	}
 
@@ -113,7 +119,7 @@ Button.render = b => {
 		x,
 		y,
 		b.text_size[0],
-		b.text_size[1] + scale,
+		b.text_size[1],
 	);
 
 	ctx.globalCompositeOperation = "source-over";
@@ -128,8 +134,8 @@ Button.render = b => {
 			8,
 			c.x,
 			y,
-			6 * scale,
-			8 * scale,
+			char_w,
+			char_h,
 		);
 	}
 
@@ -148,7 +154,7 @@ Button.render = b => {
 
 	let uv = b.hovered ? b.uv_hover : b.uv,
 		w2 = b.size[0] / 2,
-		w2_scaled = b.w / 2;
+		w2s = b.w / 2;
 
 	ctx.globalCompositeOperation = "destination-over";
 
@@ -161,7 +167,7 @@ Button.render = b => {
 		b.size[1],
 		b.x,
 		b.y,
-		w2_scaled,
+		w2s,
 		b.h,
 	);
 
@@ -172,12 +178,9 @@ Button.render = b => {
 		uv[1],
 		w2,
 		b.size[1],
-		b.x + w2_scaled,
+		b.x + w2s,
 		b.y,
-		w2_scaled,
+		w2s,
 		b.h,
 	);
-
-	// Reset global composite operation for future drawings
-	ctx.globalCompositeOperation = "source-over";
 };

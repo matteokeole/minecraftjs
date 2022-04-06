@@ -1,5 +1,5 @@
 /**
- * Construct a new layer component.
+ * Construct a new component.
  *
  * Param	Type		Name=Default		Description
  * @param	{object}	[component={}]		Component data object
