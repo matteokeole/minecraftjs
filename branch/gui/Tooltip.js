@@ -1,5 +1,5 @@
 import {LAYERS, WINDOW, TEXTURES, Font, scale} from "./main.js";
-import {compute_text} from "../../../assets/js/functions/compute_text.js";
+import {compute_text} from "../../assets/js/functions/compute_text.js";
 
 export const
 	tooltip_elements = [],
@@ -26,10 +26,8 @@ Tooltip.init = () => {
 
 	// For each layer, get the list of components which use a tooltip
 	for (let l of LAYERS) {
-		let test = Object.values(l.components).some(c => c.tooltip_text);
-
 		// At least one tooltip-component or container type component in this layer
-		test && l.canvas.addEventListener("mousemove", e => Tooltip.update(l));
+		Object.values(l.components).some(c => c.tooltip_text) && l.canvas.addEventListener("mousemove", e => Tooltip.update(l));
 	}
 };
 
@@ -42,16 +40,13 @@ Tooltip.update = l => {
 
 		if (!Tooltip.visible) {
 			Tooltip.toggle(1);
+
 			if (Tooltip.text.raw !== c.tooltip_text) {
-				Tooltip.erase();
+				Tooltip.ctx.clearRect(0, 0, Tooltip.width, Tooltip.height);
 				Tooltip.render(c);
 			}
 		}
 	} else if (Tooltip.visible) Tooltip.toggle(0);
-};
-
-Tooltip.erase = () => {
-	Tooltip.ctx.clearRect(0, 0, Tooltip.width, Tooltip.height);
 };
 
 /**
@@ -87,7 +82,7 @@ Tooltip.render = c => {
 		);
 	}
 
-	// Change text shadow color
+	// Set the text shadow color
 	ctx.fillStyle = "#000000c0";
 	ctx.fillRect(0, 0, Tooltip.width, Tooltip.height);
 
@@ -106,7 +101,7 @@ Tooltip.render = c => {
 		);
 	}
 
-	// Darken the text color
+	// Set the text color
 	ctx.fillStyle = "#00000003";
 	ctx.fillRect(0, 0, Tooltip.width, Tooltip.height);
 };

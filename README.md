@@ -6,7 +6,7 @@ The 3D is built with the library THREE.js.
 **Links:**
 - Main branch: <https://matteoo34.github.io/minecraftjs>
 - GUI demo: <https://matteoo34.github.io/minecraftjs/gui.html>
-- Button demo: <https://matteoo34.github.io/minecraftjs/branch/gui/button>	
+- GUI demo 2: <https://matteoo34.github.io/minecraftjs/branch/gui>	
 
 **Features:**
 + 3D environment with noise terrain generation & basic movement mechanics

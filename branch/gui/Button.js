@@ -113,7 +113,7 @@ Button.render = b => {
 
 	ctx.globalCompositeOperation = "source-atop";
 
-	// Change text shadow color
+	// Set the text shadow color
 	ctx.fillStyle = "#000000c0";
 	ctx.fillRect(
 		x,
@@ -139,7 +139,7 @@ Button.render = b => {
 		);
 	}
 
-	// Darken the text color
+	// Set the text color
 	if (b.disabled) {
 		ctx.globalCompositeOperation = "source-atop";
 

@@ -1,4 +1,4 @@
-import {Font, scale} from "../../../branch/gui/button/main.js";
+import {Font, scale} from "../../../branch/gui/main.js";
 
 /**
  * Compute and return the given string.
@@ -57,7 +57,6 @@ export const compute_text = text => {
 
 	return {
 		raw: raw,
-		lines: lines,
 		max_width: max_width,
 		max_height: max_height,
 	};

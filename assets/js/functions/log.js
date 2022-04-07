@@ -1,4 +1,4 @@
-import {debug_enabled} from "../../../branch/gui/button/main.js";
+import {debug_enabled} from "../../../branch/gui/main.js";
 
 /**
  * Display a debug log in the console.

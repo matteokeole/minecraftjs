@@ -18,7 +18,7 @@ export const
 	SOURCES = ["font/ascii.png"],
 	TEXTURES = {},
 	RESOURCES = [
-		"../../../assets/font.json",
+		"../../assets/font.json",
 	],
 	LAYERS = [],
 	LayerFragment = document.createDocumentFragment(),
@@ -45,7 +45,7 @@ export const
 					// Run the callback function when all textures are loaded
 					++i === sources_length && callback();
 				});
-				TEXTURES[s].src = `../../../assets/textures/${s}`;
+				TEXTURES[s].src = `../../assets/textures/${s}`;
 			}
 		}
 	},
@@ -61,9 +61,9 @@ export const
 		scale = default_scale;
 
 		// Calculate the new scale
-		for (let i = default_scale + 1; i > 1; i--) {
+		/*for (let i = default_scale + 1; i > 1; i--) {
 			(WINDOW.W <= WINDOW.DW * i || WINDOW.H < WINDOW.DH * i) && (scale = i - 1);
-		}
+		}*/
 
 		if (scale !== old_scale) {
 			// Update the old scale if it differs from the current one
@@ -105,7 +105,7 @@ export let
 	debug_enabled = true,
 	Font = {},					// Font data
 	Color,						// Color list
-	default_scale = 2,			// Default GUI scale
+	default_scale = 4,			// Default GUI scale
 	scale = default_scale,		// Current GUI scale
 	old_scale;					// Previous GUI scale
 
@@ -178,8 +178,7 @@ export let
 					version: new Text({
 						origin: ["center", "bottom"],
 						offset: [0, 2],
-						text: "Minecraft JS (220406)",
-						color: Color.white,
+						text: "test",
 						text_shadow: true,
 					}),
 				},
