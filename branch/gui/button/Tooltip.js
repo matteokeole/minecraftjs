@@ -29,16 +29,16 @@ Tooltip.init = () => {
 		let test = Object.values(l.components).some(c => c.tooltip_text);
 
 		// At least one tooltip-component or container type component in this layer
-		test && l.canvas.addEventListener("mousemove", e => Tooltip.update(l, WINDOW.X, WINDOW.Y));
+		test && l.canvas.addEventListener("mousemove", e => Tooltip.update(l));
 	}
 };
 
-Tooltip.update = (l, x, y) => {
-	let c = l.get_component_at(x, y);
+Tooltip.update = l => {
+	let c = l.get_component_at(WINDOW.X, WINDOW.Y);
 
 	if (c && c.tooltip_text) {
-		Tooltip.style.left = `${x + 9 * scale}px`;
-		Tooltip.style.top = `${y - 15 * scale}px`;
+		Tooltip.style.left = `${WINDOW.X + 9 * scale}px`;
+		Tooltip.style.top = `${WINDOW.Y - 15 * scale}px`;
 
 		if (!Tooltip.visible) {
 			Tooltip.toggle(1);
