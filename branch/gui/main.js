@@ -61,9 +61,9 @@ export const
 		scale = default_scale;
 
 		// Calculate the new scale
-		/*for (let i = default_scale + 1; i > 1; i--) {
+		for (let i = default_scale + 1; i > 1; i--) {
 			(WINDOW.W <= WINDOW.DW * i || WINDOW.H < WINDOW.DH * i) && (scale = i - 1);
-		}*/
+		}
 
 		if (scale !== old_scale) {
 			// Update the old scale if it differs from the current one
@@ -105,7 +105,7 @@ export let
 	debug_enabled = true,
 	Font = {},					// Font data
 	Color,						// Color list
-	default_scale = 10,			// Default GUI scale
+	default_scale = 2,			// Default GUI scale
 	scale = default_scale,		// Current GUI scale
 	old_scale;					// Previous GUI scale
 
@@ -140,7 +140,7 @@ export let
 						texture: "gui/title/minecraft.png",
 						uv: [0, 45],
 					}),*/
-					/*singleplayer: new Button({
+					singleplayer: new Button({
 						origin: ["center", "center"],
 						offset: [0, -77],
 						size: [200, 20],
@@ -174,12 +174,12 @@ export let
 						size: [98, 20],
 						text: "Quit Game",
 						disabled: true,
-					}),*/
+					}),
 					version: new Text({
-						origin: ["center", "center"],
+						origin: ["center", "bottom"],
 						offset: [0, 2],
-						text: "Test:\nColored Text",
-						color: Color.red,
+						text: "Minecraft JS (220408)",
+						color: Color.white,
 						text_shadow: true,
 					}),
 				},

@@ -36,7 +36,7 @@ Text.render = component => {
 
 	// Draw text and text shadow if specified
 	ctx.filter = `drop-shadow(0 ${-text.max_height}px 0 ${component.color})`;
-	component.text_shadow && (ctx.filter += `drop-shadow(${scale}px ${scale}px 0 #3f1515`);
+	component.text_shadow && (ctx.filter += `drop-shadow(${scale}px ${scale}px 0 #3f3f3f`);
 	for (let c of text.raw) {
 		ctx.drawImage(
 			TEXTURES["font/ascii.png"],
