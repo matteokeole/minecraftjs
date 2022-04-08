@@ -9,7 +9,7 @@ export const Text = function(t) {
 	this.type = "text";
 
 	// Size (will be calculated on the computing)
-	this.size = [];
+	this.size = []; // ?
 
 	// Text value
 	this.text = t.text ?? "";	
@@ -21,38 +21,22 @@ export const Text = function(t) {
 	this.text_shadow = t.text_shadow ?? false;
 };
 
-Text.render = t => {
-	let ctx = t.layer.ctx,
-		text = compute_text(t.text),
-		x = t.x + scale,
-		y = t.y + scale,
+/**
+ * Draw a text component.
+ * @param	{object}	component	The text to be rendered
+ */
+Text.render = component => {
+	let ctx = component.layer.ctx,
+		text = compute_text(component.text),
+		x = component.x,
+		y = component.y,
 		w = 6 * scale,
 		h = 8 * scale;
+	ctx.save();
 
-	// Draw text shadow
-	for (let c of text.raw) {
-		ctx.drawImage(
-			TEXTURES["font/ascii.png"],
-			c.u,
-			c.v,
-			6,
-			8,
-			x + c.x + scale, // Text shadow offset
-			y + c.y + scale, // Text shadow offset
-			w,
-			h,
-		);
-	}
-
-	ctx.globalCompositeOperation = "source-atop";
-
-	// Set the text shadow color
-	ctx.fillStyle = "#000000c0";
-	ctx.fillRect(x, y, text.max_width, text.max_height);
-
-	ctx.globalCompositeOperation = "source-over";
-
-	// Draw text value
+	// Draw text and text shadow if specified
+	ctx.filter = `drop-shadow(0 ${-text.max_height}px 0 ${component.color})`;
+	component.text_shadow && (ctx.filter += `drop-shadow(${scale}px ${scale}px 0 #3f1515`);
 	for (let c of text.raw) {
 		ctx.drawImage(
 			TEXTURES["font/ascii.png"],
@@ -61,20 +45,30 @@ Text.render = t => {
 			6,
 			8,
 			x + c.x,
-			y + c.y,
+			y + c.y + text.max_height,
 			w,
 			h,
 		);
 	}
+	ctx.filter = "none";
 
+	// Remove the base text since it isn't needed anymore
+	ctx.clearRect(
+		x,
+		y + text.max_height,
+		text.max_width,
+		text.max_height,
+	);
+
+	// Slightly darken the text color
 	ctx.globalCompositeOperation = "source-atop";
+	ctx.fillStyle = `#00000003`;
+	ctx.fillRect(
+		x,
+		y,
+		text.max_width,
+		text.max_height,
+	);
 
-	// Set the text color
-	ctx.fillStyle = "#000000a0";
-	ctx.fillRect(x, y, text.max_width, text.max_height);
-	ctx.fillStyle = `${Color.red}a0`;
-	ctx.fillRect(x, y, text.max_width, text.max_height);
+	ctx.restore();
 };
-
-// #fc5454
-// #3e1515

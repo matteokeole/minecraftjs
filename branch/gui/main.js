@@ -105,7 +105,7 @@ export let
 	debug_enabled = true,
 	Font = {},					// Font data
 	Color,						// Color list
-	default_scale = 4,			// Default GUI scale
+	default_scale = 10,			// Default GUI scale
 	scale = default_scale,		// Current GUI scale
 	old_scale;					// Previous GUI scale
 
@@ -140,7 +140,7 @@ export let
 						texture: "gui/title/minecraft.png",
 						uv: [0, 45],
 					}),*/
-					singleplayer: new Button({
+					/*singleplayer: new Button({
 						origin: ["center", "center"],
 						offset: [0, -77],
 						size: [200, 20],
@@ -174,11 +174,12 @@ export let
 						size: [98, 20],
 						text: "Quit Game",
 						disabled: true,
-					}),
+					}),*/
 					version: new Text({
-						origin: ["center", "bottom"],
+						origin: ["center", "center"],
 						offset: [0, 2],
-						text: "test",
+						text: "Test:\nColored Text",
+						color: Color.red,
 						text_shadow: true,
 					}),
 				},

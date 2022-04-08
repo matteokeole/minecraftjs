@@ -55,7 +55,7 @@ Tooltip.update = l => {
  */
 Tooltip.render = c => {
 	let ctx = Tooltip.ctx,
-		text = compute_text(c.tooltip_text),
+		text = compute_text(c.tooltip_text, true),
 		w = 6 * scale,
 		h = 8 * scale;
 

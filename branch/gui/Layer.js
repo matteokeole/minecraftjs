@@ -45,6 +45,7 @@ export function Layer(l = {}) {
 		this.w = w;
 		this.h = h;
 
+		this.ctx.globalCompositeOperation = "source-over";
 		this.redraw();
 
 		return this;

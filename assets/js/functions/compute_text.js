@@ -2,9 +2,10 @@ import {Font, scale} from "../../../branch/gui/main.js";
 
 /**
  * Compute and return the given string.
- * @param	{string}	text	Inline or multiline string
+ * @param	{string}	text			Inline or multiline string
+ * @param	{booleans}	[tooltip=false]	If true, the first line will be higher
  */
-export const compute_text = text => {
+export const compute_text = (text, tooltip = false) => {
 	// Explode the text in lines
 	let lines = text.split("\n").map(l => Object({
 			chars: l.split("").map(c => Object({
@@ -23,7 +24,7 @@ export const compute_text = text => {
 		raw = [];
 
 	// The first line has a bottom offset
-	lines[1] && (lines[0].height = 12);
+	tooltip && lines[1] && (lines[0].height = 12);
 
 	// Calculate each line width
 	for (let line of lines) {
