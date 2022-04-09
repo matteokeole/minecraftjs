@@ -52,16 +52,7 @@ export const Button = function(b) {
  * @param	{number}	y	The Y position
  */
 Button.locate = (l, x, y) => {
-	for (let b of l.buttons) {
-		if (
-			x >= b.x		&&	// Left side
-			x < b.x + b.w	&&	// Right side
-			y >= b.y		&&	// Top side
-			y <= b.y + b.h		// Bottom side
-		) return b;
-	}
-
-	return false;
+	return Component.locate(l, x, y, l.buttons);
 };
 
 /**

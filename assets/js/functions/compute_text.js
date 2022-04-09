@@ -2,11 +2,18 @@ import {Font, scale} from "../../../branch/gui/main.js";
 
 /**
  * Compute and return the given string.
+ * Update ideas:
+ * - Return a size array containing the max width & height of the text node
+ * - Return an array of objects containing the data of each character
+ * - For each character, return:
+ * 		- The character letter (string)
+ * 		- The character UV in the font/ascii.png file
+ * 		- The character position in the layer
  * @param	{string}	text			Inline or multiline string
- * @param	{booleans}	[tooltip=false]	If true, the first line will be higher
+ * @param	{boolean}	[title=false]	If true, the first line will be higher to make a title (used in tooltips)
  */
-export const compute_text = (text, tooltip = false) => {
-	// Explode the text in lines
+export const compute_text = (text, title = false) => {
+	// Split the text into lines
 	let lines = text.split("\n").map(l => Object({
 			chars: l.split("").map(c => Object({
 				letter: c,
@@ -24,7 +31,7 @@ export const compute_text = (text, tooltip = false) => {
 		raw = [];
 
 	// The first line has a bottom offset
-	tooltip && lines[1] && (lines[0].height = 12);
+	title && lines[1] && (lines[0].height = 12);
 
 	// Calculate each line width
 	for (let line of lines) {

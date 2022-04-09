@@ -32,9 +32,10 @@ Text.render = component => {
 		y = component.y,
 		w = 6 * scale,
 		h = 8 * scale;
+
 	ctx.save();
 
-	// Draw text and text shadow if specified
+	// Print text (and possible text shadow)
 	ctx.filter = `drop-shadow(0 ${-text.max_height}px 0 ${component.color})`;
 	component.text_shadow && (ctx.filter += `drop-shadow(${scale}px ${scale}px 0 #3f3f3f`);
 	for (let c of text.raw) {

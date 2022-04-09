@@ -1,6 +1,7 @@
-import {WINDOW, TEXTURES, Font, Color, Visibilities, LayerFragment, scale} from "./main.js";
+import {WINDOW, SOURCES, TEXTURES, LAYERS, Font, Color, Visibilities, LayerFragment, scale} from "./main.js";
 import {Button} from "./Button.js";
 import {Text} from "./Text.js";
+import {tooltip_elements} from "./Tooltip.js";
 
 /**
  * Construct a new interface layer with an associated canvas.
@@ -19,12 +20,8 @@ export function Layer(l = {}) {
 	// DOM parent
 	this.parent = l.parent ?? LayerFragment;
 
-	// Size
-	this.w = WINDOW.W;
-	this.h = WINDOW.H;
-
 	// Visibility
-	this.visible = l.visible ?? 1;
+	this.visible = l.visible ?? true;
 
 	// Canvas
 	this.canvas = document.createElement("canvas");
@@ -35,6 +32,14 @@ export function Layer(l = {}) {
 	// Component list
 	this.components = l.components ?? {};
 	this.buttons = [];
+	Object.entries(this.components).forEach(c => {
+		c[1].name = c[0];
+		c[1].layer = this;
+		c[1].type === "button" && this.buttons.push(c[1]);
+		c[1].texture && SOURCES.push(c[1].texture);
+		c[1].tooltip_text && tooltip_elements.push(c[1]);
+	});
+	this.component_values = Object.values(this.components);
 
 	/**
 	 * Set the layer size and redraw its components.
@@ -44,37 +49,21 @@ export function Layer(l = {}) {
 	this.resize = (w = WINDOW.W, h = WINDOW.H) => {
 		this.w = w;
 		this.h = h;
-
-		this.ctx.globalCompositeOperation = "source-over";
 		this.redraw();
 
 		return this;
 	};
 
 	/**
-	 * Toggle layer visibility using a canvas CSS attribute.
-	 * If omitted, the state will be the opposite of the current visibility.
- 	 * @param	{boolean}	[v=!this.visible]	New visibility value
+	 * Toggle the layer visibility.
+	 * NOTE: The state will be the opposite of the current visibility if omitted.
+ 	 * @param	{number|boolean}	[v=!this.visible]	New visibility value
 	 */
-	this.toggle = (state = !this.visible) => {
-		this.visible = Number(state);
+	this.toggle = (v = !this.visible) => {
+		this.visible = Number(v);
 		this.canvas.style.visibility = Visibilities[this.visible];
-		if (this.parent !== LayerFragment) this.parent.style.visibility = Visibilities[this.visible];
 
 		return this;
-	};
-
-	this.get_component_at = (x, y) => {
-		for (let c of this.component_values) {
-			if (
-				x >= c.x		&&	// Left side
-				x < c.x + c.w	&&	// Right side
-				y >= c.y		&&	// Top side
-				y <= c.y + c.h		// Bottom side
-			) return c;
-		}
-
-		return false;
 	};
 
 	/**
@@ -193,12 +182,10 @@ export function Layer(l = {}) {
 				Button.render(c);
 
 				break;
-
 			case "text":
 				Text.render(c);
 
 				break;
-
 			case "default":
 				this.ctx.drawImage(
 					TEXTURES[c.texture],
@@ -231,18 +218,13 @@ export function Layer(l = {}) {
 		return this;
 	};
 
-	// Initialize layer components
-	Object.entries(this.components).forEach(c => {
-		c[1].name = c[0];
-		c[1].layer = this;
-		c[1].type === "button" && this.buttons.push(c[1]);
-	});
-	this.component_values = Object.values(this.components);
+	// Add this layer to the layer list
+	LAYERS.push(this);
 
-	// Set canvas class
+	// Set canvas class name
 	this.canvas.className = `layer ${this.name}`;
 
-	// Make the canvas take the full screen size
+	// Stretch the canvas to full screen size
 	this.canvas.width = WINDOW.MW;
 	this.canvas.height = WINDOW.MH;
 

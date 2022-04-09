@@ -2,9 +2,12 @@ import {Layer} from "./Layer.js";
 import {Component} from "./Component.js";
 import {Text} from "./Text.js";
 import {Button} from "./Button.js";
-import {Tooltip, tooltip_elements} from "./Tooltip.js";
+import {Tooltip} from "./Tooltip.js";
 
 export const
+	RESOURCES = [
+		"../../assets/font.json",
+	],
 	WINDOW = {
 		DW: 320,
 		DH: 240,
@@ -15,22 +18,11 @@ export const
 		X: 0,
 		Y: 0,
 	},
+	LAYERS = [],
 	SOURCES = ["font/ascii.png"],
 	TEXTURES = {},
-	RESOURCES = [
-		"../../assets/font.json",
-	],
-	LAYERS = [],
 	LayerFragment = document.createDocumentFragment(),
 	Visibilities = ["hidden", "visible"],
-	sort_components = () => {
-		for (let l of LAYERS) {
-			for (let c of Object.values(l.components)) {
-				c.texture && SOURCES.push(c.texture);
-				c.tooltip_text && tooltip_elements.push(c);
-			}
-		}
-	},
 	load_textures = callback => {
 		// Get rid of duplicate sources
 		let sources = [...new Set(SOURCES)],
@@ -113,18 +105,18 @@ export let
 	// Check for Fetch API browser compatibility
 	if (!"fetch" in window) return console.error("This browser doesn't support Fetch API.");
 
-	// Fetch resources
+	// Fetch JSON resources
 	Promise
 		.all(RESOURCES.map(r => fetch(r).then(response => response.json())))
 		.then(response => {
-			// Stock response
+			// Stock received resources
 			Font.chars = response[0].chars;
 			Font.size = response[0].size;
 			Color = response[0].color;
 
 			// Main menu layer
-			LAYERS.push(new Layer({
-				name: "pause",
+			const MainMenu = new Layer({
+				name: "main-menu",
 				components: {
 					/*minecraft1: new Component({
 						origin: ["center", "top"],
@@ -178,43 +170,41 @@ export let
 					version: new Text({
 						origin: ["center", "bottom"],
 						offset: [0, 2],
-						text: "Minecraft JS (220408)",
+						text: "Minecraft JS (220409)",
 						color: Color.white,
 						text_shadow: true,
 					}),
 				},
-			}));
+			});
 
 			document.body.appendChild(LayerFragment);
 
-			sort_components();
+			Tooltip.init();
 
-			load_textures(() => {
-				update_scale();
-				Tooltip.init();
+			// Window resizing event
+			addEventListener("resize", update_scale);
 
-				// Window resizing event
-				addEventListener("resize", update_scale);
+			// Right click event
+			addEventListener("contextmenu", e => e.preventDefault());
 
-				// Right click event
-				addEventListener("contextmenu", e => e.preventDefault());
+			// Moving mouse event
+			addEventListener("mousemove", e => {
+				WINDOW.X = Math.ceil(e.clientX / scale) * scale;
+				WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
 
-				// Moving mouse event
-				addEventListener("mousemove", e => {
-					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
-					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
-
-					button_hovering(LAYERS[0]);
-				});
-
-				// Left click event
-				addEventListener("mousedown", e => {
-					WINDOW.X = Math.ceil(e.clientX / scale) * scale;
-					WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
-
-					e.which === 1 && button_action(LAYERS[0]);
-				});
+				button_hovering(LAYERS[0]);
 			});
+
+			// Left click event
+			addEventListener("mousedown", e => {
+				WINDOW.X = Math.ceil(e.clientX / scale) * scale;
+				WINDOW.Y = Math.ceil(e.clientY / scale) * scale;
+
+				e.which === 1 && button_action(LAYERS[0]);
+			});
+
+			// Load component textures, then render interface
+			load_textures(update_scale);
 		})
 		.catch(error => console.error(error));
 })();

@@ -1,0 +1,18 @@
+[{
+		"name": "main-menu",
+		"components": [{
+				"name": "minecraft1",
+				"origin": ["center", "top"],
+				"offset": [-59, 30],
+				"size": [156, 44],
+				"texture": "gui/title/minecraft.png",
+				"uv": [0, 0]
+			}, {
+				"name": "minecraft2",
+				"origin": ["center", "top"],
+				"offset": [78, 30],
+				"size": [120, 44],
+				"texture": "gui/title/minecraft.png",
+				"uv": [0, 45]
+		}]
+}]

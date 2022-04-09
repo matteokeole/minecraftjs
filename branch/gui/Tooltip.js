@@ -1,4 +1,5 @@
 import {LAYERS, WINDOW, TEXTURES, Font, scale} from "./main.js";
+import {Component} from "./Component.js";
 import {compute_text} from "../../assets/js/functions/compute_text.js";
 
 export const
@@ -32,7 +33,7 @@ Tooltip.init = () => {
 };
 
 Tooltip.update = l => {
-	let c = l.get_component_at(WINDOW.X, WINDOW.Y);
+	let c = Component.locate(l, WINDOW.X, WINDOW.Y);
 
 	if (c && c.tooltip_text) {
 		Tooltip.style.left = `${WINDOW.X + 9 * scale}px`;
@@ -51,11 +52,11 @@ Tooltip.update = l => {
 
 /**
  * Print the component text value on the tooltip.
- * @param	{string}	c	The component to be printed
+ * @param	{object}	component	The component to be printed
  */
-Tooltip.render = c => {
+Tooltip.render = component => {
 	let ctx = Tooltip.ctx,
-		text = compute_text(c.tooltip_text, true),
+		text = compute_text(component.tooltip_text, true),
 		w = 6 * scale,
 		h = 8 * scale;
 
@@ -67,27 +68,9 @@ Tooltip.render = c => {
 	Tooltip.style.width = `${Tooltip.width}px`;
 	Tooltip.style.height = `${Tooltip.height}px`;
 
-	// Draw text shadow
-	for (let c of Tooltip.text) {
-		ctx.drawImage(
-			TEXTURES["font/ascii.png"],
-			c.u,
-			c.v,
-			6,
-			8,
-			c.x + scale, // Text shadow offset
-			c.y + scale, // Text shadow offset
-			w,
-			h,
-		);
-	}
-
-	// Set the text shadow color
-	ctx.fillStyle = "#000000c0";
-	ctx.fillRect(0, 0, Tooltip.width, Tooltip.height);
-
-	// Draw text value
-	for (let c of Tooltip.text) {
+	// Print text (and possible text shadow)
+	ctx.filter = `drop-shadow(0 ${-Tooltip.height}px 0 #ffffff) drop-shadow(${scale}px ${scale}px 0 #3f3f3f)`;
+	for (let c of text.raw) {
 		ctx.drawImage(
 			TEXTURES["font/ascii.png"],
 			c.u,
@@ -95,15 +78,20 @@ Tooltip.render = c => {
 			6,
 			8,
 			c.x,
-			c.y,
+			c.y + Tooltip.height,
 			w,
 			h,
 		);
 	}
+	ctx.filter = "none";
 
-	// Set the text color
-	ctx.fillStyle = "#00000003";
-	ctx.fillRect(0, 0, Tooltip.width, Tooltip.height);
+	// Remove the base text since it isn't needed anymore
+	ctx.clearRect(
+		0,
+		Tooltip.height,
+		Tooltip.width,
+		Tooltip.height,
+	);
 };
 
 Tooltip.appendChild(Tooltip.canvas);

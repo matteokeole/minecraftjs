@@ -28,3 +28,23 @@ export const Component = function(c = {}) {
 	// Texture offset
 	this.uv = c.uv;
 };
+
+/**
+ * Search for a component at the specified coordinates on the layer and render the found component or false.
+ * @param	{object}	l	The layer where to search
+ * @param	{number}	x	The X position
+ * @param	{number}	y	The Y position
+ * @param	{array}		cs	The predefined list of components to search through
+ */
+Component.locate = (l, x, y, cs = l.component_values) => {
+	for (let c of cs) {
+		if (
+			x >= c.x		&&	// Left side
+			x <= c.x + c.w	&&	// Right side
+			y >= c.y		&&	// Top side
+			y <= c.y + c.h		// Bottom side
+		) return c;
+	}
+
+	return false;
+};
