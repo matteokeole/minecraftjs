@@ -1,8 +1,10 @@
 import {Layer, LayerFragment} from "./class/Layer.js";
+import {load_textures} from "./functions/load_textures.js";
+import {scale, rescale} from "./functions/rescale.js";
 
 export const
-	// Debug options
-	debugging = {
+	// Debugging options
+	__debug = {
 		force_max_scale: true,
 		debug_menu_enabled: true,
 	},
@@ -22,14 +24,11 @@ export const
 		X: 0,
 		Y: 0,
 	},
-	// Texture path list
-	SOURCES = ["font/ascii.png"],
-	// Texture list (loaded images)
-	TEXTURES = {};
+	// Texture path list (set the preloaded textures here)
+	SOURCES = ["font/ascii.png"];
 
-export let
-	// Layer list
-	LAYERS;
+// Layer list
+export let LAYERS;
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -41,8 +40,12 @@ export let
 		.then(response => {
 			// Create layers
 			LAYERS = response[0].map(l => new Layer(l));
-			console.info(LAYERS);
+
 			document.body.appendChild(LayerFragment);
+
+			load_textures(rescale);
+
+			addEventListener("resize", rescale);
 		})
 		.catch(error => console.error(error));
 })();

@@ -1,6 +1,7 @@
 import {LAYERS, SOURCES} from "../main.js";
 
 export const
+	// Loaded texture list (images)
 	TEXTURES = {},
 	/**
 	 * Load each texture into an image using the source array and store it into the texture list.
