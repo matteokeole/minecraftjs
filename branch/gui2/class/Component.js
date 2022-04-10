@@ -1,17 +1,21 @@
 /**
  * Build a new component.
  *
- * Param	Type		Name=Default		Description
- * @param	{object}	[component={}]		Component data object
- * @param	{array}		component.origin	Origin
- * @param	{array}		component.offset	Offset
- * @param	{array}		component.size		Size
- * @param	{string}	component.texture	Texture file path
- * @param	{array}		component.uv		Offset in the texture file
+ * Param	Type		Name=Default				Description
+ * @param	{object}	[component={}]				Component data object
+ * @param	{array}		[component.type="default"]	Type
+ * @param	{array}		component.origin			Origin
+ * @param	{array}		component.offset			Offset
+ * @param	{array}		component.size				Size
+ * @param	{string}	component.texture			Texture file path
+ * @param	{array}		component.uv				Offset in the texture file
  */
 export const Component = function(component = {}) {
 	// Type
-	this.type = "default";
+	this.type = component.type ?? "default";
+
+	// Visibility
+	this.visible = component.visible ?? true;
 
 	// Origin
 	this.origin = component.origin;
@@ -22,11 +26,13 @@ export const Component = function(component = {}) {
 	// Default size
 	this.size = component.size;
 
-	// Texture file path
-	this.texture = component.texture;
+	if (this.type === "default") {
+		// Texture file path
+		this.texture = component.texture;
 
-	// Texture offset
-	this.uv = component.uv;
+		// Texture offset
+		this.uv = component.uv;
+	}
 };
 
 /**

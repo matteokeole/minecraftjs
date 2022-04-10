@@ -114,5 +114,23 @@
 		"gray": "#aaaaaa",
 		"dark_gray": "#555555",
 		"black": "#000000"
+	},
+	"background_color": {
+		"dark_red": "#2a0000",
+		"red": "#3f1515",
+		"gold": "#2a2a00",
+		"yellow": "#3f3f15",
+		"dark_green": "#002a00",
+		"green": "#153f15",
+		"aqua": "#153f3f",
+		"dark_aqua": "#002a2a",
+		"dark_blue": "#00002a",
+		"blue": "#15153f",
+		"light_purple": "#3f153f",
+		"dark_purple": "#2a002a",
+		"white": "#3f3f3f",
+		"gray": "#2a2a2a",
+		"dark_gray": "#151515",
+		"black": "#000000"
 	}
 }

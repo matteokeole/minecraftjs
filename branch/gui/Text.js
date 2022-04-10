@@ -12,7 +12,7 @@ export const Text = function(t) {
 	this.size = []; // ?
 
 	// Text value
-	this.text = t.text ?? "";	
+	this.text = t.text ?? "";
 
 	// Text color
 	this.color = t.color ?? Color.white;

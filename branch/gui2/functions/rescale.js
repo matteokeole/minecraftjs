@@ -13,8 +13,8 @@ export const rescale = () => {
 
 	// Calculate the new scale
 	if (__debug.force_max_scale) {
-		let i = default_scale + 1;
-		for (; i > 1; i--) {
+		let i = default_scale + 2;
+		while (--i > 1) {
 			(WINDOW.W <= WINDOW.DW * i || WINDOW.H < WINDOW.DH * i) && (scale = i - 1);
 		}
 	}
@@ -36,7 +36,7 @@ export const rescale = () => {
 
 export let
 	// Default GUI scale (selected)
-	default_scale = 2,
+	default_scale = 4,
 	// Current GUI scale (graphical)
 	scale,
 	// Previous GUI scale (graphical)

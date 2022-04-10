@@ -5,12 +5,12 @@ import {scale, rescale} from "./functions/rescale.js";
 export const
 	// Debugging options
 	__debug = {
-		force_max_scale: true,
+		force_max_scale: false,
 		debug_menu_enabled: true,
 	},
 	// Resource list (mostly JSON)
 	RESOURCES = [
-		// "../../assets/font.json",
+		"../../assets/font.json",
 		"gui.json",
 	],
 	// Screen properties (sizes and current cursor position)
@@ -25,10 +25,19 @@ export const
 		Y: 0,
 	},
 	// Texture path list (set the preloaded textures here)
-	SOURCES = ["font/ascii.png"];
+	SOURCES = ["font/ascii.png"],
+	// Loaded texture list (images)
+	TEXTURES = {};
 
-// Layer list
-export let LAYERS;
+export let
+	// Layer list
+	LAYERS,
+	// Font data
+	Font = {},
+	// Color list
+	Color,
+	// Background color list
+	BackgroundColor;
 
 (() => {
 	// Check for Fetch API browser compatibility
@@ -39,7 +48,11 @@ export let LAYERS;
 		.all(RESOURCES.map(r => fetch(r).then(response => response.json())))
 		.then(response => {
 			// Create layers
-			LAYERS = response[0].map(l => new Layer(l));
+			Font.chars = response[0].chars;
+			Font.size = response[0].size;
+			Color = response[0].color;
+			BackgroundColor = response[0].background_color;
+			LAYERS = response[1].map(l => new Layer(l));
 
 			document.body.appendChild(LayerFragment);
 

@@ -1,6 +1,6 @@
-import {WINDOW, SOURCES} from "../main.js";
+import {WINDOW, SOURCES, TEXTURES} from "../main.js";
 import {Component} from "./Component.js";
-import {TEXTURES} from "../functions/load_textures.js";
+import {Text} from "./Text.js";
 import {scale} from "../functions/rescale.js";
 
 export const
@@ -25,11 +25,18 @@ export const
 
 		// Fill in the component lists
 		for (let component of layer.components) {
-			// Set this layer as the component parent
-			component.layer = this;
+			switch (component.type) {
+				case "text":
+					component = new Text(component);
+					break;
+				case "button":
+					component = new Button(component);
+					this.buttons.push(component);
+					break;
+			}
 
-			this.components[component.name] = new Component(component);
-			component.type === "button" && this.buttons.push(component);
+			component.layer = this;
+			this.components[component.name] = component;
 
 			// Add the component texture to the texture source list
 			component.texture && SOURCES.push(component.texture);
@@ -90,9 +97,11 @@ export const
 				c = this.components[c];
 
 				// Redraw the component
-				!redraw_all && this.erase(c);
-				this.compute(c, force_compute);
-				this.draw(c);
+				if (c.visible) {
+					!redraw_all && this.erase(c);
+					this.compute(c, force_compute);
+					this.draw(c);
+				}
 			}
 
 			return this;
@@ -104,8 +113,13 @@ export const
 		 * @param	{boolean}	[rescale=false]	Indicates whether to recalculate the component size
 		 */
 		this.compute = (c, rescale = false) => {
-			// Get the scaled size
 			if (rescale) {
+				switch (c.type) {
+					case "text":
+						Text.compute(c);
+						break;
+				}
+
 				c.ox = c.offset[0] * scale;
 				c.oy = c.offset[1] * scale;
 				c.w = c.size[0] * scale;
@@ -147,11 +161,8 @@ export const
 		 */
 		this.draw = c => {
 			switch (c.type) {
-				case "Text":
+				case "text":
 					Text.render(c);
-					break;
-				case "button":
-					Button.render(c);
 					break;
 				default:
 					this.ctx.drawImage(
@@ -167,6 +178,8 @@ export const
 					);
 					break;
 			}
+
+			this.ctx.globalCompositeOperation = "source-over";
 		};
 
 		/**
