@@ -8,8 +8,6 @@ const Visibilities = ["hidden", "visible"];
 
 /**
  * Construct a new interface layer with an associated canvas.
- *
- * Param	Type		Name=Default					Description
  * @param	{object}	[layer={}]						Layer data object
  * @param	{string}	layer.name						Name (used as canvas ID)
  * @param	{object}	[layer.parent=LayerFragment]	DOM parent

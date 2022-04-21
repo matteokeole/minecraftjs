@@ -3,8 +3,6 @@ import {SOURCES, Color} from "../main.js";
 
 /**
  * Construct a new layer component.
- *
- * Param	Type		Name=Default						Description
  * @param	{object}	[component={}]						Component data object
  * @param	{string}	[component.type="default"]			Component type
  * @param	{array}		[component.origin=["left", "top"]]	Component origin

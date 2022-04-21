@@ -2,8 +2,6 @@ import {Items} from "../main.js";
 
 /**
  * Create a new game item.
- *
- * Param	Type		Name=Default	Description
  * @param	{number}	id				Item ID
  */
 export const Item = function(id) {

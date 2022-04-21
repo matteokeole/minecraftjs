@@ -1,7 +1,5 @@
 /**
  * Build a new component.
- *
- * Param	Type		Name=Default				Description
  * @param	{object}	[component={}]				Component data object
  * @param	{array}		[component.type="default"]	Type
  * @param	{array}		component.origin			Origin

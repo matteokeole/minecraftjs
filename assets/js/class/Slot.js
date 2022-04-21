@@ -6,8 +6,6 @@ let i = 0;
 
 /**
  * Construct a new slot (item parent container).
- *
- * Param	Type		Name=Default	Description
  * @param	{object}	[slot={}]		Slot data object
  * @param	{string}	slot.type		Type
  * @param	{array}		slot.offset		Offset

@@ -8,8 +8,6 @@ export const
 	LayerFragment = document.createDocumentFragment(),
 	/**
 	 * Build a new interface layer with an associated canvas.
-	 *
-	 * Param	Type				Name=Default			Description
 	 * @param	{object}			[layer={}]				Layer data object
 	 * @param	{string}			layer.name				Name (used as canvas class attribute)
 	 * @param	{boolean|number}	[layer.visible=true]	Visibility state

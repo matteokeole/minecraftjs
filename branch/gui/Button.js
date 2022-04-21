@@ -3,8 +3,6 @@ import {TEXTURES, Font, scale} from "./main.js";
 
 /**
  * Construct a new button. The Component constructor is called first.
- *
- * Param	Type		Name=Default		Description
  * @param	{object}	b					Button data object
  * @param	{boolean}	[b.disabled=false]	Button disabled attribute
  * @param	{string}	b.text				Button text value (one line)

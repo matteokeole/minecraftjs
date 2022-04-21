@@ -1,7 +1,5 @@
 /**
  * Construct a new component.
- *
- * Param	Type		Name=Default		Description
  * @param	{object}	[component={}]		Component data object
  * @param	{array}		component.origin	Component origin
  * @param	{array}		component.offset	Component offset

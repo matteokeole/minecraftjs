@@ -4,9 +4,7 @@ import {Text} from "./Text.js";
 import {tooltip_elements} from "./Tooltip.js";
 
 /**
- * Construct a new interface layer with an associated canvas.
- *
- * Param	Type		Name=Default				Description
+ * Construct a new interface layer with an associated canvas. * Param	Type		Name=Default				Description
  * @param	{object}	[l={}]						Layer data object
  * @param	{string}	l.name						Name (used as canvas ID)
  * @param	{object}	[l.parent=LayerFragment]	DOM parent
