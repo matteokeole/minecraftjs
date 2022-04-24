@@ -114,68 +114,91 @@ export let
 			Font.size = response[0].size;
 			Color = response[0].color;
 
-			// Main menu layer
-			const MainMenu = new Layer({
-				name: "main-menu",
-				components: {
-					/*minecraft1: new Component({
-						origin: ["center", "top"],
-						offset: [-59, 30],
-						size: [156, 44],
-						texture: "gui/title/minecraft.png",
-						uv: [0, 0],
-					}),
-					minecraft2: new Component({
-						origin: ["center", "top"],
-						offset: [78, 30],
-						size: [120, 44],
-						texture: "gui/title/minecraft.png",
-						uv: [0, 45],
-					}),*/
-					singleplayer: new Button({
-						origin: ["center", "center"],
-						offset: [0, -77],
-						size: [200, 20],
-						text: "Singleplayer",
-					}),
-					multiplayer: new Button({
-						origin: ["center", "center"],
-						offset: [0, -53],
-						size: [200, 20],
-						text: "Multiplayer",
-						disabled: true,
-						tooltip_text: "Not implemented yet!",
-					}),
-					repository: new Button({
-						origin: ["center", "center"],
-						offset: [0, -29],
-						size: [200, 20],
-						text: "Open GitHub Repository...",
-						disabled: false,
-						action: () => open("https://github.com/matteoo34/minecraftjs"),
-					}),
-					options: new Button({
-						origin: ["center", "center"],
-						offset: [-51, 7],
-						size: [98, 20],
-						text: "Options...",
-					}),
-					quit: new Button({
-						origin: ["center", "center"],
-						offset: [51, 7],
-						size: [98, 20],
-						text: "Quit Game",
-						disabled: true,
-					}),
-					version: new Text({
-						origin: ["center", "bottom"],
-						offset: [0, 2],
-						text: "Minecraft JS (220409)",
-						color: Color.white,
-						text_shadow: true,
-					}),
-				},
-			});
+			// Create layers
+			const
+				MainMenu = new Layer({
+					name: "main-menu",
+					components: {
+						/*minecraft1: new Component({
+							origin: ["center", "top"],
+							offset: [-59, 30],
+							size: [156, 44],
+							texture: "gui/title/minecraft.png",
+							uv: [0, 0],
+						}),
+						minecraft2: new Component({
+							origin: ["center", "top"],
+							offset: [78, 30],
+							size: [120, 44],
+							texture: "gui/title/minecraft.png",
+							uv: [0, 45],
+						}),*/
+						singleplayer: new Button({
+							origin: ["center", "center"],
+							offset: [0, -77],
+							size: [200, 20],
+							text: "Singleplayer",
+							action: function() {
+								MainMenu.toggle();
+								HUD.toggle();
+								Crosshair.toggle();
+							},
+						}),
+						multiplayer: new Button({
+							origin: ["center", "center"],
+							offset: [0, -53],
+							size: [200, 20],
+							text: "Multiplayer",
+							disabled: true,
+							tooltip_text: "Not implemented yet!",
+						}),
+						repository: new Button({
+							origin: ["center", "center"],
+							offset: [0, -29],
+							size: [200, 20],
+							text: "Open GitHub Repository...",
+							disabled: false,
+							action: () => open("https://github.com/matteoo34/minecraftjs"),
+						}),
+						options: new Button({
+							origin: ["center", "center"],
+							offset: [-51, 7],
+							size: [98, 20],
+							text: "Options...",
+						}),
+						quit: new Button({
+							origin: ["center", "center"],
+							offset: [51, 7],
+							size: [98, 20],
+							text: "Quit Game",
+							disabled: true,
+						}),
+						version: new Text({
+							origin: ["center", "bottom"],
+							offset: [0, 2],
+							text: "Minecraft JS (220409)",
+							color: Color.white,
+							text_shadow: true,
+						}),
+					},
+				}),
+				HUD = new Layer({
+					name: "hud",
+					visible: 0,
+				}),
+				Crosshair = new Layer({
+					name: "crosshair",
+					visible: 0,
+					components: {
+						crosshair: new Component({
+							origin: ["center", "center"],
+							offset: [0, 0],
+							size: [9, 9],
+							texture: "gui/icons.png",
+							uv: [3, 3],
+						}),
+					},
+				});
 
 			document.body.appendChild(LayerFragment);
 

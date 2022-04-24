@@ -1,4 +1,4 @@
-import {LAYERS, SOURCES, TEXTURES} from "../main.js";
+import {SOURCES, TEXTURES} from "../main.js";
 
 /**
  * Load component textures as HTML images into the texture array.
