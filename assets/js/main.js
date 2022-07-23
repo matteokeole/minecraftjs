@@ -207,7 +207,7 @@ export let
 	debug_visible = false;						// Is debug menu visible
 
 (() => {
-	// Check for Fetch API browser compatibility
+	// Verify Fetch API compatibility
 	if (!"fetch" in window) return console.error("This browser doesn't support Fetch API.");
 
 	// Fetch JSON resources
